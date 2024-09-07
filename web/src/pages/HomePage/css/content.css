@@ -1,0 +1,41 @@
+.border1{
+    background-color: white;
+    border: 1px solid rgba(239, 82, 34, .6);
+    border-radius: 15px;
+    outline: 8px solid rgba(170, 46, 8, .1);
+  }
+.radio-label{
+  color: black;
+}
+
+.radio-label-checked{
+  color: rgb(240, 82, 34); 
+}
+.radio-checked{
+  color: rgb(240, 82, 34) !important; 
+}
+.field{
+  color: black !important;
+  font-family: 'InterTight', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: bold !important;
+}
+.date .MuiOutlinedInput-root {
+  border: 2px !important; /* Đường viền không được chọn */
+}
+
+
+.date .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: rgb(240, 82, 34) !important; 
+}
+
+.date .MuiInputBase-input {
+  color: black !important;
+  font-size: 17px !important;
+  font-weight: bold !important;
+}
+
+.date .MuiInputLabel-root {
+  color: black !important;
+  font-size: 17px !important;
+}
