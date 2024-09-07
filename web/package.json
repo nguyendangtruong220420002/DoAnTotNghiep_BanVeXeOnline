@@ -10,8 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.0.1",
+    "@mui/lab": "^6.0.0-beta.8",
+    "@mui/material": "^6.0.1",
+    "@mui/x-date-pickers": "^7.15.0",
+    "@mui/x-date-pickers-pro": "^7.15.0",
+    "axios": "^1.7.5",
+    "date-fns": "^3.6.0",
+    "dayjs": "^1.11.13",
+    "lunar-calendar": "^0.1.4",
+    "moment": "^2.30.1",
+    "moment-lunar": "^0.0.4",
+    "prop-types": "^15.8.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-datepicker": "^7.3.0",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.1",
+    "react-tailwindcss-datepicker": "^1.7.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
