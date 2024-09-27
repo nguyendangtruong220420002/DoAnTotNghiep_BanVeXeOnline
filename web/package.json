@@ -20,15 +20,19 @@
     "axios": "^1.7.5",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
+    "firebase": "^10.13.2",
     "lunar-calendar": "^0.1.4",
+    "lunar-javascript": "^1.6.12",
     "moment": "^2.30.1",
     "moment-lunar": "^0.0.4",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
+    "react-calendar": "^5.0.0",
     "react-datepicker": "^7.3.0",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
-    "react-tailwindcss-datepicker": "^1.7.2"
+    "react-tailwindcss-datepicker": "^1.7.2",
+    "vietnamese-lunar-calendar": "^0.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
