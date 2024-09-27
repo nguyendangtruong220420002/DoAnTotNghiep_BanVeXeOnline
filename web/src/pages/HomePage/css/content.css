@@ -1,6 +1,6 @@
 .border1{
     background-color: white;
-    border: 1px solid rgba(239, 82, 34, .6);
+    border: 1px solid rgb(240, 82, 34);
     border-radius: 15px;
     outline: 8px solid rgba(170, 46, 8, .1);
   }
@@ -16,18 +16,11 @@
 }
 .field{
   color: black !important;
-  font-family: 'InterTight', sans-serif !important;
-  font-size: 13px !important;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
+  font-size: 14px !important;
   font-weight: bold !important;
 }
-.date .MuiOutlinedInput-root {
-  border: 2px !important; /* Đường viền không được chọn */
-}
 
-
-.date .MuiOutlinedInput-root.Mui-focused fieldset {
-  border-color: rgb(240, 82, 34) !important; 
-}
 
 .date .MuiInputBase-input {
   color: black !important;
@@ -39,3 +32,149 @@
   color: black !important;
   font-size: 17px !important;
 }
+.react-calendar__tile span {
+  display: block !important; 
+  text-align: center !important;
+  background-color: #0d0c02 !important;
+
+}
+
+
+
+
+
+
+/* Tùy chỉnh chung cho các ô ngày */
+.react-calendar__tile {
+  border: 1px solid #e5e7eb !important;
+  padding: 10px;
+  font-size: 14px;
+  background-color: #ffffff !important;
+  color: #424242;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: bold !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Hiệu ứng khi hover vào ngày */
+.react-calendar__tile:hover {
+  background-color: #f8c4b9 !important;
+  color: white !important; 
+  font-weight: bold !important; 
+}
+
+/* Điều chỉnh kích thước font của nội dung âm lịch */
+.react-calendar__tile div {
+  font-size: 10px !important;
+  color: #989898 !important; 
+  
+  
+}
+
+/* Tô màu cho khoảng ngày đi - ngày về (bao gồm cả ngày mặc định nếu trùng) */
+.react-calendar__tile.range-date {
+  background-color: rgb(220,99,91) !important; 
+  color: #ffffff !important; 
+  font-weight: bold !important;
+}
+
+/* Hiệu ứng hover cho khoảng ngày đi - ngày về */
+.react-calendar__tile.range-date:hover {
+  background-color: #fff7f5 !important; 
+  color: #000 !important; 
+}
+
+/* Tô màu cho ngày mặc định (hôm nay) nếu không trùng với ngày đi */
+.react-calendar__tile.default-date {
+  background-color: #fff7f5 !important; 
+  color: #f27539 !important; 
+  font-weight: bold !important;
+
+}
+
+/* Hiệu ứng hover cho ngày mặc định */
+.react-calendar__tile.default-date:hover {
+  background-color: #f8c4b9 !important;
+  color: #ffffff !important;
+}
+.react-calendar__month-view__weekdays__weekday {
+  color: #000 !important; 
+  font-weight: bold !important; 
+  font-size: 13px !important; 
+  background-color: #ededed;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+  
+  
+}
+/* Tô màu cho phần hiển thị năm */
+.react-calendar__navigation__label {
+  color: #171717 !important;
+  font-weight: bold !important; 
+  font-size: 19px !important;
+  text-transform: uppercase !important;
+}
+
+/* Tô màu cho các nút điều hướng tháng */
+.react-calendar__navigation__arrow {
+  color: #f05222  !important; 
+  font-weight: bold !important;
+
+}
+/* Ẩn các nút điều hướng năm */
+.react-calendar__navigation__arrow.react-calendar__navigation__next2-button,
+.react-calendar__navigation__arrow.react-calendar__navigation__prev2-button {
+  display: none !important;
+}
+
+/* Đặt màu đỏ cho tất cả các ngày Chủ Nhật và Thứ Bảy trong hàng dọc */
+.react-calendar__month-view__weekdays__weekday:nth-child(7),
+.react-calendar__month-view__weekdays__weekday:nth-child(6) {
+  color: #c10d00  !important; 
+}
+.react-calendar__navigation__arrow {
+  font-size: 1.5rem; 
+}
+/* Điều chỉnh độ rộng của toàn bộ lịch */
+.react-calendar {
+  width: 450px !important; 
+  max-width: 600px !important;
+  line-height: 15px !important;
+  border: 2px solid #ffffff !important; 
+  border-radius: 5px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+
+/* Đảm bảo rằng lớp date được áp dụng đúng cho TextField */
+.date {
+  border-radius: 10px; 
+  border: 2px solid #ef5733;
+  background-color: #ffffff; 
+  padding: 8px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ẩn viền mặc định của TextField để áp dụng màu viền tùy chỉnh */
+.date .MuiOutlinedInput-root {
+  border: none; 
+}
+
+.date .MuiOutlinedInput-notchedOutline {
+  border-color: node !important; 
+}
+.date .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: black !important; 
+}
+
+.date .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(240, 82, 34) !important; 
+}
+
+.textlogin{
+  background-color: #fef3f0;
+  border: 1px solid rgb(240, 82, 34);
+  border-radius: 15px;
+  outline: 8px solid rgba(170, 46, 8, .1);
+}
+

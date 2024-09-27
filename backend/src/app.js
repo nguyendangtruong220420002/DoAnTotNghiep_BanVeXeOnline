@@ -10,6 +10,6 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api', require('./routes'));
+app.use('/api', require('./routes/index'));
 
 module.exports = app;
