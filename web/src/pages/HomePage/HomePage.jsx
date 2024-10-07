@@ -12,12 +12,15 @@ import Content from '../HomePage/content';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
 
+import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
+
 
 
 
 const HomePage = () => {
   const [value, setValue] = useState("1");
   const [openLogin, setOpenLogin] = useState(false);
+  
 
 
   const handleChange = (event, newValue) => {
@@ -27,8 +30,21 @@ const HomePage = () => {
   const handleCloseLogin = () => {
     setOpenLogin(false);
   };
- 
- 
+  const [openModal, setOpenModal] = useState(false);
+ // Hàm để mở modal
+ const handleOpenModal = () => {
+  setOpenModal(true);
+};
+
+// Hàm để đóng modal
+const handleCloseModal = () => {
+  setOpenModal(false);
+};
+
+const handleSubmitInfo = (userInfo) => {
+  console.log('Submitted Info:', userInfo);
+  // Thêm logic xử lý sau khi nhận được thông tin từ modal (nếu cần)
+};
   return (
     <Box sx={{ position: 'relative' }}>
       <AppBar  sx={{ backgroundColor: '#e7e7e7',
@@ -51,6 +67,7 @@ const HomePage = () => {
 
             <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Mã Giảm Giá</Box>}  value="2" className='button2'  iconPosition="start"  
             icon={<Box component='img'  src={sale} sx={{ width:'23px', height:'23px', }}></Box>}>  
+           
             </Tab>
 
           <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Vé Của Tôi</Box>}  value="3" className='button2'  iconPosition="start"  
@@ -59,6 +76,7 @@ const HomePage = () => {
 
             <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Cần Trợ Giúp</Box>}  value="4" className='button2'  iconPosition="start"  
             icon={<Box component='img'  src={helpdesk} sx={{width:'23px', height:'23px', }}></Box>}>  
+            
             </Tab>
 
             <Button 
@@ -89,6 +107,7 @@ const HomePage = () => {
             </TabPanel>
             <TabPanel value="2">
               <Typography>Mã Giảm giá</Typography>
+              <Button onClick={handleOpenModal}>Mở modal</Button>
             </TabPanel>
             <TabPanel value="3">
               <Typography>Vé Của Tôi</Typography>
@@ -100,6 +119,12 @@ const HomePage = () => {
         </Box>
       </Box>
       <Login open={openLogin} handleClose={handleCloseLogin} />
+      <ConfirmInfo
+  open={openModal} 
+  handleClose={handleCloseModal}
+  onSubmit={handleSubmitInfo}
+  phoneNumber="0123456789" // Thêm thông tin số điện thoại hoặc bất kỳ dữ liệu nào khác
+/>
     </Box>
   );
 };

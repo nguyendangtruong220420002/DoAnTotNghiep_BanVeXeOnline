@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { verifyOtp } = require('../controllers/verifyOtpController')
+const userRoutes = require('../../src/routes/userRoutes');
 
 // Định nghĩa routes ở đây
 router.get('/', (req, res) => {
   res.send('API root');
 });
 
-router.post('/auth/verify-otp', verifyOtp);
+// Sử dụng routes người dùng
+router.use('/users', userRoutes);
 
 module.exports = router;
