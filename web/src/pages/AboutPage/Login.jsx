@@ -88,13 +88,13 @@ const Login = ({ open, handleClose }) => {
         </Typography>
         <Tabs value={tabValue} onChange={handleTabChange} sx={{ display: 'flex', justifyContent: 'space-between' , marginTop:'20px'}}>
           {/* Tab Đăng Nhập */}
-          <Tab label={<Box sx={{ fontSize: '15px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: '#ef5222', marginLeft: '5px'}}>Đăng Nhập</Box>}
+          <Tab label={<Box sx={{ fontSize: '15.5px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: tabValue === 0 ? '#ef5222' :'black', marginLeft: '5px'}}>Đăng Nhập</Box>}
             iconPosition="start" sx={{width: '200px',borderBottom: tabValue === 0 ? '3px solid #ef5222' : '3px solid #f1eded',transition: 'none',}}
             
           />
           {/* Tab Đăng Ký */}
-          <Tab sx={{width: '200px',borderBottom: tabValue === 1 ? '3px solid #ef5222' : '3px solid #f1eded', transition: 'none',}}
-            label={<Box sx={{ fontSize: '15px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: '#ef5222',  }}> Đăng Ký</Box>}/>
+          <Tab sx={{width: '200px',borderBottom: tabValue === 1 ? '3px solid #ef5222' : '3px solid #f1eded',color: tabValue === 1 ? '#ef5222' :'black' ,transition: 'none',}}
+            label={<Box sx={{ fontSize: '15.5px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',  }}> Đăng Ký</Box>}/>
           </Tabs>
         {tabValue === 0 && (
           <Box component="form" onSubmit={handleLoginSubmit} sx={{ marginTop:'40px'   }}>
