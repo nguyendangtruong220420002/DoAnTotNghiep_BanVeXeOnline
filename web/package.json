@@ -20,6 +20,7 @@
     "axios": "^1.7.5",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.4.5",
     "firebase": "^10.13.2",
     "lunar-calendar": "^0.1.4",
     "lunar-javascript": "^1.6.12",

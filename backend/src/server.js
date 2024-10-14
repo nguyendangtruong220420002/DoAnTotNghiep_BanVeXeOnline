@@ -4,10 +4,6 @@ const mongoose = require('mongoose');
 const dbURI = process.env.MONGODB_URI;
 const PORT = process.env.PORT;
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
-// Kết nối đến MongoDB
 mongoose.connect(dbURI)
   .then(() => {
     console.log('Connect MongoDB success!');

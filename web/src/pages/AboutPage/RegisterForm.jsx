@@ -14,13 +14,9 @@ const RegisterForm = () => {
     const [verificationId, setVerificationId] = useState('');
 
     const handlePhoneNumberChange = (event) => {
-        const value = event.target.value;
-    
-        // Chỉ cho phép nhập các ký tự số
+        const value = event.target.value; 
         const newValue = value.replace(/[^0-9]/g, '');
-    
-        // Kiểm tra số điện thoại hợp lệ
-        if (newValue.length > 0 && !/^0\d{9}$/.test(newValue)) {
+        if (newValue.length > 0 && !/^(0[3|5|7|8|9])+([0-9]{8})\b/.test(newValue)) {
           setPhoneError('Số điện thoại không đúng.');
         } else {
           setPhoneError('');
@@ -31,7 +27,7 @@ const RegisterForm = () => {
       const checkPhoneNumberExists = async (phoneNumber) => {
         try {
           const response = await axios.post('http://localhost:5000/api/users/check-phone', { phoneNumber });
-          return response.data.exists; // Trả về giá trị tồn tại
+          return response.data.exists; 
         } catch (error) {
           console.error('Lỗi khi kiểm tra số điện thoại:', error);
           setPhoneError('Lỗi khi kiểm tra số điện thoại, vui lòng thử lại.');

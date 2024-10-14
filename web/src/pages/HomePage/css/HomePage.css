@@ -75,10 +75,50 @@ body{
     line-height: 0%;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
   }
+  .button4{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 16px !important;
+    font-family: ixi-type, sans-serif !important;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    line-height: 0%;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button5{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#c9682c !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button6{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 16px !important;
+    font-family: ixi-type, sans-serif !important;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    line-height: 0%;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  
 .button:hover {
     text-shadow: 1px 1px 2px rgba(255 255 255,0.5);
     
   }  
+  .button5:hover {
+    text-shadow: 1px 1px 2px rgba(255 255 255,0.5);
+    
+  } 
+  .button2:hover {
+    text-shadow: 1px 1px 2px rgba(255 255 255,0.5);
+    
+  } 
+  .button6:hover {
+    text-shadow: 1px 1px 2px rgba(255 255 255,0.5);
+    
+  } 
   .MuiTab-icon {
     margin-right: 3px !important;
   }

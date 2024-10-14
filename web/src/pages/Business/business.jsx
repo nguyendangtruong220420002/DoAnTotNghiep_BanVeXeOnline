@@ -104,7 +104,7 @@ const handleCloseModal = () => {
             icon={<Box component='img'  src={shed} sx={{ width:'30px', height:'30px',  }}></Box> }>  
             </Tab>
 
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Mã Giảm Giá</Box>}  value="2" className='button2'  iconPosition="start"  
+            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Doanh nghiệp</Box>}  value="2" className='button2'  iconPosition="start"  
             icon={<Box component='img'  src={sale} sx={{ width:'23px', height:'23px', }}></Box>}>  
            
             </Tab>
@@ -122,8 +122,8 @@ const handleCloseModal = () => {
                        
                        <Box
                           component="img"
-                          src={userInfo.img||profile}
-                          sx={{ width: 30, height: 30 ,borderRadius:'50%'}}
+                          src={profile}
+                          sx={{ width: 30, height: 30 }}
                         /> 
                      <Button onClick={handleClickMenu}>
                        <Typography className="button5" sx={{ position: 'relative', marginTop: '3px',}}>{userInfo ? userInfo.fullName : 'Chưa có thông tin'}</Typography>

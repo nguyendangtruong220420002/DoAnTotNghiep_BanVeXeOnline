@@ -8,28 +8,19 @@ import CallRoundedIcon from '@mui/icons-material/CallRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PasswordRoundedIcon from '@mui/icons-material/PasswordRounded';
 import RegisterForm from '../../../src/pages/AboutPage/RegisterForm'
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 
-const Login = ({ open, handleClose }) => {
+const Login = ({ open, handleClose, setUserInfo }) => {
   const [tabValue, setTabValue] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [phoneError, setPhoneError] = useState('');
- 
-
-  // Xử lý khi người dùng gửi form đăng nhập
-  const handleLoginSubmit = (event) => {
-    event.preventDefault();
-    // Thêm logic xử lý đăng nhập ở đây
-  };
-
-  // Xử lý khi người dùng gửi form đăng ký
-  const handleRegisterSubmit = (event) => {
-    event.preventDefault();
-    // Thêm logic xử lý đăng ký ở đây
-  };
-
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+  
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -37,8 +28,40 @@ const Login = ({ open, handleClose }) => {
     setShowPassword(!showPassword);
   };
 
-
-
+  const handleLoginSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/api/users/login', { phoneNumber, password });
+  
+      if (response.data) {
+        const { user, token } = response.data; 
+        console.log("Thông tin người dùng:", user);
+        console.log("token", token);
+        localStorage.setItem('token', token);
+        localStorage.setItem('userInfo', JSON.stringify(user));
+  
+        setUserInfo(user);  
+  
+        alert('Đăng nhập thành công');
+        if (user.role === 'User') {
+          navigate('/'); // Điều hướng đến trang mặc định (homepage)
+        } else if (user.role === 'Business') {
+          navigate('/business'); // Điều hướng đến trang Business
+        } else if (user.role === 'Admin') {
+          navigate('/admin'); // Điều hướng đến trang Admin
+        }
+        
+        
+        setPhoneNumber('');
+        setPassword('');
+        setErrorMessage('');
+        
+        handleClose(); 
+      }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || 'Lỗi khi đăng nhập.');
+    }
+  };
 
   return (
     <Modal
@@ -102,6 +125,8 @@ const Login = ({ open, handleClose }) => {
           <input
             placeholder="Nhập số điện thoại"
             className="custom-input"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
           />
           <span className="input-icon">
             <CallRoundedIcon sx={{ fontSize: '25px' }} />
@@ -113,6 +138,8 @@ const Login = ({ open, handleClose }) => {
           type={showPassword ? 'text' : 'password'}
           placeholder="Nhập mật khẩu"
           className="custom-input"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <span className="input-icon" >
           <PasswordRoundedIcon sx={{ fontSize: '25px' }} />
@@ -125,14 +152,35 @@ const Login = ({ open, handleClose }) => {
           {showPassword ? <VisibilityOffRoundedIcon sx={{ fontSize: '18px' }}/> : <VisibilityRoundedIcon sx={{ fontSize: '18px' }} />}
         </IconButton>  
         </Box>
-        <Box sx={{marginTop:'50px'}}>
-            <Button
-                variant="contained"
-                sx={{width:'400px',height:'45px',position: "absolute",fontFamily:'ixi-type, sans-serif',left: "50%",transform: "translateX(-50%)",
-                  borderRadius:'50px',fontSize:'16px',backgroundColor:'rgb(220,99,91)',textTransform: 'none'}}>Đăng nhập 
-            </Button>
-          </Box>
-          <Box sx={{marginTop:'130px',fontSize:'14px',textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: '#ef5222' }}> Quên mật khẩu</Box>
+        <Box sx={{ height: '30px', marginTop: '10px' }}>
+      {errorMessage && <Typography sx={{
+            color: '#c8380d',
+            marginTop: '10px',
+            marginLeft: '5px',
+            fontSize: '12px',
+            fontFamily: 'ixi-type, sans-serif',
+          }}>{errorMessage}</Typography>}
+    </Box>
+    <Box >
+      <Button
+        variant="contained"
+        type="submit"
+        sx={{
+          width: '400px',
+          height: '45px',
+          position: 'relative',
+          fontFamily: 'ixi-type, sans-serif',
+          borderRadius: '50px',
+          fontSize: '16px',
+          backgroundColor: 'rgb(220,99,91)',
+          textTransform: 'none',
+          marginTop: '10px',
+        }}
+      >
+        Đăng nhập
+      </Button>
+    </Box>
+          <Box sx={{marginTop:'35px',fontSize:'14px',textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: '#ef5222' }}> Quên mật khẩu</Box>
          
           </Box>
         )}
@@ -148,6 +196,7 @@ const Login = ({ open, handleClose }) => {
 Login.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
+  setUserInfo: PropTypes.func.isRequired
 };
 
 export default Login;

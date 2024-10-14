@@ -54,7 +54,8 @@ const ConfirmInfo = ({ open, handleClose, onSubmit, phoneNumber }) => {
     try {
       const response = await axios.post('http://localhost:5000/api/users', userInfo); // Sử dụng userInfo
       console.log(response.data); // Xử lý phản hồi từ server
-      onSubmit(userInfo); // Gọi onSubmit chỉ sau khi lưu thành công
+      onSubmit(userInfo); 
+      alert('Đăng ký thành công');// Gọi onSubmit chỉ sau khi lưu thành công
       handleClose(); // Đóng modal sau khi xử lý thành công
       setSnackbarOpen(true);
     } catch (error) {
