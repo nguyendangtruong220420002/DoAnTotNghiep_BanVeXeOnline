@@ -8,8 +8,6 @@ const host = '192.168.1.112';
 // Server Port
 const port = '5000';
 
-// AWS_URL
-export const AWS_URL = `https://myimagechat.s3.ap-southeast-1.amazonaws.com`;
 
 // Base Url
 export const BASE_URL = `http://${host}:${port}/api`;
