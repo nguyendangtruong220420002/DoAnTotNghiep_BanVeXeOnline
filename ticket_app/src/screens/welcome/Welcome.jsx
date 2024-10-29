@@ -5,38 +5,48 @@ import { Icon } from 'react-native-elements';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { OtpInput } from 'react-native-otp-entry';
-// import { auth } from '../../config/firebase';
-import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
-import { firebaseConfig } from '../../config/firebase';
-import firebase from "firebase/compat/app";
+import auth from '@react-native-firebase/auth';
+import axios from 'axios';
+import { getData, postData } from '../../utils/fetching';
+
 
 const Welcome = () => {
-
-
-    const recaptchaRef = useRef();
-    const [verification, setVerification] = useState();
 
     const nav = useNavigation();
 
     const [isPhoneInput, setIsPhoneInput] = useState(true)
     const [showOTP, setshowOTP] = useState(false)
+    const [confirm, setConfirm] = useState(null);
 
-    const [phone, setPhone] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState("");
     const [name, setName] = useState("");
     const [OTP, setOTP] = useState("");
+    const [isFocused, setIsFocused] = useState(false);
 
 
-    const handleContinue = () => {
-
-        console.log(phone);
-        // if else xem số điện thoại đã tồn tại chưa nếu có thì chuyển sang trang đăng nhập 
-        // nếu chưa thì tiếp tục đăng ký
-        if (!phone) {
-            nav.navigate("Login")
+    const handleContinue = async () => {
+        const regexPhone = /^0\d{9}$/;
+        if (!regexPhone.test(phoneNumber)) {
+            alert('Vui lòng nhập số điện thoại hợp lệ');
         } else {
-            setIsPhoneInput(false);
+            try {
+                const response = await postData("users/check-phone", { phoneNumber })
+               
+                const fullName =  response?.data?.user?.fullName;
+                console.log(response.data);
+                
+                if (response.status === 200 && response.data.exists) {
+                    nav.navigate("Login", { phoneNumber,fullName });
+                } else if (response.status === 201) {
+                    setIsPhoneInput(false); // Trigger registration dialog
+                }
+            } catch (error) {
+                console.error("Error when find phoneNumber:", error);
+                alert("Có lỗi xảy ra khi kiểm tra số điện thoại");
+            }
         }
     };
+
     const handleBack = () => {
         setIsPhoneInput(true);
     }
@@ -47,46 +57,45 @@ const Welcome = () => {
 
     const handleSendOTP = async () => {
 
+        const internationalPhoneNumber = `+84${phoneNumber.slice(1)}`;
+        console.log(internationalPhoneNumber);
+
         try {
-            // if (phone) {
-            //     const phoneProvider = new firebase.auth.PhoneAuthProvider();
-            //     phoneProvider
-            //         .verifyPhoneNumber(
-            //             phone,
-            //             recaptchaRef.current
-            //         )
-            //         .then((confirmation) => {
-            //             setVerification(confirmation)
-            //             setshowOTP(true)
-            //         });
-            // }
+            const confirmation = await auth().signInWithPhoneNumber(internationalPhoneNumber);
+            setConfirm(confirmation);
+
         } catch (error) {
-            Alert.alert('Error', error.message);
-            console.error('Error sending OTP: ', error);
+            console.log("Error send otp", error);
         }
     };
 
 
     const handleSubmitOTP = async () => {
 
-        // if (isOTPValid?.status == 200) {
-        nav.navigate("Register", {
-            phone: phone,
-            name: name,
-        });
-        // } else {
-        //     console.error('Invalid OTP');
-        // }
-        console.log("Xác nhận OTP: ", OTP);
+        try {
+
+            await confirm.confirm(OTP);
+            console.log("OTP thanh cong");
+
+            nav.navigate("Register", {
+                phoneNumber: phoneNumber,
+                fullName: name,
+            });
+
+        } catch (error) {
+            console.log('Invalid code.');
+        }
     }
 
     return (
+
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
             <View
                 style={styles.container}
             >
                 <Image
-                    source={showOTP ? require("../../img/wel-pass.png") : require("../../img/welcome-template.png")}
+                    source={showOTP ? require("../../../img/wel-pass.png") : require("../../../img/welcome-template.png")}
                     style={showOTP ? styles.imgWel2 : styles.imgWel}
                 />
 
@@ -100,17 +109,14 @@ const Welcome = () => {
                         </View>
                         ) : (
                             <View>
-                                <Text style={styles.welcomeText}> {showOTP ? "Vui lòng nhập mã OTP" : "Họ Tên của bạn ?"}</Text>
-                                <Text style={{ textAlign: 'center', marginTop: 10, color: "green" }} >{showOTP ? "Mã OTP đã được gửi về số: " + phone : ""} </Text>
-                                <FirebaseRecaptchaVerifierModal
-                                    ref={recaptchaRef}
-                                    firebaseConfig={firebaseConfig}
-                                />
+                                <Text style={styles.welcomeText}> {confirm ? "Vui lòng nhập mã OTP" : "Họ Tên của bạn ?"}</Text>
+                                <Text style={{ textAlign: 'center', marginTop: 10, color: "green" }} >{confirm ? "Mã OTP đã được gửi về số: " + phone : ""} </Text>
+
                             </View>
                         )
                 }
 
-                {showOTP ? (
+                {confirm ? (
                     <View style={{
                         height: 350,
                         marginTop: 20,
@@ -160,18 +166,20 @@ const Welcome = () => {
                         </View>
                     </View>
                 ) : (
-                    <View style={{ height: 350, marginTop: 20 }}>
+                    <View style={{ height: 300, marginTop: 20 }}>
 
                         <View style={styles.viewInput}>
 
-                            <Icon name={isPhoneInput ? 'phone' : 'person'} color={"#ced4da"} size={40} />
+                            <Icon name={isPhoneInput ? 'phone' : 'person'} color={isFocused ? "#FE9B4B" : "#ced4da"} size={40} />
 
                             <TextInput
-                                style={styles.TextInput}
+                                style={[styles.TextInput, { borderColor: isFocused ? "#FE9B4B" : "#ced4da" }]}
                                 placeholder={isPhoneInput ? "Nhập số điện thoại" : 'Nhập họ và tên'}
-                                value={isPhoneInput ? phone : name}
-                                onChangeText={(text) => isPhoneInput ? setPhone(text) : setName(text)}
+                                value={isPhoneInput ? phoneNumber : name}
+                                onChangeText={(text) => isPhoneInput ? setPhoneNumber(text) : setName(text)}
                                 keyboardType={isPhoneInput ? "numeric" : "default"}
+                                onFocus={() => setIsFocused(true)}
+                                onBlur={() => setIsFocused(false)}
                             />
 
                         </View>
@@ -187,6 +195,7 @@ const Welcome = () => {
                                 </TouchableOpacity>
                             </View>
                         )}
+
                         <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                             <TouchableOpacity style={styles.btn_submit}
                                 onPress={isPhoneInput ? handleContinue : handleSendOTP}
@@ -198,9 +207,11 @@ const Welcome = () => {
                     </View>
 
                 )}
-                <View id="recaptcha-container" />
+
             </View>
+
         </TouchableWithoutFeedback >
+
     );
 }
 

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1031025673750",
+    "project_id": "vexeonline-66348",
+    "storage_bucket": "vexeonline-66348.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1031025673750:android:40e400f677519280941737",
+        "android_client_info": {
+          "package_name": "com.anonymous.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1031025673750-kijeejksg79uncfd80muvfbh6pblq24o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7WwP49i4PzDobHo5XaArnKeJHpLB2Igs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1031025673750-kijeejksg79uncfd80muvfbh6pblq24o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

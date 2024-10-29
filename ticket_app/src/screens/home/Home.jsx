@@ -1,28 +1,29 @@
-import { Image, ImageBackground, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, ImageBackground, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { styles } from './styles'
-import { Switch } from '@gluestack-ui/themed';
-
 import { Icon, Input } from 'react-native-elements'
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import SelectDropdown from 'react-native-select-dropdown'
-import { calendarsConfig } from '../../CalendarConfig/CalendarConfig';
+import { calendarsConfig } from '../../config/CalendarConfig';
 import { solarToLunar } from 'lunar-calendar'
+import axios from 'axios';
+import { getAsyncStorage } from '../../utils/cookie';
 
 const Home = () => {
 
+  const [user, setUser] = useState();
   const [data, setData] = useState([]);
-
+  const [loading, setLoading] = useState();
   const [selectedDiemDi, setSelectedDiemDi] = useState(null);
   const [selectedDiemDen, setSelectedDiemDen] = useState(null);
 
   const [datefrom, setDatefrom] = useState(new Date())
   const [dateto, setDateto] = useState(new Date())
-
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
 
   const [show, setShow] = useState(false);
   const [soVe, setSoVe] = useState("1");
-  const today = new Date();
 
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [selectingDateFor, setSelectingDateFor] = useState('from');
@@ -32,14 +33,21 @@ const Home = () => {
 
   const getProvinces = async () => {
     try {
-      const response = await fetch('https://provinces.open-api.vn/api');
-      const json = await response.json();
 
-      const provinceNames = json.map(province => province.name);
+      const response = await axios.get("https://open.oapi.vn/location/provinces?size=63");
 
-      setData(provinceNames);  // Setting the extracted data to state
+      // Kiểm tra xem dữ liệu trả về có hợp lệ hay không
+      if (response.data && Array.isArray(response.data.data)) {
+        const provincesData = response.data.data;
 
+        const provinceNames = provincesData.map(province => province.name);
+        const pre = provincesData.map(province => province.typeText);
 
+        setData(provinceNames);  // Setting the extracted data to state
+
+      } else {
+        console.error("Dữ liệu API không hợp lệ:", response.data);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -48,6 +56,91 @@ const Home = () => {
   useEffect(() => {
     getProvinces();
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = await getAsyncStorage("token");
+      const user = await getAsyncStorage("user");
+
+      console.log("Fetched token:", token);
+      console.log("Fetched user:", user);
+      setUser(user);
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchProvincesAndDistricts = async () => {
+      setLoading(true); // Đặt loading về true trước khi bắt đầu
+
+      try {
+        // Lấy danh sách tỉnh/thành phố
+        const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
+        if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
+          const provincesData = provincesResponse.data.data;
+          const cleanedProvinces = provincesData.map((province) => ({
+            ...province,
+            name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
+          }));
+
+          const allDistricts = [];
+          const totalCount = 705;
+          const pageSize = 100;
+          let page = 1;
+
+
+          while (true) {
+            try {
+              const districtResponse = await axios.get(`https://open.oapi.vn/location/districts?page=${page}&size=${pageSize}`);
+              if (districtResponse.data.code === 'success') {
+                const districtsData = districtResponse.data.data.map((district) => {
+                  // Tìm tỉnh tương ứng với quận/huyện
+                  const province = provincesData.find(prov => prov.id === district.provinceId);
+                  return {
+                    ...district,
+                    provinceName: province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : '',
+                    label: `${district.name.replace(/^(Huyện|Quận) /, "")} - ${province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : ''}`,
+                  };
+                });
+
+                allDistricts.push(...districtsData);
+
+                // console.log(`Đã lấy ${districtsData.length} quận/huyện từ trang ${page}.`);
+                if (districtsData.length < pageSize) break;
+
+                page++; // Tăng trang
+              } else {
+                console.error(`Lỗi từ API: ${districtResponse.data.message}`);
+                break;
+              }
+            } catch (error) {
+              if (error.response && error.response.status === 429) {
+                //     console.error('Quá nhiều yêu cầu, đang chờ để thử lại...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              } else {
+                console.error('Lỗi Khi Lấy Dữ Liệu API:', error.message);
+                break;
+              }
+            }
+          }
+
+          setProvinces(cleanedProvinces);
+          setDistricts(allDistricts);
+        } else {
+          //   console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        //  console.error("Lỗi Khi Lấy Dữ Liệu API:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchProvincesAndDistricts();
+  }, []);
+
 
   const handleSwap = () => {
     setSelectedDiemDi(selectedDiemDen);
@@ -130,20 +223,24 @@ const Home = () => {
 
   const handleSearch = () => {
 
+    const newDateTo = show ? dateto : 'null'
+
     console.log("Điểm đi", selectedDiemDi);
     console.log("điểm đến", selectedDiemDen);
-    
-    console.log("Ngày đi",datefrom);
-    console.log("Ngày về",dateto);
-    console.log("Số vé: ",soVe);
-    
+
+    console.log("Ngày đi", datefrom);
+    console.log("Ngày về", newDateTo);
+    console.log("Số vé: ", soVe);
+
+
+
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.viewHeader}>
         <Image
-          source={require('../../img/imageheader.png')}
+          source={require('../../../img/imageheader.png')}
           style={styles.headerImage}
           resizeMode="cover"
         />
@@ -152,7 +249,7 @@ const Home = () => {
             <Icon name='person-circle' type='ionicon' size={48} color={"white"} />
             <View style={styles.ViewText_Wel}>
               <Text style={{ color: "white" }}>Xin chào,</Text>
-              <Text style={{ fontSize: 18, color: "white" }}>Phem Sỹ Thái</Text>
+              <Text style={{ fontSize: 18, color: "white" }}>{user?.fullName}</Text>
             </View>
           </View>
 
@@ -177,7 +274,7 @@ const Home = () => {
               <SelectDropdown
                 data={data}
                 defaultValue={selectedDiemDi}
-                defaultValueByIndex={data.length}
+                defaultValueByIndex={provinces.length}
 
                 onSelect={(selectedItem, index) => {
                   setSelectedDiemDi(selectedItem);
@@ -223,7 +320,7 @@ const Home = () => {
               <Text style={{ fontSize: 16, textAlign: 'right', fontWeight: '500' }}>Điểm đến</Text>
               <SelectDropdown
                 data={data}
-                defaultValueByIndex={data.length}
+                defaultValueByIndex={provinces.length}
                 defaultValue={selectedDiemDen}
                 onSelect={(selectedItem, index) => {
                   setSelectedDiemDen(selectedItem);
@@ -292,12 +389,7 @@ const Home = () => {
             <View style={styles.roundTrip}>
               <Text style={{ padding: 5, fontSize: 16 }}>Khứ hồi</Text>
               <Switch
-                size={'sm'}
-                isDisabled={false}
-                trackColor={{ false: 'gray', true: '#FE9B4B' }}
-                thumbColor={'white'}
-                activeThumbColor={'#FE9B4B'}
-                ios_backgroundColor={'gray'}
+                value={show}
                 onValueChange={(value) => setShow(value)}
               />
             </View>
@@ -314,7 +406,7 @@ const Home = () => {
                   <DayComponent
                     date={date}
                     marking={marking}
-                    onPress={(day) => onDaySelect(day)}  // Pass the selected day to the onDaySelect function
+                    onPress={(day) => onDaySelect(day)} // Pass the selected day to the onDaySelect function
                   />
                 )}
                 theme={{
@@ -327,34 +419,44 @@ const Home = () => {
                     },
                   },
                 }}
-                markedDates={{
-                  [datefrom.toISOString().split('T')[0]]: {
-                    selected: true,
-                    marked: true,
-                    selectedColor: "lightblue"
-                    // Màu cho ngày "Đi"
-                  },
-                  [dateto.toISOString().split('T')[0]]: {
-                    selected: true,
-                    marked: true,
-                    selectedColor: "orange"
-                    // Màu cho ngày "Về"
-                  },
-                  ...getDatesInRange(datefrom, dateto).reduce((acc, date) => {
-                    const formattedDate = date.toISOString().split('T')[0];
-                    if (formattedDate !== datefrom.toISOString().split('T')[0] && formattedDate !== dateto.toISOString().split('T')[0]) {
-                      acc[formattedDate] = {
-                        marked: true,
-                        selected: true,
-                        selectedColor: 'lightgray', // Màu cho các ngày giữa `datefrom` và `dateto`
-                      };
-                    }
-                    return acc;
-                  }, {}),
-                }}
+                markedDates={selectingDateFor === 'from'
+                  ? {
+                    // Only mark the departure date with lightblue color for one-way trip
+                    [datefrom.toISOString().split('T')[0]]: {
+                      selected: true,
+                      marked: true,
+                      selectedColor: "lightblue",
+                    },
+                  }
+                  : {
+                    // Mark both departure and return dates with different colors for round-trip
+                    [datefrom.toISOString().split('T')[0]]: {
+                      selected: true,
+                      marked: true,
+                      selectedColor: "lightblue", // Departure date color
+                    },
+                    [dateto.toISOString().split('T')[0]]: {
+                      selected: true,
+                      marked: true,
+                      selectedColor: "orange", // Return date color
+                    },
+                    // Highlight dates between departure and return
+                    ...getDatesInRange(datefrom, dateto).reduce((acc, date) => {
+                      const formattedDate = date.toISOString().split('T')[0];
+                      if (formattedDate !== datefrom.toISOString().split('T')[0] && formattedDate !== dateto.toISOString().split('T')[0]) {
+                        acc[formattedDate] = {
+                          marked: true,
+                          selected: true,
+                          selectedColor: 'lightgray', // Dates between departure and return
+                        };
+                      }
+                      return acc;
+                    }, {}),
+                  }}
               />
             </View>
           )}
+
 
           <View style={styles.soLuong}>
             <Input

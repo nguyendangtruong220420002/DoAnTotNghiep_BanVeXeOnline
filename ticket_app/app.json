@@ -1,7 +1,11 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "ticket_app",
+    "slug": "ticket_app",
+    "plugins": [
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,27 +15,23 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "platforms": [
-      "android",
-      "ios"
-    ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.vexeonline.app"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.app"
+      "package": "com.sythai0611.ticket_app",
+      "googleServicesFile": "./google-services.json",
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "194bbd7b-1895-4a17-ae08-deb263292e5c"
+        "projectId": "ec2c34b0-cd5c-4874-afd4-8595eea31827"
       }
     }
   }
