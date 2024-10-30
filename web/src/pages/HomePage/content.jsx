@@ -41,41 +41,116 @@ const Content = () => {
   const today = new Date();
   const [numberOfTickets, setNumberOfTickets] = useState(1);
 
+  // useEffect(() => {
+  //   const fetchProvincesAndDistricts = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "https://provinces.open-api.vn/api/?depth=2"
+       
+  //       );
+  //       const provincesData = response.data;
+  //       // Cập nhật dữ liệu tỉnh/thành phố
+  //       const cleanedProvinces = provincesData.map((province) => ({
+  //         ...province,
+  //         name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
+  //       }));
+
+  //       const flattenedOptions = provincesData.flatMap((province) =>
+  //         province.districts.map((district) => ({
+  //           ...district,
+  //           provinceName: province.name,
+  //           label: `${district.name.replace(
+  //             /^(Huyện|Quận) /,
+  //             ""
+  //           )} - ${province.name.replace(/^(Tỉnh|Thành phố) /, "")}`,
+  //         }))
+  //       );
+
+  //       setProvinces(cleanedProvinces);
+  //       setDistricts(flattenedOptions);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error("Lỗi Khi Lấy dữ Liệu API:", error);
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchProvincesAndDistricts();
+  // }, []);
   useEffect(() => {
     const fetchProvincesAndDistricts = async () => {
-      try {
-        const response = await axios.get(
-          "https://provinces.open-api.vn/api/?depth=2"
-        );
-        const provincesData = response.data;
-        // Cập nhật dữ liệu tỉnh/thành phố
-        const cleanedProvinces = provincesData.map((province) => ({
-          ...province,
-          name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
-        }));
+        setLoading(true); // Đặt loading về true trước khi bắt đầu
 
-        const flattenedOptions = provincesData.flatMap((province) =>
-          province.districts.map((district) => ({
-            ...district,
-            provinceName: province.name,
-            label: `${district.name.replace(
-              /^(Huyện|Quận) /,
-              ""
-            )} - ${province.name.replace(/^(Tỉnh|Thành phố) /, "")}`,
-          }))
-        );
+        try {
+            // Lấy danh sách tỉnh/thành phố
+            const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
+            if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
+                const provincesData = provincesResponse.data.data;
+                const cleanedProvinces = provincesData.map((province) => ({
+                    ...province,
+                    name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
+                }));
 
-        setProvinces(cleanedProvinces);
-        setDistricts(flattenedOptions);
-        setLoading(false);
-      } catch (error) {
-        console.error("Lỗi Khi Lấy dữ Liệu API:", error);
-        setLoading(false);
-      }
+                console.log("Danh sách tỉnh/thành phố:", cleanedProvinces);
+
+                const allDistricts = [];
+                const totalCount = 705;
+                const pageSize = 100;
+                let page = 1;
+
+         
+                while (true) {
+                    try {
+                        const districtResponse = await axios.get(`https://open.oapi.vn/location/districts?page=${page}&size=${pageSize}`);
+                        if (districtResponse.data.code === 'success') {
+                            const districtsData = districtResponse.data.data.map((district) => {
+                                // Tìm tỉnh tương ứng với quận/huyện
+                                const province = provincesData.find(prov => prov.id === district.provinceId);
+                                return {
+                                    ...district,
+                                    provinceName: province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : '',
+                                    label: `${district.name.replace(/^(Huyện|Quận) /, "")} - ${province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : ''}`,
+                                };
+                            });
+
+                            allDistricts.push(...districtsData);
+
+                           // console.log(`Đã lấy ${districtsData.length} quận/huyện từ trang ${page}.`);
+                            if (districtsData.length < pageSize) break;
+                            
+                            page++; // Tăng trang
+                        } else {
+                            console.error(`Lỗi từ API: ${districtResponse.data.message}`);
+                            break;
+                        }
+                    } catch (error) {
+                         if (error.response && error.response.status === 429) {
+                        //     console.error('Quá nhiều yêu cầu, đang chờ để thử lại...');
+                             await new Promise(resolve => setTimeout(resolve, 1000)); 
+                       } else {
+                            console.error('Lỗi Khi Lấy Dữ Liệu API:', error.message);
+                            break; 
+                        }
+                    }
+                }
+
+             
+                console.log("Tổng số quận/huyện của Việt Nam:", allDistricts.length);
+                setProvinces(cleanedProvinces);
+                setDistricts(allDistricts);
+            } else {
+             //   console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
+            }
+
+            setLoading(false);
+        } catch (error) {
+          //  console.error("Lỗi Khi Lấy Dữ Liệu API:", error);
+            setLoading(false);
+        }
     };
 
     fetchProvincesAndDistricts();
-  }, []);
+}, []);
 
   const handleChange = (event) => {
     setSelectedValue(event.target.value);
@@ -115,6 +190,7 @@ const Content = () => {
     })),
     ...districts,
   ];
+  
 
   const groupedOptions = groupOptions(options);
   const handleDateChange = (date) => {
@@ -196,7 +272,7 @@ const Content = () => {
     console.log("Tỉnh đến:", toProvince);
     console.log("Ngày đi:", dateRange[0]);
     console.log("Ngày về:", dateRange[1]);
-    console.log("Loại chuyến:", selectedValue === 'oneway' ? 'Một chiều' : 'Khứ hồi');
+    console.log("Loại chuyến:", selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi');
       
   };
   return (
@@ -288,6 +364,7 @@ const Content = () => {
                 groupBy={(option) => {
                   return option.provinceName ? "Quận/Huyện" : "Tỉnh/Thành phố";
                 }}
+                //groupBy={(option) => option.provinceName ? "Quận/Huyện" : "Tỉnh/Thành phố"} 
                 getOptionLabel={(option) => option.label}
                 value={fromProvince}
                 onChange={(event, newValue) => setFromProvince(newValue)}

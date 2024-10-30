@@ -14,10 +14,10 @@ const s3 = new S3Client({
   },
 });
 
-console.log('AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID);
-console.log('AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY);
-console.log('AWS_REGION:', process.env.AWS_REGION);
-console.log('S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME); 
+// console.log('AWS_ACCESS_KEY_ID:', process.env.AWS_ACCESS_KEY_ID);
+// console.log('AWS_SECRET_ACCESS_KEY:', process.env.AWS_SECRET_ACCESS_KEY);
+// console.log('AWS_REGION:', process.env.AWS_REGION);
+// console.log('S3_BUCKET_NAME:', process.env.S3_BUCKET_NAME); 
 
 const fileFilter = (req, file, cb) => {
   // Danh sách các loại tệp ảnh hợp lệ
@@ -37,12 +37,12 @@ const upload = multer({
     contentType: multerS3.AUTO_CONTENT_TYPE,
     contentDisposition: 'inline',
     key: (req, file, cb) => {
-      const fileName = `${Date.now()}_${file.originalname}`; // Định nghĩa fileName chính xác
-      console.log('Uploading file with key:', fileName); // Ghi lại fileName ở đây
+      const fileName = `${Date.now()}_${file.originalname}`; 
+      console.log('Uploading file with key:', fileName); 
       cb(null, fileName); 
     }
   }),
-  limits: { fileSize: 5 * 1024 * 1024 } // Giới hạn kích thước file
+  limits: { fileSize: 5 * 1024 * 1024 } 
 });
 
 module.exports = { s3, upload };

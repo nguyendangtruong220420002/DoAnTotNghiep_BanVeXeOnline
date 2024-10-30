@@ -1,6 +1,6 @@
 const User = require('../../src/models/User');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); 
 const { upload } = require('../../src/config/s3');
 
 // Đăng ký người dùng
@@ -37,10 +37,10 @@ const checkPhoneNumberExists = async (req, res) => {
     const user = await User.findOne({ phoneNumber });
 
     if (user) {
-      return res.status(200).json({ exists: true, message: "Số điện thoại đã tồn tại.", user: user });
-    } else {
-      return res.status(201).json({ exists: false, message: "Số điện thoại không tồn tại." });
+      return res.status(200).json({ exists: true, message: "Số điện thoại đã tồn tại." });
     }
+
+    return res.status(200).json({ exists: false, message: "Số điện thoại không tồn tại." });
 
   } catch (error) {
     return res.status(500).json({ message: "Lỗi khi kiểm tra số điện thoại.", error });
@@ -64,7 +64,6 @@ const loginUser = async (req, res) => {
 
     // Tạo token
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
 
     // Trả về cả token và thông tin người dùng
     res.status(200).json({ message: 'Đăng nhập thành công!', token, user });
@@ -100,9 +99,9 @@ const loginUser = async (req, res) => {
 // };
 // Cập nhật thông tin người dùng với ảnh
 const updateUser = async (req, res) => {
-  console.log('Hàm updateUser được gọi');
+  console.log('Hàm updateUser được gọi'); 
   console.log('req.body:', req.body);
-  const userId = req.params.id;
+  const userId = req.params.id; 
 
   try {
     // Kiểm tra req.file có tồn tại không
@@ -118,27 +117,27 @@ const updateUser = async (req, res) => {
 
     // Cập nhật thông tin người dùng
     const updatedUser = await User.findByIdAndUpdate(userId, {
-      fullName: req.body.fullName,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-      address: req.body.address,
-      img: img, // Cập nhật URL ảnh nếu có
-    }, { new: true });
+        fullName: req.body.fullName,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        address: req.body.address,
+        img: img, // Cập nhật URL ảnh nếu có
+    }, { new: true }); 
 
     // Kiểm tra xem người dùng có được cập nhật thành công không
     if (!updatedUser) {
-      console.log('Người dùng không tồn tại.');
-      return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+        console.log('Người dùng không tồn tại.');
+        return res.status(404).json({ message: 'Người dùng không tồn tại.' });
     }
 
     console.log('Cập nhật người dùng thành công:', updatedUser);
     res.status(200).json({ message: 'Cập nhật thành công!', user: updatedUser });
-  } catch (error) {
+} catch (error) {
     console.error('Lỗi khi cập nhật thông tin:', error);
     res.status(500).json({ message: 'Đã xảy ra lỗi khi cập nhật thông tin.' });
-  }
+}
 };
 
 
 
-module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser };
+module.exports = { createUser,checkPhoneNumberExists, loginUser,updateUser  };

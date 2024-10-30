@@ -6,7 +6,7 @@ const PORT = process.env.PORT;
 
 mongoose.connect(dbURI)
   .then(() => {
-    console.log('Connec MongoDB success!');
+    console.log('Connect MongoDB success!');
 
     const PORT = process.env.PORT;
     app.listen(PORT, () => {

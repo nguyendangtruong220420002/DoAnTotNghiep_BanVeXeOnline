@@ -93,6 +93,14 @@ body{
     font-weight: bold !important;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
   }
+  .button8{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#838383 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
   .button6{
     transition: color 0.1s, text-shadow 0.1s;
     font-size: 16px !important;
@@ -190,4 +198,85 @@ body{
   }
   .custom-input:focus ~ .input-icon {
     color: #f48664; /* Màu biểu tượng khi input được focus */
+  }
+
+  .button9{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#b0afaf !important;
+    
+  
+  }
+  .button10{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 16px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#c9682c !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button11{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#b0afaf !important;
+    
+  }
+  .button12{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#b0afaf !important;
+    
+  }
+
+  .tab2 .Mui-selected {
+    color: #dc635b !important;
+    
+  }
+  .tab2 .MuiTab-root.Mui-selected {
+    color: white !important; 
+    background-color: #dc635b  !important; 
+    border: 1px solid rgb(187, 187, 187) !important;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;  
+    border-radius: 8px !important;  
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  .tab2 .MuiTab-root:hover {
+    text-shadow: 1px 1px 2px rgba(255, 254, 254, 0.8) !important; 
+  }
+  .tab-selected {
+    color: white !important;
+    background-color: #dc635b !important;
+    border: 1px solid rgb(187, 187, 187) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .menu-selected {
+    color: white !important;
+    background-color: #dc635b !important;
+  }
+  
+  .button11.active {
+    color: white !important; 
+    background-color: #dc635b  !important; 
+    border: 1px solid rgb(187, 187, 187) !important;  
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;  
+    border-radius: 8px !important;  
+    transition: background-color 0.3s, box-shadow 0.3s;
+    
+  }
+  
+  .button12.active {
+    color: black !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1) !important;
+    font-family: ixi-type, sans-serif !important;
+    font-weight: bold;
   }

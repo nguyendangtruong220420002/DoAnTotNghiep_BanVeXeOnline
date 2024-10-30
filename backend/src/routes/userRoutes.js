@@ -13,8 +13,6 @@ router.post('/check-phone', checkPhoneNumberExists);
 // Route đăng nhập người dùng
 router.post('/login', loginUser);
 
-// // Route cập nhật thông tin người dùng
-// router.put('/:id', authenticateToken, updateUser);
 
 // // Route cập nhật thông tin người dùng với upload ảnh
  router.put('/:id', authenticateToken, upload.single('img'), updateUser); 
