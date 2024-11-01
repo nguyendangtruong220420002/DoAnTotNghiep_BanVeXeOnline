@@ -16,6 +16,7 @@ const ConfirmInfo = ({ open, handleClose, onSubmit, phoneNumber }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false); 
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
@@ -52,7 +53,7 @@ const ConfirmInfo = ({ open, handleClose, onSubmit, phoneNumber }) => {
     console.log("Thông tin:", userInfo);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users', userInfo); // Sử dụng userInfo
+      const response = await axios.post(`${API_URL}/api/users`, userInfo); // Sử dụng userInfo
       console.log(response.data); // Xử lý phản hồi từ server
       onSubmit(userInfo); 
       alert('Đăng ký thành công');// Gọi onSubmit chỉ sau khi lưu thành công

@@ -12,7 +12,6 @@ const addBus = async (req, res) => {
     res.status(500).json({ error: 'Không thể thêm xe buýt' });
   }
 };
-// lấy danh sách theo _id
 const getBusesByUser = async (req, res) => {
   const { userId } = req.query; 
   //console.log("User ID on server:", userId); 
@@ -28,7 +27,6 @@ const getBusesByUser = async (req, res) => {
   }
 };
 
-// Sửa xe buýt
 const editBus = async (req, res) => {
   const { id } = req.params;
   const { busName, busType,cartSeat, licensePlate } = req.body; 

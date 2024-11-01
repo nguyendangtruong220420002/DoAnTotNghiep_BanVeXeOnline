@@ -25,8 +25,8 @@ import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutl
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
 import PlaylistAddOutlinedIcon from '@mui/icons-material/PlaylistAddOutlined';
 import AddBus from '../../../src/pages/Business/addBus';
-
-
+import BusRoute from '../../../src/pages/Business/busRoute';
+import Trips from '../../../src/pages/Business/Trips';
 
 
 const Business = () => {
@@ -254,16 +254,16 @@ const handleCloseModal = () => {
               />
               {showMenuTuyenXe && (
                 <>
-                  <Tab
+                  {/* <Tab
                     label="Danh sách tuyến xe"
                     className={`button12 ${selectedSubMenu === 'danhSachTuyenXe' ? 'active' : ''}`}
                     onClick={() => handleMenuItemClick('danhSachTuyenXe')}
                     sx={{ minHeight: 0,marginLeft:'20px'}}
                     iconPosition="start"
                     icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px'}}></FormatListBulletedOutlinedIcon>}
-                  />
+                  /> */}
                   <Tab
-                    label="Thêm Tuyến xe"
+                    label="Thông tin Tuyến xe"
                     className={`button12 ${selectedSubMenu === 'themTuyenXe' ? 'active' : ''}`}
                     onClick={() => handleMenuItemClick('themTuyenXe')}
                     sx={{ minHeight: 0, marginRight:'5px'}}
@@ -293,16 +293,16 @@ const handleCloseModal = () => {
 
                 {showMenuChuyenXe && (
                   <>
-                    <Tab
+                    {/* <Tab
                       label="Danh sách chuyến xe"
                       className={`button12 ${selectedSubMenu === 'danhSachChuyenXe' ? 'active' : ''}`}
                       onClick={() => handleMenuItemClick('danhSachChuyenXe')}
                       sx={{ minHeight: 0, marginLeft: '20px' }}
                       iconPosition="start"
                       icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
-                    />
+                    /> */}
                     <Tab
-                      label="Thêm Chuyến xe"
+                      label="Thông tin chuyến xe"
                       className={`button12 ${selectedSubMenu === 'themChuyenXe' ? 'active' : ''}`}
                       onClick={() => handleMenuItemClick('themChuyenXe')}
                       sx={{ minHeight: 0 }}
@@ -334,7 +334,7 @@ const handleCloseModal = () => {
               {showMenuXe && (
                 <>
                 <Tab
-                  label="Danh sách xe"
+                  label="Thông tin xe"
                   className={`button12 ${selectedSubMenu === 'xe' ? 'active' : ''}`}
                   onClick={() => handleMenuItemClick('xe')}
                   sx={{ minHeight: 0 }}
@@ -372,10 +372,9 @@ const handleCloseModal = () => {
               <Button onClick={handleOpenModal}>Mở modal</Button>
             </TabPanel>
             <TabPanel value="3">
-              <Typography>Danh sách tuyến xe</Typography>
+              <BusRoute userInfo={userInfo} setUserInfo={setUserInfo}></BusRoute>
             </TabPanel>
             <TabPanel value="4">
-              <Typography>Thêm Thuyến xe</Typography>
             </TabPanel>
             <TabPanel value="5"> 
               <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
@@ -384,7 +383,7 @@ const handleCloseModal = () => {
             <Typography>Danh Sách chuyến xe</Typography>
             </TabPanel>
             <TabPanel value="7"> 
-            <Typography>Thêm chuyến xe</Typography>
+            <Trips userInfo={userInfo} setUserInfo={setUserInfo}></Trips>
             </TabPanel>
             <TabPanel value="8"> 
             <AddBus userInfo={userInfo} setUserInfo={setUserInfo} ></AddBus>
