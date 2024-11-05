@@ -16,6 +16,8 @@ const AddBus = ({ userInfo, }) => {
     licensePlate: "",
   });
   //console.log("Bus",bus)
+  const API_URL = import.meta.env.VITE_API_URL;
+  //console.log("api", API_URL);
   const [busList, setBusList] = useState([]);
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'success' });
   const [editingBusId, setEditingBusId] = useState(null);
@@ -36,6 +38,7 @@ const AddBus = ({ userInfo, }) => {
       [name]: value,
     }));
   };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     const busData = { ...bus, userId: userInfo._id };
@@ -43,7 +46,7 @@ const AddBus = ({ userInfo, }) => {
     try {
       let response;
       if (editingBusId) {
-        response = await fetch(`http://localhost:5000/api/buses/update/${editingBusId}`, {
+        response = await fetch(`${API_URL}/api/buses/update/${editingBusId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -51,7 +54,7 @@ const AddBus = ({ userInfo, }) => {
           body: JSON.stringify(busData),
         });
       } else {
-        response = await fetch('http://localhost:5000/api/buses/add', {
+        response = await fetch(`${API_URL}/api/buses/add`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -78,7 +81,7 @@ const AddBus = ({ userInfo, }) => {
   const fetchBusList = async () => {
     //console.log("User ID being fetched:", userInfo._id); 
     try {
-      const response = await fetch(`http://localhost:5000/api/buses/list?userId=${userInfo._id}`, {
+      const response = await fetch(`${API_URL}/api/buses/list?userId=${userInfo._id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +114,7 @@ const AddBus = ({ userInfo, }) => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa xe này không?");
     if (confirmDelete) {
       try {
-        const response = await fetch(`http://localhost:5000/api/buses/delete/${busItem._id}`, {
+        const response = await fetch(`${API_URL}/api/buses/delete/${busItem._id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -148,7 +151,6 @@ const AddBus = ({ userInfo, }) => {
           border: '1px solid #e5e5e5',
           padding: '10px', 
           boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-          
         }}>
           <Typography sx={{textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', }}>Thêm Xe</Typography>
       <Box

@@ -20,6 +20,7 @@ const Login = ({ open, handleClose, setUserInfo }) => {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
   
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -31,7 +32,7 @@ const Login = ({ open, handleClose, setUserInfo }) => {
   const handleLoginSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', { phoneNumber, password });
+      const response = await axios.post(`${API_URL}/api/users/login`, { phoneNumber, password });
   
       if (response.data) {
         const { user, token } = response.data; 

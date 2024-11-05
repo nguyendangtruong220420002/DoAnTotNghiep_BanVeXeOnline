@@ -12,6 +12,7 @@ const RegisterForm = () => {
     const [phoneError, setPhoneError] = useState('');
     const [openOTPModal, setOpenOTPModal] = useState(false);
     const [verificationId, setVerificationId] = useState('');
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const handlePhoneNumberChange = (event) => {
         const value = event.target.value; 
@@ -26,7 +27,7 @@ const RegisterForm = () => {
     
       const checkPhoneNumberExists = async (phoneNumber) => {
         try {
-          const response = await axios.post('http://localhost:5000/api/users/check-phone', { phoneNumber });
+          const response = await axios.post(`${API_URL}/api/users/check-phone`, { phoneNumber });
           return response.data.exists; 
         } catch (error) {
           console.error('Lỗi khi kiểm tra số điện thoại:', error);

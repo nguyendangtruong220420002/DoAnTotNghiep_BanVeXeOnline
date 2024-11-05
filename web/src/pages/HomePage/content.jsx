@@ -364,7 +364,6 @@ const Content = () => {
                 groupBy={(option) => {
                   return option.provinceName ? "Quận/Huyện" : "Tỉnh/Thành phố";
                 }}
-                //groupBy={(option) => option.provinceName ? "Quận/Huyện" : "Tỉnh/Thành phố"} 
                 getOptionLabel={(option) => option.label}
                 value={fromProvince}
                 onChange={(event, newValue) => setFromProvince(newValue)}
