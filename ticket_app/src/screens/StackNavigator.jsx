@@ -12,6 +12,7 @@ import Login from '../screens/login/Login'
 import Welcome from '../screens/welcome/Welcome'
 import Account from '../screens/account/Account'
 import DetailAccount from './detail_account/DetailAccount'
+import ResultSearch from './result_search/ResultSearch'
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -64,6 +65,7 @@ const StackNavigator = () => {
         <Stack.Screen name='Register' component={Register} />
         <Stack.Screen name='Home' component={HomeScreen} />
         <Stack.Screen name='DetailAccount' component={DetailAccount} />
+        <Stack.Screen name='RSearch' component={ResultSearch} />
       </Stack.Navigator>
     </NavigationContainer>
   )

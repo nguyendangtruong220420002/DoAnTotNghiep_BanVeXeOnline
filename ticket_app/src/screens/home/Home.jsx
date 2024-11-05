@@ -8,8 +8,11 @@ import { calendarsConfig } from '../../config/CalendarConfig';
 import { solarToLunar } from 'lunar-calendar'
 import axios from 'axios';
 import { getAsyncStorage } from '../../utils/cookie';
+import { useNavigation } from '@react-navigation/native';
 
 const Home = () => {
+
+  const nav = useNavigation();
 
   const [user, setUser] = useState();
   const [data, setData] = useState([]);
@@ -223,7 +226,7 @@ const Home = () => {
 
   const handleSearch = () => {
 
-    const newDateTo = show ? dateto : 'null'
+    const newDateTo = show ? dateto.toISOString() : 'null'
 
     console.log("Điểm đi", selectedDiemDi);
     console.log("điểm đến", selectedDiemDen);
@@ -233,7 +236,13 @@ const Home = () => {
     console.log("Số vé: ", soVe);
 
 
-
+    nav.navigate("RSearch", {
+      ngaydi: datefrom.toISOString(),
+      ngayve: newDateTo ,
+      diemdi: selectedDiemDi,
+      diemden: selectedDiemDen,
+      soVe: soVe
+    });
   }
 
   return (
@@ -400,7 +409,7 @@ const Home = () => {
             <View style={styles.datePickerOverlay}>
               <Calendar
                 hideExtraDays
-                style={{ width: 400, height: 400 }}
+                style={{ width: 400, height: 430 }}
                 minDate={selectingDateFor === 'from' ? new Date().toISOString().split('T')[0] : datefrom.toISOString().split('T')[0]}
                 dayComponent={({ date, marking }) => (
                   <DayComponent
