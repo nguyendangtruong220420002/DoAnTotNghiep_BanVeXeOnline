@@ -21,7 +21,6 @@ const Login = () => {
   const handleLogin = async () => {
 
     const userInfo = { phoneNumber, password }
-    console.log("do day");
 
     try {
 
@@ -32,7 +31,9 @@ const Login = () => {
       console.log("Thông tin người dùng:", user);
       console.log("token", token);
 
+      
       await setAsyncStorage("token",token)
+      
       await setAsyncStorage("user",user)
       
       

@@ -3,36 +3,43 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
 
     container: {
-        flex: 1
+        flex: 1,
+        fontFamily: "Inter"
     },
     viewHeader: {
-        height: 100,
-        backgroundColor: "#f95300",
-        position: "relative",
-        zIndex: 1,
-        paddingTop: 45
-    },
-    btnBack: {
-        alignSelf: "flex-start",
-        marginLeft: 5,
-
-    },
-    viewChild: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between"
+        justifyContent: "center",
     },
-    headerImage: {
+    viewTitle: {
+        flexDirection: "column",
+        alignItems: "center",
+        width: "100%"
+    },
+    headerText: {
+        fontSize: 15,
+        color: 'white',
+        textAlign: 'center'
+    },
+    headerBackgroundContainer: {
+        flex: 1,
         width: '100%',
+        height: '100%',
         position: 'absolute',
         top: 0,
         left: 0,
         zIndex: 0,
-        height: "180%"
+    },
+    headerImage: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        backgroundColor: '#f95300',
     },
     body: {
-        position: "absolute",
-        top: 100,
+
+        top: 0,
         left: 0,
         right: 0,
         height: "100%",
@@ -131,15 +138,16 @@ export const styles = StyleSheet.create({
         color: 'blue',
     },
     listTicket: {
-        padding: 15
+        padding: 15,
+
     },
     listItem: {
-        height: 80,
+        //height: 80,
         width: "100%",
         backgroundColor: "white",
         borderRadius: 10,
         marginBottom: 5,
-        padding: 5
+        padding: 18
     },
     viewtop: {
         justifyContent: "space-between",
@@ -163,4 +171,41 @@ export const styles = StyleSheet.create({
         borderColor: '#E0E0E0',
         marginVertical: 10,
     },
+    dashedHorizontal: {
+        width: '20%',
+        height: 1,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: '#E0E0E0',
+        marginVertical: 10,
+        alignSelf: "center"
+    },
+    iconContainer: {
+        position: 'absolute',
+        top: -15,
+        left: '50%',
+        transform: [{ translateX: -10 }],  // Điều chỉnh lại để căn chính xác theo chiều ngang
+    },
+    listContent: {
+        justifyContent: "space-between",
+        flexDirection: "row",
+        alignItems: "center",
+        alignContent: "center",
+
+    },
+    textDiemdi: {
+        color: "#757575"
+    },
+    textTime: {
+        fontSize: 28,
+        fontWeight: "bold"
+    },
+    textDay: {
+        color: "#757575",
+        paddingRight: 5
+    },
+    viewDateTime: {
+        flexDirection: "row",
+
+    }
 })

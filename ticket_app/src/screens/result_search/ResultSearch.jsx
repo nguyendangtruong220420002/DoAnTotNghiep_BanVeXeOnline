@@ -4,56 +4,25 @@ import { Icon } from 'react-native-elements';
 import { styles } from './styles';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import darkColors from 'react-native-elements/dist/config/colorsDark';
-
-const generateDateRange = (baseDate, daysAfter = 30) => {
-    const dates = [];
-    const today = new Date();
-    const startDate = new Date(baseDate);
-
-    // Calculate days before based on the difference between selected date and today
-    const differenceInTime = startDate.getTime() - today.getTime();
-    const daysBefore = Math.ceil(differenceInTime / (1000 * 3600 * 24));
-
-    // Generate past dates only up to today
-    for (let i = 0; i < daysBefore; i++) {
-        const pastDate = new Date(today.getTime() + i * 24 * 60 * 60 * 1000);
-        dates.push({
-            date: pastDate.getDate(),
-            day: ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ 7'][pastDate.getDay()],
-            month: ['1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', '10', '11', 'Tháng 12'][pastDate.getMonth()],
-            fullDate: pastDate,
-        });
-    }
-
-    // Add the base date (selected date)
-    dates.push({
-        date: startDate.getDate(),
-        day: ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ 7'][startDate.getDay()],
-        month: ['1', ' 2', ' 3', ' 4', ' 5', ' 6', ' 7', ' 8', ' 9', '10', '11', ' 12'][startDate.getMonth()],
-        fullDate: startDate,
-    });
-
-    // Generate future dates
-    for (let i = 1; i <= daysAfter; i++) {
-        const futureDate = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-        dates.push({
-            date: futureDate.getDate(),
-            day: ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ 7'][futureDate.getDay()],
-            month: ['1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', '10', '11', 'Tháng 12'][futureDate.getMonth()],
-            fullDate: futureDate,
-        });
-    }
-
-    return dates;
-};
-
+import { generateDateRange } from "../../config/DateConfig"
+import Loading from '../loading/Loading'; // Import the Loading component
 
 const ResultSearch = () => {
+
+
 
     const route = useRoute();
     const nav = useNavigation();
     const flatListRef = useRef(null);
+    // Parse 'ngaydi' from the navigation params
+    const ngaydi = route.params?.ngaydi ? new Date(route.params.ngaydi) : new Date();
+    const diemdi = route.params?.diemdi;
+    const diemden = route.params?.diemden;
+    const soVe = route.params?.soVe;
+    // Generate initial dates starting from ngaydi
+    const [dateArray, setDateArray] = useState(generateDateRange(ngaydi));
 
+    const [loading, setLoading] = useState(true); // Loading state
     // modal Filter
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState(''); // Lưu lựa chọn của người dùng
@@ -62,14 +31,16 @@ const ResultSearch = () => {
         'Loại ghế': '',
         'Khung giờ': '',
     });
+    const monthValue = ngaydi.getMonth() + 1;
+    const dayValue = ngaydi.getDate();
+
+    const [date, setDate] = useState('');
+    const [month, setMonth] = useState(monthValue.toString().padStart(2, '0'));
+    const [day, setDay] = useState(dayValue.toString().padStart(2));
 
 
-    // Parse 'ngaydi' from the navigation params
-    const ngaydi = route.params?.ngaydi ? new Date(route.params.ngaydi) : new Date();
-    const diemi = route.params?.diemdi
-    const diemden = route.params?.diemden
-    // Generate initial dates starting from ngaydi
-    const [dateArray, setDateArray] = useState(generateDateRange(ngaydi));
+
+
 
     // State for selected date index
     const [selectedDate, setSelectedDate] = useState(null);
@@ -111,13 +82,57 @@ const ResultSearch = () => {
         }));
         setModalVisible(false);
     };
+    useEffect(() => {
+        // Simulating a data fetching or processing delay
+        setTimeout(() => {
+            setLoading(false); // Set loading to false after data is processed/fetched
+        }, 200); // Assuming 2 seconds for the simulated delay
+        // Set the header with dynamic data
+        nav.setOptions({
+            headerTitle: () => (
+                <View style={styles.viewTitle}>
+                    <View style={styles.viewHeader}>
+                        <Text style={styles.headerText}>{diemdi}</Text>
+                        <Icon
+                            type='ionicon'
+                            name='bus-outline'
+                            color="white"
+                            iconStyle={{ paddingHorizontal: 10 }}
+                        />
+                        <Text style={styles.headerText}>{diemden}</Text>
+                    </View>
+
+                    <View>
+                        <Text style={{ color: "white" }}>{soVe} vé, {day}/{month} </Text>
 
 
+                    </View>
+                </View>
+
+            ),
+            headerBackground: () => (
+                <View style={styles.headerBackgroundContainer}>
+                    <Image
+                        source={require('../../../img/imageheader.png')}
+                        style={styles.headerImage}
+                        resizeMode="cover"
+                    />
+
+                </View>
+            ),
+            headerStyle: {
+                height: 100,
+                backgroundColor: "#f95300",
+            },
+            headerTitleAlign: "center",
+            headerTintColor: 'white',
+        });
+    }, [nav, diemdi, diemden]);
+    // Display the Loading component if loading is true
+    if (loading) {
+        return <Loading />;
+    }
     const closeModal = () => setModalVisible(false);
-
-    const handleBack = () => {
-        nav.navigate("Home");
-    };
 
     // Provide item layout for better scrolling performance
     const getItemLayout = (data, index) => (
@@ -125,49 +140,28 @@ const ResultSearch = () => {
     );
 
     // Function to handle date selection
-    const handleSelectDate = (index) => {
+    const handleSelectDate = (item, index) => {
 
         const selectedFullDate = dateArray[index].fullDate;
+
+        setDate(item.date)
+        setMonth(item.month)
+        setDay(item.day)
 
         setSelectedDate(index); // Update the selected date
 
         // Update the date array to include the selected date range
         setDateArray(generateDateRange(selectedFullDate));
     };
+    const handleChooseSeat = () => {
+        nav.navigate("ChooseSeat", {
+            diemden,
+            diemdi
+        })
+    }
 
     return (
         <View style={styles.container}>
-            <View style={styles.viewHeader}>
-                <Image
-                    source={require('../../../img/imageheader.png')}
-                    style={styles.headerImage}
-                    resizeMode="cover"
-                />
-                <View style={styles.viewChild}>
-                    <TouchableOpacity onPress={handleBack} style={styles.btnBack}>
-                        <Icon
-                            type='ionicon'
-                            name='arrow-back-outline'
-                            color="white"
-                            size={28}
-                            iconStyle={{ alignContent: "flex-start" }}
-                        />
-                    </TouchableOpacity>
-                    <View style={{ flexDirection: "row", justifyContent: "center", alignItems: 'center', alignSelf: 'center' }}>
-                        <Text style={{ fontSize: 15, color: 'white', textAlign: 'center' }}>{diemi}</Text>
-
-                        <Icon type='ionicon'
-                            name='bus-outline'
-                            color={"white"}
-                            iconStyle={{ paddingHorizontal: 10 }}
-                        />
-
-                        <Text style={{ fontSize: 15, color: 'white', textAlign: 'center' }}>{diemden}</Text>
- 
-                    </View>
-                    <View></View>
-                </View>
-            </View>
 
             <View style={styles.body}>
                 <View style={{}}>
@@ -177,11 +171,12 @@ const ResultSearch = () => {
                         data={dateArray}
                         keyExtractor={(item, index) => index.toString()}
                         horizontal
+                        showsHorizontalScrollIndicator={false}
                         bounces={false}
                         contentContainerStyle={[styles.containerGap]}
                         renderItem={({ item, index }) => (
                             <TouchableOpacity
-                                onPress={() => handleSelectDate(index)}
+                                onPress={() => handleSelectDate(item, index)}
                             >
                                 <View style={[
                                     styles.datecontainer,
@@ -254,9 +249,15 @@ const ResultSearch = () => {
                         </View>
                     </View>
                 </Modal>
+                <View>
 
-                <ScrollView style={styles.listTicket}>
-                    <View style={styles.listItem}>
+                </View>
+                <ScrollView
+                    style={styles.listTicket}
+                    contentContainerStyle={{ paddingBottom: 120 }}>
+                    <TouchableOpacity style={styles.listItem}
+                        onPress={() => handleChooseSeat()}
+                    >
                         <View style={styles.viewtop}>
                             <View style={styles.viewIcon}>
                                 <Icon type='ionicon' name='wifi' />
@@ -277,13 +278,40 @@ const ResultSearch = () => {
                         </View>
                         {/* dashed*/}
                         <View style={styles.dashedLineHorizontal} />
-
                         <View style={styles.listContent}>
+                            <View>
+                                <Text style={styles.textDiemdi}>{diemdi}</Text>
+                                <Text style={styles.textTime}>5:30</Text>
+                                <View style={styles.viewDateTime}>
 
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.dashedHorizontal}>
+                                <View style={styles.iconContainer}>
+                                    <Icon
+                                        type='ionicon'
+                                        name='bus-outline'
+                                        color={"#FE9B4B"}
+
+                                    />
+                                </View>
+                            </View>
+
+
+                            <View style={{ alignItems: "flex-end" }}>
+                                <Text style={styles.textDiemdi}>{diemden}</Text>
+                                <Text style={styles.textTime}>10:30</Text>
+                                <View style={styles.viewDateTime}>
+
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
                         </View>
-                    </View>
-
-                    <View style={styles.listItem}>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.listItem}
+                        onPress={() => handleChooseSeat()}
+                    >
                         <View style={styles.viewtop}>
                             <View style={styles.viewIcon}>
                                 <Icon type='ionicon' name='wifi' />
@@ -302,12 +330,42 @@ const ResultSearch = () => {
                                 </View>
                             </View>
                         </View>
+                        {/* dashed*/}
+                        <View style={styles.dashedLineHorizontal} />
                         <View style={styles.listContent}>
+                            <View>
+                                <Text style={styles.textDiemdi}>{diemdi}</Text>
+                                <Text style={styles.textTime}>5:30</Text>
+                                <View style={styles.viewDateTime}>
 
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.dashedHorizontal}>
+                                <View style={styles.iconContainer}>
+                                    <Icon
+                                        type='ionicon'
+                                        name='bus-outline'
+                                        color={"#FE9B4B"}
+
+                                    />
+                                </View>
+                            </View>
+
+
+                            <View style={{ alignItems: "flex-end" }}>
+                                <Text style={styles.textDiemdi}>{diemden}</Text>
+                                <Text style={styles.textTime}>10:30</Text>
+                                <View style={styles.viewDateTime}>
+
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
                         </View>
-                    </View>
-
-                    <View style={styles.listItem}>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.listItem}
+                        onPress={() => handleChooseSeat()}
+                    >
                         <View style={styles.viewtop}>
                             <View style={styles.viewIcon}>
                                 <Icon type='ionicon' name='wifi' />
@@ -326,10 +384,93 @@ const ResultSearch = () => {
                                 </View>
                             </View>
                         </View>
+                        {/* dashed*/}
+                        <View style={styles.dashedLineHorizontal} />
                         <View style={styles.listContent}>
+                            <View>
+                                <Text style={styles.textDiemdi}>{diemdi}</Text>
+                                <Text style={styles.textTime}>5:30</Text>
+                                <View style={styles.viewDateTime}>
 
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.dashedHorizontal}>
+                                <View style={styles.iconContainer}>
+                                    <Icon
+                                        type='ionicon'
+                                        name='bus-outline'
+                                        color={"#FE9B4B"}
+
+                                    />
+                                </View>
+                            </View>
+
+
+                            <View style={{ alignItems: "flex-end" }}>
+                                <Text style={styles.textDiemdi}>{diemden}</Text>
+                                <Text style={styles.textTime}>10:30</Text>
+                                <View style={styles.viewDateTime}>
+
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.listItem}
+                        onPress={() => handleChooseSeat()}
+                    >
+                        <View style={styles.viewtop}>
+                            <View style={styles.viewIcon}>
+                                <Icon type='ionicon' name='wifi' />
+                                <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
+                                <Image source={require('../../../img/curtains.png')} style={{
+                                    height: 21,
+                                    width: 21,
+                                }} />
+                            </View>
+                            <View>
+                                <View style={styles.viewPrice}>
+                                    <Text style={{ fontFamily: "inter", fontSize: 18 }}>135,000đ/vé</Text>
+                                </View>
+                                <View style={styles.viewSeat}>
+                                    <Text style={{ fontFamily: "inter", textAlign: 'right' }}>còn 10 ghế</Text>
+                                </View>
+                            </View>
+                        </View>
+                        {/* dashed*/}
+                        <View style={styles.dashedLineHorizontal} />
+                        <View style={styles.listContent}>
+                            <View>
+                                <Text style={styles.textDiemdi}>{diemdi}</Text>
+                                <Text style={styles.textTime}>5:30</Text>
+                                <View style={styles.viewDateTime}>
+
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
+                            <View style={styles.dashedHorizontal}>
+                                <View style={styles.iconContainer}>
+                                    <Icon
+                                        type='ionicon'
+                                        name='bus-outline'
+                                        color={"#FE9B4B"}
+
+                                    />
+                                </View>
+                            </View>
+
+
+                            <View style={{ alignItems: "flex-end" }}>
+                                <Text style={styles.textDiemdi}>{diemden}</Text>
+                                <Text style={styles.textTime}>10:30</Text>
+                                <View style={styles.viewDateTime}>
+
+                                    <Text style={styles.textDay}>{day}/{month}</Text>
+                                </View>
+                            </View>
+                        </View>
+                    </TouchableOpacity>
                 </ScrollView>
             </View>
         </View>

@@ -2,7 +2,17 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        paddingTop: 20,
+        paddingHorizontal: 10,
+    },
+    searchInput: {
+        height: 40,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 20,
+        paddingLeft: 35,
+        margin: 10,
     },
     viewTitle: {
         flexDirection: "row",
@@ -35,12 +45,15 @@ export const styles = StyleSheet.create({
         top: 0,
         backgroundColor: '#f95300',
     },
-    body: {
-        height: "100%",
-        position: "absolute",
-        top: 140,  // Adjust this value based on how much overlap you want
-        left: 0,
-        right: 0,
-        zIndex: 2,
+
+    FlatList: {
+        width: "100%",
+        padding: 10,
+        borderTopWidth: 0.2,
+        borderColor: "grey",
     },
+    textFlatlist: {
+        fontSize: 18,
+        fontWeight: "300"
+    }
 })

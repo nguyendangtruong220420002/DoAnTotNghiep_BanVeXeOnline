@@ -1,24 +1,26 @@
-import { Image, ImageBackground, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { Image, ImageBackground, RefreshControl, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
 import { styles } from './styles'
 import { Icon, Input } from 'react-native-elements'
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import SelectDropdown from 'react-native-select-dropdown'
 import { calendarsConfig } from '../../config/CalendarConfig';
 import { solarToLunar } from 'lunar-calendar'
 import axios from 'axios';
-import { getAsyncStorage } from '../../utils/cookie';
-import { useNavigation } from '@react-navigation/native';
+import { getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../context/useAuth';
+
 
 const Home = () => {
 
   const nav = useNavigation();
 
-  const [user, setUser] = useState();
+
+  const [diemDi, setDiemDi] = useState('');
+  const [diemDen, setDiemDen] = useState('');
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState();
-  const [selectedDiemDi, setSelectedDiemDi] = useState(null);
-  const [selectedDiemDen, setSelectedDiemDen] = useState(null);
 
   const [datefrom, setDatefrom] = useState(new Date())
   const [dateto, setDateto] = useState(new Date())
@@ -31,123 +33,45 @@ const Home = () => {
   const [calendarVisible, setCalendarVisible] = useState(false);
   const [selectingDateFor, setSelectingDateFor] = useState('from');
 
+  const [searchHistory, setSearchHistory] = useState([]);
   LocaleConfig.locales['vi'] = calendarsConfig;
   LocaleConfig.defaultLocale = 'vi';
 
   const getProvinces = async () => {
     try {
-
-      const response = await axios.get("https://open.oapi.vn/location/provinces?size=63");
-
-      // Kiểm tra xem dữ liệu trả về có hợp lệ hay không
-      if (response.data && Array.isArray(response.data.data)) {
-        const provincesData = response.data.data;
-
-        const provinceNames = provincesData.map(province => province.name);
-        const pre = provincesData.map(province => province.typeText);
-
-        setData(provinceNames);  // Setting the extracted data to state
-
-      } else {
-        console.error("Dữ liệu API không hợp lệ:", response.data);
-      }
+      const diemDi = await getAsyncStorage("diemDi");
+      const diemDen = await getAsyncStorage("diemDen");
+      setDiemDi(diemDi || '');  // Đảm bảo không có giá trị thì đặt chuỗi rỗng
+      setDiemDen(diemDen || '');
     } catch (error) {
       console.error(error);
     }
   };
+  
+  const { user, setUser, token } = useAuth();
 
-  useEffect(() => {
-    getProvinces();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = await getAsyncStorage("token");
-      const user = await getAsyncStorage("user");
-
-      console.log("Fetched token:", token);
-      console.log("Fetched user:", user);
-      setUser(user);
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchProvincesAndDistricts = async () => {
-      setLoading(true); // Đặt loading về true trước khi bắt đầu
-
-      try {
-        // Lấy danh sách tỉnh/thành phố
-        const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
-        if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
-          const provincesData = provincesResponse.data.data;
-          const cleanedProvinces = provincesData.map((province) => ({
-            ...province,
-            name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
-          }));
-
-          const allDistricts = [];
-          const totalCount = 705;
-          const pageSize = 100;
-          let page = 1;
+  useFocusEffect(
+    React.useCallback(() => {
+      getProvinces();
+      getSearchHistory();
+    }, [])
+  );
 
 
-          while (true) {
-            try {
-              const districtResponse = await axios.get(`https://open.oapi.vn/location/districts?page=${page}&size=${pageSize}`);
-              if (districtResponse.data.code === 'success') {
-                const districtsData = districtResponse.data.data.map((district) => {
-                  // Tìm tỉnh tương ứng với quận/huyện
-                  const province = provincesData.find(prov => prov.id === district.provinceId);
-                  return {
-                    ...district,
-                    provinceName: province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : '',
-                    label: `${district.name.replace(/^(Huyện|Quận) /, "")} - ${province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : ''}`,
-                  };
-                });
-
-                allDistricts.push(...districtsData);
-
-                // console.log(`Đã lấy ${districtsData.length} quận/huyện từ trang ${page}.`);
-                if (districtsData.length < pageSize) break;
-
-                page++; // Tăng trang
-              } else {
-                console.error(`Lỗi từ API: ${districtResponse.data.message}`);
-                break;
-              }
-            } catch (error) {
-              if (error.response && error.response.status === 429) {
-                //     console.error('Quá nhiều yêu cầu, đang chờ để thử lại...');
-                await new Promise(resolve => setTimeout(resolve, 1000));
-              } else {
-                console.error('Lỗi Khi Lấy Dữ Liệu API:', error.message);
-                break;
-              }
-            }
-          }
-
-          setProvinces(cleanedProvinces);
-          setDistricts(allDistricts);
-        } else {
-          //   console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        //  console.error("Lỗi Khi Lấy Dữ Liệu API:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchProvincesAndDistricts();
-  }, []);
+  const getSearchHistory = async () => {
+    try {
+      const history = await getAsyncStorage('searchHistory');
+      setSearchHistory(Array.isArray(history) ? history : []); // Ensure history is an array
+    } catch (error) {
+      console.error("Error fetching search history: ", error);
+    }
+  };
 
 
   const handleSwap = () => {
-    setSelectedDiemDi(selectedDiemDen);
-    setSelectedDiemDen(selectedDiemDi);
+    const temp = diemDi;
+    setDiemDi(diemDen);
+    setDiemDen(temp);
   };
 
   // Convert solar dates to lunar dates
@@ -160,7 +84,6 @@ const Home = () => {
       return '';
     }
   };
-
 
   const showCalendar = (type) => {
     setSelectingDateFor(type); // "from" or "to"
@@ -224,25 +147,46 @@ const Home = () => {
     return dateArray;
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
 
     const newDateTo = show ? dateto.toISOString() : 'null'
 
-    console.log("Điểm đi", selectedDiemDi);
-    console.log("điểm đến", selectedDiemDen);
+    console.log(diemDi);
+    console.log(diemDen);
 
-    console.log("Ngày đi", datefrom);
-    console.log("Ngày về", newDateTo);
-    console.log("Số vé: ", soVe);
-
-
-    nav.navigate("RSearch", {
+    const searchItem = {
+      diemdi: diemDi,
+      diemden: diemDen,
       ngaydi: datefrom.toISOString(),
-      ngayve: newDateTo ,
-      diemdi: selectedDiemDi,
-      diemden: selectedDiemDen,
-      soVe: soVe
-    });
+      ngayve: newDateTo,
+      soVe: soVe,
+      timestamp: new Date().toISOString(),  // Thời gian tìm kiếm
+    };
+
+    try {
+      // Retrieve existing search history from AsyncStorage
+      const existingHistory = await getAsyncStorage('searchHistory');
+      const updatedHistory = Array.isArray(existingHistory) ? [searchItem, ...existingHistory] : [searchItem];
+
+      // Save the updated history array to AsyncStorage
+      await setAsyncStorage('searchHistory', updatedHistory);
+
+      // Navigate to the RSearch screen with parameters
+      nav.navigate("RSearch", {
+        ngaydi: datefrom.toISOString(),
+        ngayve: newDateTo,
+        diemdi: diemDi,
+        diemden: diemDen,
+        soVe: soVe
+      });
+    } catch (err) {
+      console.error("Error when saving history search: ", err);
+    }
+  }
+
+
+  const handleGetProvinces = (type) => {
+    nav.navigate("ListProvinces", { type })
   }
 
   return (
@@ -274,217 +218,205 @@ const Home = () => {
         </SafeAreaView>
 
       </View>
-      <ScrollView style={styles.body}>
-        <View style={styles.search}>
-          <View style={styles.viewVitri}>
+      <View style={styles.search}>
+        <View style={styles.viewVitri}>
 
-            <View style={styles.viewDiemDi}>
-              <Text style={{ fontSize: 16, fontWeight: '500' }}>Điểm đi</Text>
-              <SelectDropdown
-                data={data}
-                defaultValue={selectedDiemDi}
-                defaultValueByIndex={provinces.length}
+          <View style={styles.viewDiemDi}>
+            <Text style={{ fontSize: 16, fontWeight: '500' }}>Điểm đi</Text>
 
-                onSelect={(selectedItem, index) => {
-                  setSelectedDiemDi(selectedItem);
-                }}
-                renderButton={(selectedItem, isOpen) => {
-                  return (
-                    <View style={styles.dropdownButtonStyle}>
-                      <Text style={styles.dropdownButtonTxtStyle}>{selectedItem || 'Chọn điểm đi'}</Text>
-                    </View>
-                  );
-                }}
-                renderItem={(item, index, isSelected) => {
-                  return (
-                    <View
-                      style={{
-                        ...styles.dropdownItemStyle,
-                        ...(isSelected && { backgroundColor: '#D2D9DF' }),
-                      }}>
-                      <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
-                    </View>
-                  );
-                }}
-                dropdownStyle={styles.dropdownMenuStyle}
-                search
-                searchInputStyle={styles.dropdownSearchInputStyle}
-                searchInputTxtColor={'#151E26'}
-                searchPlaceHolder={'Tìm kếm điểm đi'}
-                searchPlaceHolderColor={'#72808D'}
-                renderSearchInputLeftIcon={() => {
-                  return <Icon name='search-outline' type='ionicon' color={'#72808D'} size={18} />;
-                }}
-              />
+            <TouchableOpacity
+              style={styles.diemdi}
+              onPress={() => handleGetProvinces("Điểm đi")}>
+              {diemDi ? (
+                <Text style={{ fontSize: 16 }}>{diemDi}</Text>
+              ) :
+                (<Text style={{ fontSize: 16 }}>Chọn điểm đến</Text>)}
 
-            </View>
-            <View style={styles.iconSwap} >
-              <TouchableOpacity onPress={handleSwap}>
-                <Icon name="swap-horizontal-outline" type='ionicon' w color={'#FE9B4B'} />
-              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.iconSwap} >
+            <TouchableOpacity onPress={handleSwap}>
+              <Icon name="swap-horizontal-outline" type='ionicon' w color={'#FE9B4B'} />
+            </TouchableOpacity>
 
-            </View>
-
-            <View style={styles.viewDiemden}>
-              <Text style={{ fontSize: 16, textAlign: 'right', fontWeight: '500' }}>Điểm đến</Text>
-              <SelectDropdown
-                data={data}
-                defaultValueByIndex={provinces.length}
-                defaultValue={selectedDiemDen}
-                onSelect={(selectedItem, index) => {
-                  setSelectedDiemDen(selectedItem);
-                }}
-                renderButton={(selectedItem, isOpen) => {
-                  return (
-                    <View style={styles.dropdownButtonStyle}>
-                      <Text style={styles.dropdownButtonTxtStyle1}>{selectedItem || 'Chọn điểm đến'}</Text>
-                    </View>
-                  );
-                }}
-                renderItem={(item, index, isSelected) => {
-                  return (
-                    <View
-                      style={{
-                        ...styles.dropdownItemStyle,
-                        ...(isSelected && { backgroundColor: '#D2D9DF' }),
-                      }}>
-                      <Text style={styles.dropdownItemTxtStyle}>{item}</Text>
-                    </View>
-                  );
-                }}
-                dropdownStyle={styles.dropdownMenuStyle}
-                search
-                searchInputStyle={styles.dropdownSearchInputStyle}
-                searchInputTxtColor={'#151E26'}
-                searchPlaceHolder={'Tìm kếm điểm đến'}
-                searchPlaceHolderColor={'#72808D'}
-                renderSearchInputLeftIcon={() => {
-                  return <Icon name='search-outline' type='ionicon' color={'#72808D'} size={18} />;
-                }}
-              />
-            </View>
           </View>
 
-          <View style={styles.Viewdate}>
-            <View style={styles.dateColumn}>
-              <Text style={styles.datePickerText}>Ngày đi</Text>
-              <TouchableOpacity style={styles.touchDateFrom} onPress={() => showCalendar('from')}>
-                <Text style={styles.weekDayText}>
-                  {datefrom.toLocaleDateString('vi-VN', {
-                    day: 'numeric',
-                    month: 'long',
-                    weekday: 'long',
-                  })}
-                </Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.viewDiemden}>
+            <Text style={{ fontSize: 16, textAlign: 'right', fontWeight: '500' }}>Điểm đến</Text>
+            <TouchableOpacity
+              style={styles.diemden}
+              onPress={() => handleGetProvinces("Điểm đến")}>
+              {diemDen ? (
+                <Text style={{ fontSize: 16 }}>{diemDen}</Text>
+              ) :
+                (<Text style={{ fontSize: 16 }}>Chọn điểm đến</Text>)}
+            </TouchableOpacity>
 
-            <View style={styles.dateColumn}>
-              <Text style={[styles.datePickerText, { color: show ? 'black' : '#C2C0C0' }]}>Ngày về</Text>
-              <TouchableOpacity
-                disabled={!show}
-                style={[styles.touchDateTo, { color: show ? 'black' : '#C2C0C0' }]}
-                onPress={() => showCalendar('to')}>
-                <Text style={[styles.weekDayText, { color: show ? 'black' : '#C2C0C0' }]}>
-                  {dateto?.toLocaleDateString('vi-VN', {
-                    day: '2-digit',
-                    month: 'long',
-                    weekday: 'long',
-                  })}
-                </Text>
-              </TouchableOpacity>
-            </View>
+          </View>
+        </View>
 
-            <View style={styles.roundTrip}>
-              <Text style={{ padding: 5, fontSize: 16 }}>Khứ hồi</Text>
-              <Switch
-                value={show}
-                onValueChange={(value) => setShow(value)}
-              />
-            </View>
+        <View style={styles.Viewdate}>
+          <View style={styles.dateColumn}>
+            <Text style={styles.datePickerText}>Ngày đi</Text>
+            <TouchableOpacity style={styles.touchDateFrom} onPress={() => showCalendar('from')}>
+              <Text style={styles.weekDayText}>
+                {datefrom.toLocaleDateString('vi-VN', {
+                  day: '2-digit',
+                  month: "numeric",
+                  weekday: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Hiển thị lịch khi cần */}
-          {calendarVisible && (
-            <View style={styles.datePickerOverlay}>
-              <Calendar
-                hideExtraDays
-                style={{ width: 400, height: 430 }}
-                minDate={selectingDateFor === 'from' ? new Date().toISOString().split('T')[0] : datefrom.toISOString().split('T')[0]}
-                dayComponent={({ date, marking }) => (
-                  <DayComponent
-                    date={date}
-                    marking={marking}
-                    onPress={(day) => onDaySelect(day)} // Pass the selected day to the onDaySelect function
-                  />
-                )}
-                theme={{
-                  'stylesheet.calendar.header': {
-                    dayTextAtIndex0: {
-                      color: 'red',
-                    },
-                    dayTextAtIndex6: {
-                      color: 'blue',
-                    },
-                  },
-                }}
-                markedDates={selectingDateFor === 'from'
-                  ? {
-                    // Only mark the departure date with lightblue color for one-way trip
-                    [datefrom.toISOString().split('T')[0]]: {
-                      selected: true,
-                      marked: true,
-                      selectedColor: "lightblue",
-                    },
-                  }
-                  : {
-                    // Mark both departure and return dates with different colors for round-trip
-                    [datefrom.toISOString().split('T')[0]]: {
-                      selected: true,
-                      marked: true,
-                      selectedColor: "lightblue", // Departure date color
-                    },
-                    [dateto.toISOString().split('T')[0]]: {
-                      selected: true,
-                      marked: true,
-                      selectedColor: "orange", // Return date color
-                    },
-                    // Highlight dates between departure and return
-                    ...getDatesInRange(datefrom, dateto).reduce((acc, date) => {
-                      const formattedDate = date.toISOString().split('T')[0];
-                      if (formattedDate !== datefrom.toISOString().split('T')[0] && formattedDate !== dateto.toISOString().split('T')[0]) {
-                        acc[formattedDate] = {
-                          marked: true,
-                          selected: true,
-                          selectedColor: 'lightgray', // Dates between departure and return
-                        };
-                      }
-                      return acc;
-                    }, {}),
-                  }}
-              />
-            </View>
-          )}
+          <View style={styles.dateColumn}>
+            <Text style={[styles.datePickerText, { color: show ? 'black' : '#C2C0C0' }]}>Ngày về</Text>
+            <TouchableOpacity
+              disabled={!show}
+              style={[styles.touchDateTo, { color: show ? 'black' : '#C2C0C0' }]}
+              onPress={() => showCalendar('to')}>
+              <Text style={[styles.weekDayText, { color: show ? 'black' : '#C2C0C0' }]}>
+                {dateto?.toLocaleDateString('vi-VN', {
+                  day: '2-digit',
+                  month: "numeric",
+                  weekday: 'short',
+                })}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-
-          <View style={styles.soLuong}>
-            <Input
-              value={soVe}
-              leftIcon={{ type: 'ionicon', name: 'person-outline' }}
-              label="Số vé"
-              labelStyle={{ color: 'black', fontWeight: '500', paddingBottom: 5 }}
-              containerStyle={{ width: '28%' }}
-              inputMode="numeric"
-              onChangeText={(text) => setSoVe(text)}
-              inputContainerStyle={{ borderWidth: 1, borderRadius: 10, borderColor: '#ccc' }}
+          <View style={styles.roundTrip}>
+            <Text style={{ padding: 5, fontSize: 16 }}>Khứ hồi</Text>
+            <Switch
+              value={show}
+              onValueChange={(value) => setShow(value)}
             />
           </View>
-
-          <TouchableOpacity style={styles.btn_submit} onPress={() => handleSearch()}>
-            <Text style={styles.text_btn}>Tìm tuyến xe</Text>
-          </TouchableOpacity>
         </View>
-      </ScrollView>
+
+        {/* Hiển thị lịch khi cần */}
+        {calendarVisible && (
+          <View style={styles.datePickerOverlay}>
+            <Calendar
+              hideExtraDays
+              style={{ width: 400, height: 430 }}
+              minDate={selectingDateFor === 'from' ? new Date().toISOString().split('T')[0] : datefrom.toISOString().split('T')[0]}
+              dayComponent={({ date, marking }) => (
+                <DayComponent
+                  date={date}
+                  marking={marking}
+                  onPress={(day) => onDaySelect(day)} // Pass the selected day to the onDaySelect function
+                />
+              )}
+              theme={{
+                'stylesheet.calendar.header': {
+                  dayTextAtIndex0: {
+                    color: 'red',
+                  },
+                  dayTextAtIndex6: {
+                    color: 'blue',
+                  },
+                },
+              }}
+              markedDates={selectingDateFor === 'from'
+                ? {
+                  // Only mark the departure date with lightblue color for one-way trip
+                  [datefrom.toISOString().split('T')[0]]: {
+                    selected: true,
+                    marked: true,
+                    selectedColor: "lightblue",
+                  },
+                }
+                : {
+                  // Mark both departure and return dates with different colors for round-trip
+                  [datefrom.toISOString().split('T')[0]]: {
+                    selected: true,
+                    marked: true,
+                    selectedColor: "lightblue", // Departure date color
+                  },
+                  [dateto.toISOString().split('T')[0]]: {
+                    selected: true,
+                    marked: true,
+                    selectedColor: "orange", // Return date color
+                  },
+                  // Highlight dates between departure and return
+                  ...getDatesInRange(datefrom, dateto).reduce((acc, date) => {
+                    const formattedDate = date.toISOString().split('T')[0];
+                    if (formattedDate !== datefrom.toISOString().split('T')[0] && formattedDate !== dateto.toISOString().split('T')[0]) {
+                      acc[formattedDate] = {
+                        marked: true,
+                        selected: true,
+                        selectedColor: 'lightgray', // Dates between departure and return
+                      };
+                    }
+                    return acc;
+                  }, {}),
+                }}
+            />
+          </View>
+        )}
+
+
+        <View style={styles.soLuong}>
+          <Input
+            value={soVe}
+            leftIcon={{ type: 'ionicon', name: 'person-outline' }}
+            label="Số vé"
+            labelStyle={{ color: 'black', fontWeight: '500', paddingBottom: 5 }}
+            containerStyle={{ width: '28%' }}
+            inputMode="numeric"
+            onChangeText={(text) => setSoVe(text)}
+            inputContainerStyle={{ borderWidth: 1, borderRadius: 10, borderColor: '#ccc' }}
+          />
+        </View>
+
+        <TouchableOpacity style={styles.btn_submit} onPress={() => handleSearch()}>
+          <Text style={styles.text_btn}>Tìm tuyến xe</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.body}>
+        <ScrollView style={styles.viewNews}
+          showsHorizontalScrollIndicator={false}
+        >
+          <View style={styles.viewTextHistory}>
+            <Text style={{ fontSize: 16, fontWeight: "500" }}>Tìm kiếm gần đây</Text>
+            <Text style={{ fontSize: 13, color: "red" }}>Xoá lịch sử</Text>
+          </View>
+
+          <ScrollView
+            showsHorizontalScrollIndicator={false}
+            horizontal>
+            {searchHistory.map((item, index) => (
+              <TouchableOpacity
+
+                key={index} style={styles.historyItem}>
+                <Text>{item?.diemdi} - {item?.diemden}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+          <View style={styles.viewTextHistory}>
+            <Text style={{ fontSize: 16, fontWeight: "500" }}>Tin tức</Text>
+
+          </View>
+          <View style={{ width: "100%", height: 80, backgroundColor: "gray" }}>
+
+          </View>
+          <View style={{ width: "100%", height: 80, backgroundColor: "gray" }}>
+
+          </View>
+          <View style={{ width: "100%", height: 80, backgroundColor: "gray" }}>
+
+          </View>
+          <View style={{ width: "100%", height: 80, backgroundColor: "gray" }}>
+
+          </View>
+          <View style={{ width: "100%", height: 80, backgroundColor: "gray" }}>
+
+          </View>
+        </ScrollView>
+
+      </View>
 
     </View>
 

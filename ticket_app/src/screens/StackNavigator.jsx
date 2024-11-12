@@ -1,9 +1,10 @@
 
-import React from 'react'
+import React, { createRef, useEffect } from 'react'
 import { createStackNavigator } from '@react-navigation/stack'
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { Icon } from 'react-native-elements'
+import { styles } from './detail_account/styles'
 
 import Ticket from '../screens/ticket/Ticket'
 import Home from '../screens/home/Home'
@@ -13,6 +14,9 @@ import Welcome from '../screens/welcome/Welcome'
 import Account from '../screens/account/Account'
 import DetailAccount from './detail_account/DetailAccount'
 import ResultSearch from './result_search/ResultSearch'
+import ChooseSeat from './chooseSeat/ChooseSeat'
+import { checkTokenExpiration } from '../utils/auth'
+import ListProvinces from './home/ListProvinces/ListProvinces'
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -24,16 +28,19 @@ function HomeScreen() {
     <Tab.Navigator
       initialRouteName="HomeTab"
       screenOptions={{
-        headerShown: false,
+
         tabBarActiveTintColor: "#FE9B4B",
         tabBarStyle: {
           display: "flex",
-          padding:5
+          padding: 8,
+          paddingBottom: 10,
+          height: 58
         },
       }}
     >
       <Tab.Screen name='HomeTab' component={Home}
         options={{
+          headerShown: false,
           title: 'Trang Chủ',
           tabBarIcon: ({ focused, size, color }) => (
             <Icon name={focused ? "home" : "home-outline"} type='ionicon' size={size} color={color} />
@@ -41,12 +48,14 @@ function HomeScreen() {
         }} />
       <Tab.Screen name='Ticket' component={Ticket} options={{
         title: 'Vé Xe',
+        headerShown: true,
         tabBarIcon: ({ focused, size, color }) => (
           <Icon name={focused ? "ticket" : "ticket-outline"} type='ionicon' size={size} color={color} />
         )
       }} />
       <Tab.Screen name='Account' component={Account} options={{
         title: 'Tài Khoản',
+        headerShown: false,
         tabBarIcon: ({ focused, size, color }) => (
           <Icon name={focused ? "person-circle" : "person-circle-outline"} type='ionicon' size={size} color={color} />
         )
@@ -57,15 +66,28 @@ function HomeScreen() {
 
 
 const StackNavigator = () => {
+  const navigationRef = createRef();
+
+  useEffect(() => {
+    if (navigationRef.current) {
+      checkTokenExpiration(navigationRef.current);
+    }
+  }, []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='Welcome' component={Welcome} />
-        <Stack.Screen name='Login' component={Login} />
-        <Stack.Screen name='Register' component={Register} />
-        <Stack.Screen name='Home' component={HomeScreen} />
-        <Stack.Screen name='DetailAccount' component={DetailAccount} />
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name='Welcome' options={{ headerShown: false }} component={Welcome} />
+        <Stack.Screen name='Login' options={{ headerShown: false }} component={Login} />
+        <Stack.Screen name='Register' options={{ headerShown: false }} component={Register} />
+        <Stack.Screen name='Home' options={{ headerShown: false, }} component={HomeScreen} />
+        <Stack.Screen name='DetailAccount'
+          component={DetailAccount}
+
+        />
+        <Stack.Screen name='ListProvinces' component={ListProvinces} />
         <Stack.Screen name='RSearch' component={ResultSearch} />
+        <Stack.Screen name='ChooseSeat' component={ChooseSeat} />
       </Stack.Navigator>
     </NavigationContainer>
   )

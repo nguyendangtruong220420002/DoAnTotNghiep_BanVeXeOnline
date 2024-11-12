@@ -3,58 +3,50 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
-       
+        fontFamily: "Inter"
     },
     view_Wel: {
         flexDirection: "row",
         alignItems: "center",
         margin: 15,
-        
     },
     ViewText_Wel: {
         marginLeft: 10,
-
     },
     viewHeader: {
-        paddingTop:40,
+        paddingTop: 40,
         height: 250,
         backgroundColor: "#f95300",
-        position: "relative",
-        zIndex: 1,
         borderBottomLeftRadius: 15,
-        borderBottomRightRadius: 15
+        borderBottomRightRadius: 15,
+        zIndex: 1,
     },
     headerImage: {
         width: '100%',
-        height: '100%',
         position: 'absolute',
         top: 0,
         left: 0,
         zIndex: 0, // Make sure image is behind other header content
     },
     body: {
-        height: "100%",
-        position: "absolute",
-        top: 140,  // Adjust this value based on how much overlap you want
-        left: 0,
-        right: 0,
+        flex: 1,
+        paddingHorizontal: 5,
         zIndex: 2,
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        backgroundColor: "white",
+        paddingTop: 210
     },
     search: {
         alignSelf: "center",
         backgroundColor: "white",
-        height: "100%",
         width: "96%",
         borderRadius: 15,
-        // Shadow for iOS
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        elevation: 5,
         padding: 13,
+        position: "absolute",
+        zIndex: 3,
+        top: 130
     },
     viewVitri: {
         flexDirection: "row",
@@ -73,6 +65,13 @@ export const styles = StyleSheet.create({
     viewDiemden: {
         width: '50%',
     },
+    diemdi: {
+        padding: 10
+    },
+    diemden: {
+        padding: 10,
+        alignSelf: "flex-end"
+    },
     iconSwap: {
         position: "relative",
         top: 15,
@@ -81,10 +80,7 @@ export const styles = StyleSheet.create({
         width: 35,
         borderRadius: 50,
         padding: 5,
-        shadowColor: "#000", // Màu của bóng
-        shadowOffset: { width: 0, height: 1 }, // Độ dịch chuyển của bóng
-        shadowOpacity: 0.25, // Độ mờ của bóng (0-1)
-        shadowRadius: 2.84, // Độ tỏa của bóng
+        elevation: 5, // Đổ bóng cho Android
     },
     btn_submit: {
         alignSelf: 'center',
@@ -128,16 +124,6 @@ export const styles = StyleSheet.create({
     markedDay: {
         backgroundColor: '#e0f7fa', // Light blue background for marked days
     },
-    holidayDay: {
-        backgroundColor: '#ffebee', // Light red background for holidays
-    },
-    markerDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: 'orange', // Small red dot for marked days
-        marginTop: 4,
-    },
     dateColumn: {
         flexDirection: "column",
         alignItems: "flex-start", // Center content within each column
@@ -151,7 +137,6 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
 
-
     },
     touchDateFrom: {
         width: '100%', // Consistent full width
@@ -163,14 +148,14 @@ export const styles = StyleSheet.create({
     },
     datePickerOverlay: {
         position: 'absolute',
-        justifyContent: 'center',
         alignItems: 'center',
         zIndex: 10,
         borderRadius: 10,
         overflow: 'hidden',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        height: 400,
-        width: 400
+        height: 380,
+        width: 380,
+        elevation: 5,
+
     },
     datePickerText: {
         fontSize: 16,
@@ -185,67 +170,20 @@ export const styles = StyleSheet.create({
         width: "100%",
         paddingTop: 8
     },
-    dropdownButtonStyle: {
-        width: "100%",
-        height: 45,
-        borderRadius: 12,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-
-    },
-    dropdownButtonTxtStyle: {
-        flex: 1,
-        fontSize: 16,
-        fontWeight: '400',
-        textAlign: 'left',
-    },
-    dropdownButtonTxtStyle1: {
-        flex: 1,
-        fontSize: 16,
-        fontWeight: '400',
-        textAlign: 'right',
-    },
-    dropdownMenuStyle: {
-        backgroundColor: '#E9ECEF',
-        borderRadius: 8,
-    },
-    dropdownSearchInputStyle: {
-        backgroundColor: '#E9ECEF',
-        borderRadius: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#B1BDC8',
-    },
-    dropdownItemStyle: {
-        width: '100%',
-        flexDirection: 'row',
-        paddingHorizontal: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#B1BDC8',
-    },
-    dropdownItemTxtStyle: {
-        flex: 1,
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#151E26',
-        textAlign: 'left',
-    },
-    dropdownItemIconStyle: {
-        fontSize: 28,
-        marginRight: 8,
-    },
     viewNews: {
-
+        marginVertical: 20,
+        paddingLeft: 14,
     },
-    contentNews: {
-        flexDirection: "row"
+    viewTextHistory: {
+        justifyContent: "space-between",
+        flexDirection: "row",
+        paddingRight: 15,
+        paddingVertical: 10
     },
-    historySearch: {
-        backgroundColor: "#ccc",
-        height: 35,
-        marginHorizontal: 15
-    }
+    historyItem: {
+        padding: 10,
+        backgroundColor: '#E3ECEF',
+        marginRight: 10,
+        borderRadius: 5,
+    },
 })

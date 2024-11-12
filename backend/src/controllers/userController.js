@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: 'Số điện thoại không tồn tại.' });
     }
-
+ 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Mật khẩu không chính xác.' });

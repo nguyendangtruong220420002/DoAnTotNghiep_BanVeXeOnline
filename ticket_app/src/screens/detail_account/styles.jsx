@@ -4,36 +4,40 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1
     },
-    viewHeader: {
-        height: 150,
-        backgroundColor: "#f95300",
-        position: "relative",
-        zIndex: 1,
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
-        paddingTop: 45
-    },
-    btnBack: {
-        alignSelf: "flex-start",
-        marginLeft: 5,
-      
+    viewTitle: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
     },
     viewChild: {
-
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        justifyContent: "center",
     },
-    headerImage: {
+    headerText: {
+        fontSize: 18,
+        color: 'white',
+        textAlign: 'center'
+    },
+    headerBackgroundContainer: {
+        flex: 1,
         width: '100%',
+        height: '100%',
         position: 'absolute',
         top: 0,
         left: 0,
-        zIndex: 0, // Make sure image is behind other header content
+        zIndex: 0,
+    },
+    headerImage: {
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        top: 0,
+        backgroundColor: '#f95300',
     },
     body: {
         height: "100%",
         position: "absolute",
-        top: 100,  // Adjust this value based on how much overlap you want
         left: 0,
         right: 0,
         zIndex: 2,

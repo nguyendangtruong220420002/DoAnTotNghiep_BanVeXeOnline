@@ -4,6 +4,7 @@ const BusRoute = require('../../src/models/BusRoute');
 const addBusRoute = async (req, res) => {
   try {
     const { routeName, departure, destination, stops, distance, totalFare,userId } = req.body;
+    
     const newRoute = new BusRoute({ routeName, departure, destination, stops, distance, totalFare, userId});
     await newRoute.save();
     res.status(201).json({message: 'Thêm tuyến xe thành công!', busRoute: newRoute});
