@@ -4,7 +4,8 @@ const busRouteSchema = new mongoose.Schema({
     routeName: { type: String, required: true },
     departure: { type: String, required: true },
     destination: { type: String, required: true },
-    stops: { type: String },
+    from: { type: String, required: true },
+    to: { type: String, required: true },
     distance: { type: Number, required: true },
     totalFare: { type: Number, required: true },
     userId: { 

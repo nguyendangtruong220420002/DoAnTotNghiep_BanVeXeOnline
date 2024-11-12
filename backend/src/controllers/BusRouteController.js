@@ -3,8 +3,8 @@ const BusRoute = require('../../src/models/BusRoute');
 
 const addBusRoute = async (req, res) => {
   try {
-    const { routeName, departure, destination, stops, distance, totalFare,userId } = req.body;
-    const newRoute = new BusRoute({ routeName, departure, destination, stops, distance, totalFare, userId});
+    const { routeName, departure, destination, from, to, distance, totalFare,userId } = req.body;
+    const newRoute = new BusRoute({ routeName, departure, destination, from, to, distance, totalFare, userId});
     await newRoute.save();
     res.status(201).json({message: 'Thêm tuyến xe thành công!', busRoute: newRoute});
   } catch (error) {
@@ -28,12 +28,12 @@ const getBusRoutesByUser = async (req, res) => {
   };
   const editBusRoute = async (req, res) => {
     const { id } = req.params;
-    const { routeName, departure, destination, stops, distance, totalFare } = req.body;
+    const { routeName, departure, destination, from, to, distance, totalFare } = req.body;
   
     try {
       const updatedRoute = await BusRoute.findByIdAndUpdate(
         id,
-        { routeName, departure, destination, stops, distance, totalFare },
+        { routeName, departure, destination, from, to, distance, totalFare },
         { new: true }
       );
   
@@ -61,5 +61,7 @@ const getBusRoutesByUser = async (req, res) => {
       res.status(500).json({ error: 'Không thể xóa tuyến xe' });
     }
   };
-  module.exports = { addBusRoute, getBusRoutesByUser, editBusRoute, deleteBusRoute };
+  
+ 
+  module.exports = { addBusRoute, getBusRoutesByUser, editBusRoute, deleteBusRoute,};
   

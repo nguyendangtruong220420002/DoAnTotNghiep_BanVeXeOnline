@@ -27,6 +27,8 @@ import PlaylistAddOutlinedIcon from '@mui/icons-material/PlaylistAddOutlined';
 import AddBus from '../../../src/pages/Business/addBus';
 import BusRoute from '../../../src/pages/Business/busRoute';
 import Trips from '../../../src/pages/Business/Trips';
+import Schedule from '../../../src/pages/Business/schedule';
+
 
 
 const Business = () => {
@@ -96,11 +98,15 @@ const handleMenuItemClick = (menuItem) => {
     setValue("8");
     setSelectedTab('xe'); 
   }
+  else if (menuItem === 'loaixe') {
+    setValue("9");
+    setSelectedTab('loaixe'); 
+  }
   setSelectedSubMenu(menuItem);
 };
 const isTuyenXeActive = selectedTab === 'tuyenXe' || value === '3' || value === '4';
 const isChuyenXeActive = selectedTab === 'chuyenXe' || value === '6' || value === '7';
-const isXeActive = selectedTab === 'xe' || value === '8';
+const isXeActive = selectedTab === 'xe' || value === '8' || value === '9';
   const handleInfoClick = () => {
     setValue("5"); 
     handleCloseMenu(); 
@@ -293,14 +299,6 @@ const handleCloseModal = () => {
 
                 {showMenuChuyenXe && (
                   <>
-                    {/* <Tab
-                      label="Danh sách chuyến xe"
-                      className={`button12 ${selectedSubMenu === 'danhSachChuyenXe' ? 'active' : ''}`}
-                      onClick={() => handleMenuItemClick('danhSachChuyenXe')}
-                      sx={{ minHeight: 0, marginLeft: '20px' }}
-                      iconPosition="start"
-                      icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
-                    /> */}
                     <Tab
                       label="Thông tin chuyến xe"
                       className={`button12 ${selectedSubMenu === 'themChuyenXe' ? 'active' : ''}`}
@@ -308,6 +306,14 @@ const handleCloseModal = () => {
                       sx={{ minHeight: 0 }}
                       iconPosition="start"
                       icon={<PlaylistAddOutlinedIcon sx={{ width: '20px' }} />}
+                    />
+                      <Tab
+                      label="Lịch trình cho chuyến xe"
+                      className={`button12 ${selectedSubMenu === 'danhSachChuyenXe' ? 'active' : ''}`}
+                      onClick={() => handleMenuItemClick('danhSachChuyenXe')}
+                      sx={{ minHeight: 0, marginLeft: '20px' }}
+                      iconPosition="start"
+                      icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
                     />
                   </>
                 )}
@@ -337,10 +343,11 @@ const handleCloseModal = () => {
                   label="Thông tin xe"
                   className={`button12 ${selectedSubMenu === 'xe' ? 'active' : ''}`}
                   onClick={() => handleMenuItemClick('xe')}
-                  sx={{ minHeight: 0 }}
+                  sx={{ minHeight: 0,marginLeft: '30px' }}
                   iconPosition="start"
                   icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
                 />
+              
                  
               </>
               )}
@@ -380,7 +387,7 @@ const handleCloseModal = () => {
               <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
             </TabPanel>
             <TabPanel value="6"> 
-            <Typography>Danh Sách chuyến xe</Typography>
+            <Schedule userInfo={userInfo} setUserInfo={setUserInfo}></Schedule>
             </TabPanel>
             <TabPanel value="7"> 
             <Trips userInfo={userInfo} setUserInfo={setUserInfo}></Trips>
@@ -388,6 +395,7 @@ const handleCloseModal = () => {
             <TabPanel value="8"> 
             <AddBus userInfo={userInfo} setUserInfo={setUserInfo} ></AddBus>
             </TabPanel>
+            
           </TabContext>
         </Box>
         

@@ -14,6 +14,8 @@ const AddBus = ({ userInfo, }) => {
     busType: "",
     cartSeat:"",
     licensePlate: "",
+    Price:'',
+    status :'',
   });
   //console.log("Bus",bus)
   const API_URL = import.meta.env.VITE_API_URL;
@@ -65,7 +67,7 @@ const AddBus = ({ userInfo, }) => {
   
       if (response.ok) {
         await fetchBusList(); 
-        setBus({ busName: "", busType: "",cartSeat:"", licensePlate: "" });
+        setBus({ busName: "", busType: "",cartSeat:"", licensePlate: "",Price:"" });
         setEditingBusId(null); 
         setAlert({ open: true, message: editingBusId ? 'Cập nhật xe buýt thành công!' : 'Thêm xe buýt thành công!', severity: 'success' });
       } else {
@@ -104,6 +106,7 @@ const AddBus = ({ userInfo, }) => {
       busType: busItem.busType,
       cartSeat:busItem.cartSeat,
       licensePlate: busItem.licensePlate,
+      Price:busItem.Price,
       
     });
     setEditingBusId(busItem._id);
@@ -204,7 +207,7 @@ const AddBus = ({ userInfo, }) => {
             sx: {
               fontSize: '13px',
               backgroundColor: '#fef3f0', 
-              width:'250px',
+              width:'210px',
               height:'36px',
               '&.Mui-focused': {
                 backgroundColor: 'white', 
@@ -235,7 +238,7 @@ const AddBus = ({ userInfo, }) => {
           value={bus.cartSeat}
           onChange={handleChange} 
           size="small"
-          sx={{width:'100px'}}
+          sx={{width:'100px', marginLeft:'20px'}}
           color="warning"
           InputProps={{
             sx: {
@@ -266,6 +269,32 @@ const AddBus = ({ userInfo, }) => {
           value={bus.licensePlate}
           onChange={handleChange} 
           size="small"
+          sx={{width:'150px'}}
+          color="warning"
+          InputProps={{
+            sx: {
+              fontSize: '14px',
+              backgroundColor: '#fef3f0',
+              '&.Mui-focused': {
+                backgroundColor: 'white',
+                boxShadow: ' 0 0 0 2px rgb(255, 224, 212)'
+              },
+            },
+          }}
+          InputLabelProps={{
+            sx: {
+              fontSize: '13px',
+            },
+          }}
+        />
+         <TextField
+          label="Giá xe"
+          variant="outlined"
+          name="Price"
+          value={bus.Price}
+          onChange={handleChange} 
+          size="small"
+          sx={{width:'150px'}}
           color="warning"
           InputProps={{
             sx: {
@@ -311,11 +340,13 @@ const AddBus = ({ userInfo, }) => {
       <Table stickyHeader>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ minWidth: 160, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Tên xe</TableCell>
-            <TableCell sx={{ minWidth: 160, textAlign: 'center',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Loại xe</TableCell>
-            <TableCell sx={{ minWidth: 160, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Số chỗ</TableCell>
-            <TableCell sx={{ minWidth: 160, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Biển số xe</TableCell>
-            <TableCell sx={{ minWidth: 160, textAlign: 'center',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thao Tác</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Tên xe</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Loại xe</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Số chỗ</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Biển số xe</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Giá thêm</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center' ,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)'}}>Trạng thái</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thao Tác</TableCell>
           </TableRow>
         </TableHead>
         <TableBody sx={{}}>
@@ -325,6 +356,8 @@ const AddBus = ({ userInfo, }) => {
               <TableCell sx={{ textAlign: 'center' , fontSize: '13px'}}>{busItem.busType}</TableCell>
               <TableCell sx={{ textAlign: 'center' , fontSize: '13px'}}>{busItem.cartSeat}</TableCell>
               <TableCell sx={{ textAlign: 'center' ,fontSize: '13px'}}>{busItem.licensePlate}</TableCell>
+              <TableCell sx={{ textAlign: 'center' ,fontSize: '13px'}}>{busItem.Price}</TableCell>
+              <TableCell sx={{ textAlign: 'center' ,fontSize: '13px'}}>{busItem.status}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>
               
               <IconButton 

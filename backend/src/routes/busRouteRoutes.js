@@ -7,4 +7,6 @@ router.get('/list',  getBusRoutesByUser);
 router.put('/update/:id', editBusRoute);
 router.delete('/delete/:id', deleteBusRoute);
 
+
+
 module.exports = router;

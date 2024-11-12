@@ -3,8 +3,8 @@ const Bus = require('../../src/models/Bus');
 // Thêm một xe buýt mới
 const addBus = async (req, res) => {
   try {
-    const { busName, busType, cartSeat, licensePlate, userId } = req.body; 
-    const newBus = new Bus({ busName, busType,cartSeat, licensePlate, userId });
+    const { busName, busType, cartSeat, licensePlate, Price, userId , status } = req.body; 
+    const newBus = new Bus({ busName, busType,cartSeat, licensePlate, Price, userId ,  status: status || 'Chờ' });
     await newBus.save();
     res.status(201).json({ message: 'Thêm xe buýt thành công!', bus: newBus });
   } catch (error) {
@@ -29,12 +29,12 @@ const getBusesByUser = async (req, res) => {
 
 const editBus = async (req, res) => {
   const { id } = req.params;
-  const { busName, busType,cartSeat, licensePlate } = req.body; 
+  const { busName, busType,cartSeat, licensePlate, Price, status  } = req.body; 
 
   try {
     const updatedBus = await Bus.findByIdAndUpdate(
       id,
-      { busName, busType,cartSeat, licensePlate },
+      { busName, busType,cartSeat, licensePlate ,Price},
       { new: true } // Trả về bản ghi đã cập nhật
     );
 

@@ -9,6 +9,7 @@ import user from '../../../public/images/user.png';
 import helpdesk from '../../../public/images/setting.png';
 import '../HomePage/css/HomePage.css';
 import Content from '../HomePage/content';
+
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
 import Information from '../../../src/pages/AboutPage/Information';
@@ -222,7 +223,7 @@ const handleCloseModal = () => {
                margin:0,
                boxSizing:'border-box',
             }}>
-              <Content />
+              <Content userInfo={userInfo} />
             </TabPanel>
             <TabPanel value="2">
               <Typography>Mã Giảm giá</Typography>

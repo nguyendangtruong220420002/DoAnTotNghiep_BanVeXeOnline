@@ -235,6 +235,139 @@ body{
     
   }
 
+  .button13{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#0c0c0c !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+    
+  }
+  .button14{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 14px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#444444 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+    text-align: center !important;
+    
+  }
+  .button15{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#dc635b !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+    
+  }
+  .button16{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 19px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#000000 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button17{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 18.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#212121 !important;
+    font-weight: bold !important;
+   
+  }
+  .button18{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 21px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#000000 !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button19{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#323a57 !important;
+    
+  }
+  .button20{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#323a57 !important;
+ 
+  }
+  .button21{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#2c2c2c !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button22{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#727272  !important;
+    
+  }
+  .button23{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 21px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    font-weight: bold !important;
+    color:#777676 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button24{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 21px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:  #dc635b !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+  }
+  .button26{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#0e0e0e !important;
+    font-weight: bold !important;
+     
+  }
+  .button28{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 14px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#0e0e0e !important;
+    font-weight: bold !important;
+    
+     
+  }
+  .button27{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    
+    color:#323a57 !important;
+     
+  }
   .tab2 .Mui-selected {
     color: #dc635b !important;
     
@@ -280,3 +413,5 @@ body{
     font-family: ixi-type, sans-serif !important;
     font-weight: bold;
   }
+
+ 

@@ -16,7 +16,8 @@ const RouteForm = ({ userInfo, }) => {
     routeName: '',
     departure: '',
     destination: '',
-    stops: '',
+    from:'',
+    to:'',
     distance:'',
     totalFare: '',
   });
@@ -143,7 +144,6 @@ const RouteForm = ({ userInfo, }) => {
   const handleSubmit = async(e) => {
     e.preventDefault();
     const BusRoute = { ...route, userId: userInfo._id };
-    //console.log("Thông tin tuyến xe:", route);
     try {
       let response;
       if (editingBusRouteId) {
@@ -166,7 +166,7 @@ const RouteForm = ({ userInfo, }) => {
   
       if (response.ok) {
         await fetchBusList(); 
-        setRoute({  routeName: '',departure: '',destination: '',stops: '',distance:'',totalFare: '',});
+        setRoute({  routeName: '',departure: '',destination: '',distance:'',totalFare: '', from:'', to:''});
         setEditingBusRouteId(null); 
         setAlert({ open: true, message: editingBusRouteId ? 'Cập nhật tuyến xe thành công!' : 'Thêm tuyến xe thành công!', severity: 'success' });
       } else {
@@ -227,15 +227,18 @@ const RouteForm = ({ userInfo, }) => {
   };
   const onEdit = (busRouteItem) => {
     setRoute({
-      routeName: busRouteItem.routeName,
-      departure: busRouteItem.departure,
+      routeName:busRouteItem.routeName,
+      departure:busRouteItem.departure,
       destination:busRouteItem.destination,
-      stops: busRouteItem.stops,
+      from:busRouteItem.from,
+      to:busRouteItem.to,
       distance:busRouteItem.distance,
       totalFare:busRouteItem.totalFare,
       
     });
     setEditingBusRouteId(busRouteItem._id);
+    setFromProvince({ label: busRouteItem.departure, value: busRouteItem.departure }); 
+    setToProvince({ label: busRouteItem.destination, value: busRouteItem.destination });  
   };
   
   const handleAlertClose = () => {
@@ -282,13 +285,42 @@ const RouteForm = ({ userInfo, }) => {
       />
       <TextField
         color="warning"
-        label="Các Điểm Dừng"
+        label="Vị trí khởi hàng"
         variant="outlined"
         size="small"
-        name="stops"
-        sx={{width:'400px'}}
-        placeholder="Nhập các điểm dừng, cách nhau bằng dấu phẩy"
-        value={route.stops}
+        name="from"
+        sx={{width:'200px'}}
+        placeholder="BX.Miền Đông ..."
+        value={route.from}
+        onChange={handleChange}
+        InputProps={{
+            sx: {
+              fontSize: '13px',
+              backgroundColor: '#fef3f0',
+              '&.Mui-focused': {
+                backgroundColor: 'white',
+                boxShadow: '0 0 0 2px rgb(255, 224, 212)',
+              },
+              inputProps: {
+                min: 0,
+              },
+            },
+          }}
+          InputLabelProps={{
+            sx: {
+              fontSize: '13px',
+            },
+          }}
+      />
+      <TextField
+        color="warning"
+        label="Vị trí đến"
+        variant="outlined"
+        size="small"
+        name="to"
+        sx={{width:'200px'}}
+        placeholder="BX.Cà Mau"
+        value={route.to}
         onChange={handleChange}
         InputProps={{
             sx: {
@@ -469,9 +501,10 @@ const RouteForm = ({ userInfo, }) => {
             <TableCell sx={{ minWidth: 150, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tên tuyến xe</TableCell>
             <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Điểm đến</TableCell>
             <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Điểm đi</TableCell>
-            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Các điểm dừng</TableCell>
-            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Khoảng cách</TableCell>
-            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Giá vé</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Vị trí khởi hàng</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Vị trí kết thúc</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Khoảng cách(Km)</TableCell>
+            <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Giá vé (VND)</TableCell>
             <TableCell sx={{ minWidth: 100, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thao Tác</TableCell>
           </TableRow>
         </TableHead>
@@ -482,9 +515,10 @@ const RouteForm = ({ userInfo, }) => {
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.routeName}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.departure}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.destination}</TableCell>
-              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.stops}</TableCell>
-              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.distance}</TableCell>
-              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.totalFare}</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.from}</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.to}</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.distance} km</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{busRouteItem.totalFare} VND</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>
                 <IconButton 
                   sx={{

@@ -24,10 +24,12 @@ import "react-calendar/dist/Calendar.css";
 import { format } from "date-fns";
 import { solarToLunar  } from 'lunar-calendar';
 import home_banner from '../../../public/images/home1.png';
+import ShowTrips from '../HomePage/showTrips';
+import PropTypes from 'prop-types';
 
 
 
-const Content = () => {
+const Content = ({userInfo}) => {
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,114 +42,34 @@ const Content = () => {
   const calendarRef = useRef(null);
   const today = new Date();
   const [numberOfTickets, setNumberOfTickets] = useState(1);
-
-  // useEffect(() => {
-  //   const fetchProvincesAndDistricts = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         "https://provinces.open-api.vn/api/?depth=2"
-       
-  //       );
-  //       const provincesData = response.data;
-  //       // Cập nhật dữ liệu tỉnh/thành phố
-  //       const cleanedProvinces = provincesData.map((province) => ({
-  //         ...province,
-  //         name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
-  //       }));
-
-  //       const flattenedOptions = provincesData.flatMap((province) =>
-  //         province.districts.map((district) => ({
-  //           ...district,
-  //           provinceName: province.name,
-  //           label: `${district.name.replace(
-  //             /^(Huyện|Quận) /,
-  //             ""
-  //           )} - ${province.name.replace(/^(Tỉnh|Thành phố) /, "")}`,
-  //         }))
-  //       );
-
-  //       setProvinces(cleanedProvinces);
-  //       setDistricts(flattenedOptions);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.error("Lỗi Khi Lấy dữ Liệu API:", error);
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchProvincesAndDistricts();
-  // }, []);
+  const [showNoTripMessage, setShowNoTripMessage] = useState(false);
+  const [tripData, setTripData] = useState(null);
+ 
   useEffect(() => {
     const fetchProvincesAndDistricts = async () => {
-        setLoading(true); // Đặt loading về true trước khi bắt đầu
+        setLoading(true); 
 
         try {
-            // Lấy danh sách tỉnh/thành phố
-            const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
-            if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
-                const provincesData = provincesResponse.data.data;
-                const cleanedProvinces = provincesData.map((province) => ({
-                    ...province,
-                    name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
-                }));
+          const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
+          if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
+              const provincesData = provincesResponse.data.data;
+              const cleanedProvinces = provincesData.map((province) => ({
+                  ...province,
+                  name: province.name.replace(/^(Tỉnh|Thành phố) /, ""), 
+              }));
 
-                console.log("Danh sách tỉnh/thành phố:", cleanedProvinces);
+              console.log("Danh sách tỉnh/thành phố:", cleanedProvinces);
+              setProvinces(cleanedProvinces);
+          } else {
+              console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
+          }
 
-                const allDistricts = [];
-                const totalCount = 705;
-                const pageSize = 100;
-                let page = 1;
-
-         
-                while (true) {
-                    try {
-                        const districtResponse = await axios.get(`https://open.oapi.vn/location/districts?page=${page}&size=${pageSize}`);
-                        if (districtResponse.data.code === 'success') {
-                            const districtsData = districtResponse.data.data.map((district) => {
-                                // Tìm tỉnh tương ứng với quận/huyện
-                                const province = provincesData.find(prov => prov.id === district.provinceId);
-                                return {
-                                    ...district,
-                                    provinceName: province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : '',
-                                    label: `${district.name.replace(/^(Huyện|Quận) /, "")} - ${province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : ''}`,
-                                };
-                            });
-
-                            allDistricts.push(...districtsData);
-
-                           // console.log(`Đã lấy ${districtsData.length} quận/huyện từ trang ${page}.`);
-                            if (districtsData.length < pageSize) break;
-                            
-                            page++; // Tăng trang
-                        } else {
-                            console.error(`Lỗi từ API: ${districtResponse.data.message}`);
-                            break;
-                        }
-                    } catch (error) {
-                         if (error.response && error.response.status === 429) {
-                        //     console.error('Quá nhiều yêu cầu, đang chờ để thử lại...');
-                             await new Promise(resolve => setTimeout(resolve, 1000)); 
-                       } else {
-                            console.error('Lỗi Khi Lấy Dữ Liệu API:', error.message);
-                            break; 
-                        }
-                    }
-                }
-
-             
-                console.log("Tổng số quận/huyện của Việt Nam:", allDistricts.length);
-                setProvinces(cleanedProvinces);
-                setDistricts(allDistricts);
-            } else {
-             //   console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
-            }
-
-            setLoading(false);
-        } catch (error) {
-          //  console.error("Lỗi Khi Lấy Dữ Liệu API:", error);
-            setLoading(false);
-        }
-    };
+          setLoading(false);
+      } catch (error) {
+          console.error("Lỗi Khi Lấy Dữ Liệu API:", error);
+          setLoading(false);
+      }
+  };
 
     fetchProvincesAndDistricts();
 }, []);
@@ -268,15 +190,26 @@ const Content = () => {
     }
   };
   const handleSearch = () => {
+    const dataOfShowTrips = {
+      departure: fromProvince.name,
+      destination: toProvince.name, 
+      departureDate: dateRange[0],
+      returnDate: dateRange[1],
+      tripType: selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi',
+      userId: userInfo._id
+    };
     console.log("Tỉnh đi:", fromProvince);
     console.log("Tỉnh đến:", toProvince);
     console.log("Ngày đi:", dateRange[0]);
     console.log("Ngày về:", dateRange[1]);
     console.log("Loại chuyến:", selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi');
+    console.log("id khách hàng",userInfo._id);
+    setTripData(dataOfShowTrips); 
+    setShowNoTripMessage(true);
       
   };
   return (
-    <Box>
+    <Box sx={{background:'#f4f4f4', height:'auto'}}>
       <img alt="" className='home_banner' src={home_banner} style={{ width: '100%', height: 'auto', }} />
       <Box
        sx={{
@@ -284,8 +217,7 @@ const Content = () => {
         top: '0',
         left: '0',
         right: '0',
-        bottom: '0',
-        paddingTop: '10px', 
+        paddingTop: '120px', 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -673,12 +605,27 @@ const Content = () => {
               >
                 Tìm chuyến xe 
               </Button>
+
+
+             
             </Box>
+            
         </Box>
       </Typography>
       </Box>
+      {showNoTripMessage && (
+        <Box>
+          {tripData && <ShowTrips dataOfShowTrips={tripData}></ShowTrips>}
+        </Box>
+      )}
     </Box>
   );
+};
+
+Content.propTypes = {
+  
+  userInfo: PropTypes.func.isRequired,
+  
 };
 
 export default Content;

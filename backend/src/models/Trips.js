@@ -28,6 +28,10 @@ const tripSchema = new mongoose.Schema({
     type: Date, 
     required: true 
   },
+  totalFareAndPrice: { 
+    type: Number,  
+    required: true 
+  },
   status: { 
     type: String, 
     enum: ['Đang hoạt động', 'Hủy','Hoạt động thành công'], 
@@ -37,7 +41,19 @@ const tripSchema = new mongoose.Schema({
     type: [Number],  // Mảng chứa số ghế đã đặt
     default: [] 
   },
-  
+  tripType: { type: String, enum: ['Cố định', 'Không cố định'], required: true },
+  tripDates: [{ 
+    date: { type: Date, required: true },
+    sales: { 
+      totalTicketsSold: { type: Number, required: true, default: 0 },
+      totalRevenue: { type: Number, required: true, default: 0 }
+    }
+  }], 
+  schedule: [{  
+    name: { type: String, default: null}, 
+    address: { type: String, default: null  },
+    time: { type: String, default: null },
+  }],
 }, { timestamps: true });
 
 const Trip = mongoose.model('Trip', tripSchema);

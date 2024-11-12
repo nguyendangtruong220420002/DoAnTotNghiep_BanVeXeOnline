@@ -39,12 +39,6 @@
 
 }
 
-
-
-
-
-
-/* Tùy chỉnh chung cho các ô ngày */
 .react-calendar__tile {
   border: 1px solid #e5e7eb !important;
   padding: 10px;
@@ -57,14 +51,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Hiệu ứng khi hover vào ngày */
 .react-calendar__tile:hover {
   background-color: #f8c4b9 !important;
   color: white !important; 
   font-weight: bold !important; 
 }
 
-/* Điều chỉnh kích thước font của nội dung âm lịch */
 .react-calendar__tile div {
   font-size: 10px !important;
   color: #989898 !important; 
@@ -72,14 +64,13 @@
   
 }
 
-/* Tô màu cho khoảng ngày đi - ngày về (bao gồm cả ngày mặc định nếu trùng) */
 .react-calendar__tile.range-date {
   background-color: rgb(220,99,91) !important; 
   color: #ffffff !important; 
   font-weight: bold !important;
 }
 
-/* Hiệu ứng hover cho khoảng ngày đi - ngày về */
+
 .react-calendar__tile.range-date:hover {
   background-color: #fff7f5 !important; 
   color: #000 !important; 
