@@ -13,6 +13,20 @@ import moment from 'moment-timezone';
 
 
 const Trips = ({ userInfo, }) => {
+
+  const API_URL = import.meta.env.VITE_API_URL;
+  const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState({ open: false, message: '', severity: 'success' });
+  const [editingTripsId, setEditingTripsId] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [busRouteList, setBusRouteList] = useState([]);
+  const [busList, setBusList] = useState([]); 
+  const [busTripsList, setTripsList] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [departureTime, setDepartureTime] = useState(''); 
+  const [endTime, setEndTime] = useState('');
+
   const [trips, setTrips] = useState({
     TripsName: '',
     routeId: '',
@@ -21,20 +35,24 @@ const Trips = ({ userInfo, }) => {
     status: '',
     endTime:'',
     bookedSeats:'',
-    
+    tripType:'',
+    totalFareAndPrice: '',
   });
+
+  //tính giá vé/ghế
+  useEffect(() => {
+    const fare = (busRouteList.find((route) => route._id === trips.routeId)?.totalFare || 0);
+    const busPrice = (busList.find((bus) => bus._id === trips.busId)?.Price || 0);
+    const totalFareAndPrice = fare + busPrice;
+  
+    setTrips((prevTrips) => ({
+      ...prevTrips,
+      totalFareAndPrice: totalFareAndPrice,
+    }));
+  }, [trips.routeId, trips.busId, busRouteList, busList]);
   console.log("route",trips);
-  const API_URL = import.meta.env.VITE_API_URL;
-  const [loading, setLoading] = useState(true);
-  const [alert, setAlert] = useState({ open: false, message: '', severity: 'success' });
-  const [editingTripsId, setEditingTripsId] = useState(null);
-  const [busRouteList, setBusRouteList] = useState([]);
-  const [busList, setBusList] = useState([]); 
-  const [busTripsList, setTripsList] = useState([]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [departureTime, setDepartureTime] = useState(''); 
-  const [endTime, setEndTime] = useState('');
+ 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTrips((prevTrips) => ({
@@ -61,13 +79,19 @@ const Trips = ({ userInfo, }) => {
 
   const handleSubmit = async(e) => {
     e.preventDefault(); 
+   
     const formattedDepartureTime = moment(trips.departureTime).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm');
     const formattedEndTime = moment(trips.endTime).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm');
-    // console.log('Thời gian khởi hành:', formattedDepartureTime);
-    // console.log('Thời gian kết thúc:', formattedEndTime);
+     console.log('Thời gian khởi hành:', formattedDepartureTime);
+     console.log('Thời gian kết thúc:', formattedEndTime);
    
-    const Trips = { ...trips, userId: userInfo._id, departureTime: formattedDepartureTime,  endTime: formattedEndTime,};
-    // console.log('Dữ liệu gửi đến backend', Trips);
+    const Trips = { 
+      ...trips, userId: userInfo._id, 
+      departureTime: formattedDepartureTime,  
+      endTime: formattedEndTime, 
+    
+    };
+     console.log('Dữ liệu gửi đến backend', Trips);
     try {
       let response;
       if (editingTripsId) {
@@ -90,6 +114,7 @@ const Trips = ({ userInfo, }) => {
   
       if (response.ok) {
         await fetchTripsList(); 
+        await  fetchBusList(); 
         setTrips({ TripsName: '',routeId: '',busId: '',departureTime: '',status: '',endTime:'',bookedSeats:'',});
         setEditingTripsId(null); 
         setAlert({ open: true, message: editingTripsId ? 'Cập nhật chuyến xe thành công!' : 'Thêm chuyến xe thành công!', severity: 'success' });
@@ -170,13 +195,15 @@ const Trips = ({ userInfo, }) => {
       TripsName: tripsItem.TripsName,
       busId: tripsItem.busId,
       routeId:tripsItem.routeId,
-      departureTime: moment(tripsItem.departureTime).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm'),
+      departureTime: moment(tripsItem.departureTime).tz('Asia/Ho_Chi_Minh').format('YYYY-DD-MMTHH:mm'),
       status: tripsItem.status,
-      endTime: moment(tripsItem.endTime).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm'),
+      endTime: moment(tripsItem.endTime).tz('Asia/Ho_Chi_Minh').format('YYYY-DD-MMTHH:mm'),
       bookedSeats:tripsItem.bookedSeats,
+      tripType:tripsItem.tripType,
       
     });
     setEditingTripsId(tripsItem._id);
+    setIsEditing(true);
   };
   const onDelete = async (tripsItem) => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa tuyến xe này không?");
@@ -214,7 +241,9 @@ const Trips = ({ userInfo, }) => {
           padding: '10px', 
           boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
         }}>
-          <Typography sx={{textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)',  }}>Thêm Chuyến Xe</Typography>
+         <Typography sx={{ textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>
+            {isEditing ? 'Sửa Chuyến Xe' : 'Thêm Chuyến Xe'}
+        </Typography>
       <Box
         component="form"
         onSubmit={handleSubmit}
@@ -291,7 +320,7 @@ const Trips = ({ userInfo, }) => {
       />
         <TextField
         color="warning"
-        label="Thời gian kết thúc"
+        label="Thời gian đến"
         variant="outlined"
         size="small"
         sx={{width:'250px'}}
@@ -321,9 +350,9 @@ const Trips = ({ userInfo, }) => {
       />
       <FormControl size="small" sx={{ width: '200px' }}>
         <InputLabel 
-          sx={{
-            fontSize: '13px',
-          }}
+          sx={{color: '#706966',fontSize:'13px','&.Mui-focused': {
+            color: '#ed6c02', 
+          },}}
         >
           Trạng thái
         </InputLabel>
@@ -376,61 +405,100 @@ const Trips = ({ userInfo, }) => {
         </Select>
       </FormControl>
       <FormControl sx={{ width: '300px', mb: 2 }} size="small">
-      <InputLabel sx={{color: '#706966',fontSize:'13px','&.Mui-focused': {
-        color: '#ed6c02', 
-      },}}>Biển số Xe</InputLabel>
-        <Select
-          color="warning"
-          label="Biển số xe"
-          name="busId"
-          value={trips.busId}
-          onChange={handleChange}
-          sx={{
-            fontSize: '13px',
-            backgroundColor: '#fef3f0',
-            '&.Mui-focused': {
-              backgroundColor: 'white',
-              boxShadow: '0 0 0 2px rgb(255, 224, 212)',
-            },
-          }}
-        >
-         {busList.map((bus) => (
-          <MenuItem key={bus._id} value={bus._id}>
-            <Box sx={{display:'flex', alignItems:'center'}}><Typography sx={{fontSize:'13px'}}>{bus.licensePlate}</Typography>(<Typography sx={{fontSize:'10px'}}>{bus.busType}</Typography>)</Box>
-          </MenuItem>
-        ))}
-        </Select>
-      </FormControl>
-      <TextField
+      <InputLabel 
+        sx={{
+          color: '#706966',
+          fontSize: '13px',
+          '&.Mui-focused': { color: '#ed6c02' },
+        }}
+      >
+        Loại xe
+      </InputLabel>
+      <Select
         color="warning"
-        label="Ghế đã Đặt"
-        variant="outlined"
-        size="small"
-        sx={{width:'300px'}}
-        name="bookedSeats"
-        
-        value={trips.bookedSeats} 
+        label="Loại xe"
+        name="busId"
+        value={trips.busId}
         onChange={handleChange}
-        InputProps={{
-            sx: {
-              fontSize: '13px',
-              backgroundColor: '#fef3f0',
-              '&.Mui-focused': {
-                backgroundColor: 'white',
-                boxShadow: '0 0 0 2px rgb(255, 224, 212)',
-              },
-              inputProps: {
-                min: 0,
-              },
-            },
-          }}
-          InputLabelProps={{
-            shrink: true, 
-            sx: {
-              fontSize: '13px',
-            },
-          }}
-      />
+        sx={{
+          fontSize: '13px',
+          backgroundColor: '#fef3f0',
+          '&.Mui-focused': {
+            backgroundColor: 'white',
+            boxShadow: '0 0 0 2px rgb(255, 224, 212)',
+          },
+        }}
+      >
+    {busList.map((bus) => (
+      <MenuItem 
+        key={bus._id} 
+        value={bus._id} 
+       // disabled={bus.status === 'Đang phục vụ'} 
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography sx={{ fontSize: '13px' }}>{bus.busType}</Typography>
+          {/* <Typography sx={{ fontSize: '10px' }}>{bus.licensePlate}</Typography> */}
+        </Box>
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+      <FormControl size="small" sx={{ width: '200px' }}>
+            <InputLabel 
+               sx={{color: '#706966',fontSize:'13px','&.Mui-focused': {
+                color: '#ed6c02', 
+              },}}
+            >
+              Loại chuyến xe
+            </InputLabel>
+            <Select
+              label="Loại chuyến xe"
+              name="tripType"
+              value={trips.tripType}
+              onChange={handleChange}
+              color="warning"
+              sx={{
+                fontSize: '13px',
+                backgroundColor: '#fef3f0',
+                '&.Mui-focused': {
+                  backgroundColor: 'white',
+                  boxShadow: '0 0 0 2px rgb(255, 224, 212)',
+                }
+              }}
+            >
+              <MenuItem value="Cố định">Cố định</MenuItem>
+              <MenuItem value="Không cố định">Linh hoạt</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+              color="warning"
+              label="Giá vé/ghế"
+              variant="outlined"
+              size="small"
+              sx={{ width: '120px' }}
+              name="departureTime"
+              type="text"  
+              value={(trips.totalFareAndPrice || 0).toLocaleString()} 
+              InputProps={{
+                disabled: true,  
+                sx: {
+                  fontSize: '13px',
+                  backgroundColor: '#f6f6f6',
+                  color:'#dc635b',
+                  '&.Mui-focused': {
+                    backgroundColor: '#dc635b',
+                    boxShadow: '0 0 0 2px rgb(255, 224, 212)',
+                  },
+                },
+              }}
+              InputLabelProps={{
+                shrink: true,
+                sx: {
+                  fontSize: '14px',
+                  color:'#dc635b',
+                },
+              }}
+            />
         </Box>
         </Box>
         <Box sx={{display:"flex",gap:2, alignContent:'center', marginLeft:'20px'}}>
@@ -459,14 +527,14 @@ const Trips = ({ userInfo, }) => {
         <TableHead>
           <TableRow>
           <TableCell sx={{ minWidth: 5, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>STT</TableCell> {/* Cột STT */}
-            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tên chuyến xe</TableCell>
+            <TableCell sx={{ minWidth: 5, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tên chuyến</TableCell>
             <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tuyến xe</TableCell>
-            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Biển Số(loại)</TableCell>
-            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Ghế Đã Đặt</TableCell>
-            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Số chỗ</TableCell>
+            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Loại xe</TableCell>
+            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>(Đặt/Tổng)</TableCell>
             <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thời gian khởi hành</TableCell>
-            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thời gian kết thúc</TableCell>
-            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tổng giá vé</TableCell>
+            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thời gian đến</TableCell>
+            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tổng giá vé(VND)</TableCell>
+            <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Loại chuyến</TableCell>
             <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Trạng thái</TableCell>
             <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thao Tác</TableCell>
           </TableRow>
@@ -481,14 +549,15 @@ const Trips = ({ userInfo, }) => {
               {busRouteList.find((route) => route._id === tripsItem.routeId)?.routeName}
               </TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>
-              {busList.find((bus) => bus._id === tripsItem.busId)?.licensePlate}
+              {busList.find((bus) => bus._id === tripsItem.busId)?.busType}
               </TableCell>
-              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.bookedSeats}</TableCell>
-              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.bookedSeats}</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.bookedSeats}/{busList.find((bus) => bus._id === tripsItem.busId)?.cartSeat} chỗ
+              </TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.departureTime}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.endTime}</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.totalFareAndPrice} VND</TableCell>
+              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.tripType}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.status}</TableCell>
-              <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.endTime}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>
                 <IconButton 
                   sx={{
@@ -519,7 +588,7 @@ const Trips = ({ userInfo, }) => {
           ))}
           <TableRow>
             <TableCell colSpan={7} sx={{ textAlign: 'center', fontSize: '16px', fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', position: 'sticky', bottom: 0, backgroundColor: 'white' }}>
-              Tổng số chuyến xe: {busRouteList.length}
+              Tổng số chuyến xe: {busTripsList.length}
             </TableCell>
           </TableRow>
         </TableBody>
