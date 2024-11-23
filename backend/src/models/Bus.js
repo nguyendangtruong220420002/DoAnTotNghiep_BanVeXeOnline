@@ -7,7 +7,16 @@ const busSchema = new mongoose.Schema({
   },
   busType: { 
     type: String, 
-    required: true 
+    required: true,
+    enum: [
+      "Ghế(16G)", 
+      "Ghế(24G)", 
+      "Ghế(30G)", 
+      "Giường nằm cao cấp(40G)", 
+      "Khách sạc đi động(34G)", 
+      "Limousine(20G)", 
+      "Giường đôi (16G)"
+    ] 
   },
   cartSeat:{
     type: Number, 

@@ -15,7 +15,7 @@ const tripSchema = new mongoose.Schema({
     ref: 'Bus', 
     required: true 
   },
-  userId: { 
+  userId: {   // của nhà xe
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
     required: true 
@@ -37,18 +37,33 @@ const tripSchema = new mongoose.Schema({
     enum: ['Đang hoạt động', 'Hủy','Hoạt động thành công'], 
     default: 'Đang hoạt động' 
   },
-  bookedSeats: { 
-    type: [Number],  // Mảng chứa số ghế đã đặt
-    default: [] 
-  },
+ 
+
   tripType: { type: String, enum: ['Cố định', 'Không cố định'], required: true },
-  tripDates: [{ 
-    date: { type: Date, required: true },
-    sales: { 
-      totalTicketsSold: { type: Number, required: true, default: 0 },
-      totalRevenue: { type: Number, required: true, default: 0 }
+
+  tripDates: [
+    {
+      date: { type: Date, required: true }, // Ngày của chuyến đi
+      sales: {
+        totalTicketsSold: { type: Number, required: true, default: 0 },
+        totalRevenue: { type: Number, required: true, default: 0 }
+      },
+      bookedSeats: 
+        {
+          booked: [
+            {
+              seatId: { type:String, required: true }, // ID ghế
+              userId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true, 
+              },bookingDate: { type: Date, default: Date.now }
+               // ID người dùng đặt ghế
+            }
+          ]
+        }  
     }
-  }], 
+  ],
   schedule: [{  
     name: { type: String, default: null}, 
     address: { type: String, default: null  },

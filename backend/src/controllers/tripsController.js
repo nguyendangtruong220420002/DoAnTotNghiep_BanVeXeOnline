@@ -5,7 +5,7 @@ const moment = require('moment-timezone');
 
 const addTrips = async (req, res) => {
   try {
-    const { TripsName, routeId, busId, userId, status, bookedSeats, departureTime, endTime, tripType, schedule: initialSchedule,totalFareAndPrice } = req.body;
+    const { TripsName, routeId, busId, userId, status, departureTime, endTime, tripType, schedule: initialSchedule,totalFareAndPrice } = req.body;
     
     if (!tripType) {
       return res.status(400).json({ message: 'Trip type is required' });
@@ -70,7 +70,6 @@ const addTrips = async (req, res) => {
       departureTime: departureTimeInUTC,
       endTime: endTimeInUTC,
       status,
-      bookedSeats,
       totalFareAndPrice,
       tripType,
       tripDates,  
@@ -110,7 +109,7 @@ const getTripsByUser = async (req, res) => {
 
 const editTrips = async (req, res) => {
   const { id } = req.params;
-  const { TripsName, routeId, busId, userId, departureTime, endTime, status, bookedSeats, tripType, schedule: updatedSchedule, totalFareAndPrice } = req.body;
+  const { TripsName, routeId, busId, userId, departureTime, endTime, status, tripType, schedule: updatedSchedule, totalFareAndPrice } = req.body;
 
   try {
     console.log("Dữ liệu gửi từ frontend:");
@@ -187,7 +186,6 @@ const editTrips = async (req, res) => {
       departureTime: departureTimeInUTC,
       endTime: endTimeInUTC,
       status,
-      bookedSeats,
       totalFareAndPrice,
       tripType,
       tripDates,  
@@ -224,51 +222,6 @@ const editTrips = async (req, res) => {
     }
   };
 
-//   const getTripsSeach = async (req, res) => {
-//     const { departure, destination, departureDate, returnDate, tripType } = req.query;
-
-//     // Kiểm tra các tham số cần thiết
-//     if (!departure || !destination || !departureDate || !tripType) {
-//         return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin tìm kiếm' });
-//     }
-
-//     try {
-//         const route = await BusRoute.findOne({ departure, destination });
-
-//         if (!route) {
-//             return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
-//         }
-//         const queryConditions = {
-//             routeId: route._id,
-//             departureTime: {
-//                 $gte: moment(departureDate).startOf('day').toDate(),
-//                 $lte: moment(departureDate).endOf('day').toDate(),
-//             },
-//         };
-//         if (tripType === "Khứ hồi" && returnDate) {
-//             queryConditions.returnDate = {
-//                 $gte: moment(returnDate).startOf('day').toDate(),
-//                 $lte: moment(returnDate).endOf('day').toDate(),
-//             };
-//         }
-
-//         console.log('Query conditions:', queryConditions);
-//         const trips = await Trips.find(queryConditions).populate('routeId').populate('userId').populate('busId');
-     
-//         const tripsWithLocalTime = trips.map(trip => ({
-//             ...trip.toObject(),
-//             departureTime: moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//             endTime: moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//             user: trip.userId,
-//             bus: trip.busId,
-//         }));
-
-//         res.status(200).json(tripsWithLocalTime);
-//     } catch (error) {
-//         console.error("Error fetching trips:", error);
-//         res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
-//     }
-// };
 
 const updateTripSchedule = async (req, res) => {
   const { tripId } = req.params; 
@@ -322,8 +275,7 @@ const getTripsSeach = async (req, res) => {
           };
       }
 
-      console.log('Query conditions:', queryConditions);
-
+      //console.log('Query conditions:', queryConditions);
       // Lấy tất cả các chuyến xe từ database theo điều kiện
       const trips = await Trips.find(queryConditions)
           .populate('routeId')
@@ -373,6 +325,9 @@ const deleteTripSchedule = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server', error });
   }
 };
+
+
+
 
   module.exports = { addTrips, getTripsByUser, editTrips, deleteTrips, getTripsSeach, updateTripSchedule,deleteTripSchedule};
   

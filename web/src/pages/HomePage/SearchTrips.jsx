@@ -1,3 +1,4 @@
+
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useRef  } from "react";
 import {
@@ -9,7 +10,7 @@ import {
   Radio,
   TextField,
   Autocomplete,
-  Button 
+  Button ,Select,MenuItem
 } from "@mui/material";
 import "../HomePage/css/content.css";
 import axios from "axios";
@@ -26,14 +27,16 @@ import { solarToLunar  } from 'lunar-calendar';
 import ShowTrips from '../HomePage/showTrips';
 import PropTypes from 'prop-types';
 import home_banner from '../../../public/images/home1.png';
-import { useLocation } from "react-router-dom";
+import one_way from '../../../public/images/one-way.png';
+import round_trip from '../../../public/images/round-trip.png';
+
+
 import { useNavigate } from 'react-router-dom';
 
 
 
-const Content = ({userInfo}) => {
+const SearchTrips = ({userInfo}) => {
   const navigate = useNavigate();
-  const location = useLocation(); 
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -194,18 +197,38 @@ const Content = ({userInfo}) => {
     }
   };
 
-  
-  const handleSearch = () => {
+  useEffect(() => {
+
+    const storedFromProvince = localStorage.getItem('fromProvince');
+    const storedToProvince = localStorage.getItem('toProvince');
+    const storedDateRange = localStorage.getItem('dateRange');
+    const storedSelectedValue = localStorage.getItem('selectedValue');
     
+    if (storedFromProvince) {
+      setFromProvince(JSON.parse(storedFromProvince));
+    }
+    if (storedToProvince) {
+      setToProvince(JSON.parse(storedToProvince));
+    }
+    if (storedDateRange) {
+      const parsedDateRange = JSON.parse(storedDateRange);
+      if (Array.isArray(parsedDateRange)) {
+        setDateRange([new Date(parsedDateRange[0]), parsedDateRange[1] ? new Date(parsedDateRange[1]) : null]);
+      }
+    }
+  
+    if (storedSelectedValue) {
+      setSelectedValue(storedSelectedValue);
+    }
+  }, []);
+  const handleSearch = () => {
     const departureDate = new Date(dateRange[0]);
     departureDate.setHours(0, 0, 0, 0);  
   
     const returnDate = dateRange[1] ? new Date(dateRange[1]) : null;
     if (returnDate) {
-      returnDate.setHours(0, 0, 0, 0);  
+      returnDate.setHours(0, 0, 0, 0); 
     }
-  
-    // Định dạng ngày theo kiểu "T4, 20/11/2024"
     const formattedDepartureDate = departureDate.toLocaleDateString('vi-VN', {
       weekday: 'short', 
       day: '2-digit',   
@@ -221,14 +244,12 @@ const Content = ({userInfo}) => {
           year: 'numeric',
         })
       : null;
-  
-    // Lưu trữ vào localStorage
+    console.log("Ngày đi:", formattedDepartureDate);
+    console.log("Ngày về:", formattedReturnDate);
     localStorage.setItem('fromProvince', JSON.stringify(fromProvince));
     localStorage.setItem('toProvince', JSON.stringify(toProvince));
-    localStorage.setItem('dateRange', JSON.stringify([departureDate, returnDate])); // Save dates as array
+    localStorage.setItem('dateRange', JSON.stringify([departureDate, returnDate]));
     localStorage.setItem('selectedValue', selectedValue);
-  
-    // Dữ liệu chuyến đi
     const dataOfShowTrips = {
       departure: fromProvince.name,
       destination: toProvince.name,
@@ -237,96 +258,83 @@ const Content = ({userInfo}) => {
       tripType: selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi',
       userId: userInfo._id
     };
-  
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);
     navigate('/showTrips', { state: { dataOfShowTrips, userInfo } });
   };
   
   return (
-    <Box sx={{background:'#f4f4f4', height:'auto'}}>
-     <img alt="" className='home_banner' src={home_banner} style={{ width: '100%', height: 'auto', }} />
+    <Box sx={{backgroundColor:'#551615', height:'67px'}}>
       <Box
        sx={{
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        right: '0',
-        paddingTop: '120px', 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1, 
+       
       }}
       >
         <Typography
         sx={{
-          width: "1130px",
-          height: "190px",
-          backgroundColor: "white",
-          marginTop: "10px",
+          width: "1350px",
+          height: "67px",
+          backgroundColor:'#551615',
+         
         }}
-        className="border1"
       >
-        <Box sx={{ padding: "20px" }}>
-          <FormControl component="fieldset">
-            <RadioGroup
-              row
-              aria-label="trip-type"
-              value={selectedValue}
-              onChange={handleChange}
-            >
-              <FormControlLabel
-                value="one-way"
-                control={
-                  <Radio
-                    sx={{
-                      "& .MuiSvgIcon-root": { fontSize: 18 },
-                      width: "25px",
-                    }}
-                    className={
-                      selectedValue === "one-way" ? "radio-checked" : ""
-                    }
-                  />
-                }
-                label={
-                  <span style={{ fontSize: "15px", marginRight: "20px" }}>
-                    Một chiều
-                  </span>
-                }
-                className={
-                  selectedValue === "one-way"
-                    ? "radio-label-checked"
-                    : "radio-label"
-                }
-              />
-              <FormControlLabel
-                value="round-trip"
-                control={
-                  <Radio
-                    sx={{
-                      "& .MuiSvgIcon-root": { fontSize: 18 },
-                      width: "25px",
-                    }}
-                    className={
-                      selectedValue === "round-trip" ? "radio-checked" : ""
-                    }
-                  />
-                }
-                label={<span style={{ fontSize: "15px" }}>Khứ hồi</span>}
-                className={
-                  selectedValue === "round-trip"
-                    ? "radio-label-checked"
-                    : "radio-label"
-                }
-              />
-            </RadioGroup>
-          </FormControl>
-
+        <Box sx={{  marginTop:'3px' }}>
+         
           <Box sx={{ display: "flex" }}>
-            <Box sx={{ marginTop: "20px", display: "flex" }}>
+            <Box sx={{ marginTop: "5px", display: "flex" }}>     
+            <FormControl sx={{ marginRight: '20px' }}>
+      <Select
+        className="select"
+        size="small"
+        value={selectedValue}
+        onChange={handleChange}
+        MenuProps={{ disableScrollLock: true }}
+        inputProps={{ "aria-label": "trip-type" }}
+        sx={{
+          borderRadius: '8px',
+          height: '50px',
+          width:'150px',
+          fontSize: '15.5px',
+          fontWeight: "bold",
+          "& .MuiSelect-select": {
+            padding: '0px',
+          },
+        }}
+      >
+       
+        <MenuItem value="one-way">
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <img
+              src={one_way}
+              alt="One Way"
+              style={{ width: '30px', height: '30px', marginRight: '10px' }}
+            />
+            <Typography sx={{ fontSize: '13px', fontWeight: 'bold', color:'#dc635b' }}>
+              Một chiều
+            </Typography>
+          </Box>
+        </MenuItem>
+        <MenuItem value="round-trip">
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <img
+              src={round_trip}
+              alt="Round Trip"
+              style={{ width: '30px', height: '30px', marginRight: '10px' }}
+            />
+            <Typography sx={{ fontSize: '13px', fontWeight: 'bold' , color:'#dc635b' }}>
+              Khứ hồi
+            </Typography>
+          </Box>
+        </MenuItem>
+      </Select>
+    </FormControl>
+    
               <Autocomplete
+               size="small"
                 options={groupedOptions.flatMap((group) => group.items)}
                 groupBy={(option) => {
                   return option.provinceName ? "Quận/Huyện" : "Tỉnh/Thành phố";
@@ -337,12 +345,12 @@ const Content = ({userInfo}) => {
                 loading={loading}
                 renderInput={(params) => (
                   <TextField
+                    size="small"
                     {...params}
-                    label="Nơi xuất phát"
                     fullWidth
-                    placeholder="Chọn Tỉnh thành"
-                    className="date"
-                    sx={{ width: "270px" }}
+                    placeholder="Nơi đi"
+                    className="select"
+                    sx={{ width: "220px",}}
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: (
@@ -354,14 +362,13 @@ const Content = ({userInfo}) => {
                       ),
                       sx: {
                         color: "black",
-                        fontSize: "17px",
+                        fontSize: "16px",
                         fontFamily: "InterTight, sans-serif",
                         fontWeight: "bold",
+                        height:'50px'
                       },
                     }}
-                    InputLabelProps={{
-                      sx: { color: "black", fontSize: "17px" },
-                    }}
+                   
                   />
                 )}
               />
@@ -372,18 +379,19 @@ const Content = ({userInfo}) => {
                 sx={{
                   height: "30px",
                   width: "30px",
-                  mt: 2,
+                  mt: 1,
                   border: "none",
-                  borderRadius: "50%",
+                  borderRadius: "15px",
                   padding: 0,
                   minWidth: "auto",
-                  minHeight: "auto",
+            
                 }}
               >
-                <SwapHorizOutlinedIcon sx={{ color: "rgb(240, 82, 34)" }} />
+                <SwapHorizOutlinedIcon sx={{ color: "#cbbaba" }} />
               </Button>
 
               <Autocomplete
+                size="small"
                 options={groupedOptions.flatMap((group) => group.items)}
                 groupBy={(option) => {
                   return option.provinceName ? "Quận/Huyện" : "Tỉnh/Thành phố";
@@ -394,13 +402,13 @@ const Content = ({userInfo}) => {
                 loading={loading}
                 renderInput={(params) => (
                   <TextField
+                    size="small"
                     {...params}
-                    className="date"
-                    label="Nơi đến"
+                   className="select"
                     fullWidth
-                    placeholder="Chọn Tỉnh thành"
+                    placeholder="Nơi đến"
                     
-                    sx={{ width: "270px" }}
+                    sx={{ width: "220px" }}
                     InputProps={{
                       ...params.InputProps,
                       startAdornment: (
@@ -412,9 +420,10 @@ const Content = ({userInfo}) => {
                       ),
                       sx: {
                         color: "black",
-                        fontSize: "17px",
+                        fontSize: "16px",
                         fontFamily: "InterTight, sans-serif",
                         fontWeight: "bold",
+                         height:'50px'
                       },
                     }}
                     InputLabelProps={{
@@ -424,14 +433,15 @@ const Content = ({userInfo}) => {
                 )}
               />
             </Box>
-            <Box sx={{ marginTop: "20px", display: "flex", margin: "20px" }}>
+            <Box sx={{ marginTop: "5px", display: "flex",  marginLeft:'20px' }}>
               {selectedValue === "round-trip" ? (
                 <Box sx={{ display: "flex", justifyContent: "space-between", }}>
                   <Box sx={{ position: "relative" , marginRight:'10px' }}>
                     <TextField
-                      className="date"
-                      label="Ngày đi"
-                      sx={{ width: "180px" }}
+                      size="small"
+                      className="select"
+                       placeholder="Ngày đi"
+                      sx={{ width: "180px",height:'50px' }}
                       onClick={() => {
                         setShowCalendar(true);
                         setCalendarType("departure");
@@ -486,9 +496,10 @@ const Content = ({userInfo}) => {
                   </Box>
                   <Box sx={{ position: "relative" }}>
                     <TextField
-                      label="Ngày về"
-                       className="date"
-                      sx={{ width: "180px" }}
+                      size="small"
+                      placeholder="Ngày về"
+                      className="select"
+                      sx={{ width: "180px", height:'50px' }}
                       onClick={() => {
                         setShowCalendar(true);
                         setCalendarType("return");
@@ -543,9 +554,10 @@ const Content = ({userInfo}) => {
               ) : (
                 <Box sx={{ position: "relative" }}>
                   <TextField
-                    className="date"
-                    label="Ngày đi"
-                    sx={{ width: "370px" }}
+                    size="small"
+                    className="select"
+                    placeholder="Ngày đi"
+                    sx={{ width: "370px",height:'50px' }}
                     onClick={() => {
                       setShowCalendar(true);
                       setCalendarType("departure");
@@ -559,9 +571,9 @@ const Content = ({userInfo}) => {
                     }
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end">
+                        <InputAdornment position="end" >
                           <CalendarMonthRoundedIcon
-                            sx={{ color: "rgb(88, 87, 87)", fontSize: "20px" }}
+                            sx={{ color: "rgb(88, 87, 87)", fontSize: "20px" , }}
                           />
                         </InputAdornment>
                       ),
@@ -593,9 +605,10 @@ const Content = ({userInfo}) => {
                 </Box>
               )}
               <TextField
+                size="small"
+                className="select"
                 type="number"
-                label="Số lượng vé"
-                className="date"
+               placeholder="Số Lượng"
                 value={numberOfTickets}
                 onChange={(e) => {
                   const value = Number(e.target.value);
@@ -609,58 +622,42 @@ const Content = ({userInfo}) => {
                     max: 47,
                   },
                 }}
-                sx={{ width: "100px", marginLeft: "20px", textAlign: "center" }}
+                sx={{ width: "62px", marginLeft: "20px", textAlign: "center", height:'50px' }}
               />
-            </Box>
-          </Box>
-          <Box
-              sx={{
-                marginTop: "80px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent:'center',
-                position: "relative", 
-              }}
-            >
-              <Button
+             <Button
                 variant="contained" 
                 onClick={handleSearch}
                 sx={{
-                  width:'260px',
+                  width:'200px',
                   height:'50px',
-                  position: "absolute",
                   bottom: "20px", 
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  zIndex: 10,
-                  borderRadius:'50px',
+                  borderRadius:'10px',
                   fontSize:'15px',     
-                  backgroundColor:'rgb(220,99,91)'
+                  backgroundColor:'rgb(220,99,91)',
+                  marginTop:'20px',
+                  marginLeft:'15px'
                 }}
               >
-                Tìm chuyến xe 
+                  <Typography sx={{fontSize:'17.5px' ,textShadow:"1px 1px 2px rgba(0, 0, 0, 0.2)", color:'#fffaf3',textTransform: 'none' }}>Tìm chuyến</Typography>
               </Button>
-
-
-             
             </Box>
-            
+          </Box>          
         </Box>
       </Typography>
       </Box>
-      {showNoTripMessage && (
+      {/* {showNoTripMessage && (
         <Box>
           {tripData && <ShowTrips dataOfShowTrips={tripData} userInfo={userInfo} ></ShowTrips>}
         </Box>
-      )}
+      )} */}
     </Box>
   );
 };
 
-Content.propTypes = {
+SearchTrips.propTypes = {
   
   userInfo: PropTypes.func.isRequired,
   
 };
 
-export default Content;
+export default SearchTrips;

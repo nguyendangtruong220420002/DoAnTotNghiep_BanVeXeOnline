@@ -9,7 +9,7 @@ import user from '../../../public/images/user.png';
 import helpdesk from '../../../public/images/setting.png';
 import '../HomePage/css/HomePage.css';
 import Content from '../HomePage/content';
-
+import ShowTrips from '../HomePage/showTrips';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
 import Information from '../../../src/pages/AboutPage/Information';
@@ -28,6 +28,7 @@ const HomePage = () => {
   const [openLogin, setOpenLogin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+
   
 
   useEffect(() => {
@@ -69,6 +70,9 @@ const HomePage = () => {
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
+    if (newValue === '1') {
+      window.location.reload();
+    }
    
   };
   const handleCloseLogin = () => {
@@ -84,6 +88,9 @@ const HomePage = () => {
 const handleCloseModal = () => {
   setOpenModal(false);
 };
+
+
+
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -166,7 +173,7 @@ const handleCloseModal = () => {
                       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                      >
-                      <MenuItem onClick={handleInfoClick} >
+                      <MenuItem onClick={handleInfoClick} MenuProps={{disableScrollLock: true, }}>
                       <Box
                           component="img"
                           src={information}
@@ -223,7 +230,9 @@ const handleCloseModal = () => {
                margin:0,
                boxSizing:'border-box',
             }}>
-              <Content userInfo={userInfo} />
+               
+              <Content userInfo={userInfo}  setValue={setValue}  />
+           
             </TabPanel>
             <TabPanel value="2">
               <Typography>Mã Giảm giá</Typography>

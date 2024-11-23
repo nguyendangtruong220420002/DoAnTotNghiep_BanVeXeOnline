@@ -1,7 +1,7 @@
 const User = require('../../src/models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); 
-const { upload } = require('../../src/config/s3');
+//const { upload } = require('../../src/config/s3');
 
 // Đăng ký người dùng
 const createUser = async (req, res) => {
@@ -73,47 +73,24 @@ const loginUser = async (req, res) => {
   }
 };
 
-// // Cập nhật thông tin người dùng
-// const updateUser = async (req, res) => {
-//   const userId = req.params.id; 
-//   const { fullName, email, phoneNumber, address, img } = req.body;
 
-//   try {
-//     const updatedUser = await User.findByIdAndUpdate(userId, {
-//       fullName,
-//       email,
-//       phoneNumber,
-//       address,
-//       img,
-//     }, { new: true }); 
-
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: 'Người dùng không tồn tại.' });
-//     }
-
-//     res.status(200).json({ message: 'Cập nhật thành công!', user: updatedUser });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Đã xảy ra lỗi khi cập nhật thông tin.' });
-//   }
-// };
 // Cập nhật thông tin người dùng với ảnh
 const updateUser = async (req, res) => {
-  console.log('Hàm updateUser được gọi'); 
-  console.log('req.body:', req.body);
+ // console.log('Hàm updateUser được gọi'); 
+  //console.log('req.body:', req.body);
   const userId = req.params.id; 
 
   try {
     // Kiểm tra req.file có tồn tại không
-    console.log('req.file:', req.file);
+    //console.log('req.file:', req.file);
 
     // Nếu có file được upload, lấy URL của file
     const img = req.file ? req.file.location : undefined;
-    console.log('Đường dẫn ảnh:', img);
+    //console.log('Đường dẫn ảnh:', img);
 
     // Kiểm tra userId
     const userId = req.params.id; // Đảm bảo bạn có userId
-    console.log('User ID:', userId);
+   // console.log('User ID:', userId);
 
     // Cập nhật thông tin người dùng
     const updatedUser = await User.findByIdAndUpdate(userId, {
