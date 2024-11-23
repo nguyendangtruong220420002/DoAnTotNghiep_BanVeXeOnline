@@ -1,28 +1,17 @@
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { styles } from './styles'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Icon, ListItem } from 'react-native-elements'
 import auth from '@react-native-firebase/auth'
 import { useNavigation } from '@react-navigation/native';
 import CookieUtils, { deleteAsyncStorage, getAsyncStorage } from '../../utils/cookie'
+import {useAuth } from '../../context/useAuth'
 
 const Account = () => {
-  
-  const [user, setUser] = useState();
+
   const nav = useNavigation();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = await getAsyncStorage("token");
-      const user = await getAsyncStorage("user");
-
-      console.log("Fetched token:", token);
-      console.log("Fetched user:", user);
-      setUser(user);
-    };
-
-    fetchData();
-  }, []);
+  const { user } = useAuth();
 
   const handleDetailAccount = () => {
     nav.navigate("DetailAccount")
@@ -38,6 +27,7 @@ const Account = () => {
     alert("Đã đăng xuất")
 
   }
+  
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.viewHeader}>
@@ -53,7 +43,7 @@ const Account = () => {
 
       <ScrollView style={styles.body}>
         <View style={styles.list}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleDetailAccount}
             style={styles.view_user}>
             <Icon name='person-circle' type='ionicon' size={58} color={"#FE9B4B"} />
@@ -68,20 +58,22 @@ const Account = () => {
               <Icon name="settings-outline" type="ionicon" color="#FE9B4B" />
               <ListItem.Content>
                 <ListItem.Title>Cài đặt</ListItem.Title>
-                <ListItem.Subtitle><Text style={{ fontSize: 12, }}>Đổi mật khẩu,...</Text></ListItem.Subtitle>
+                <ListItem.Subtitle style={{ fontSize: 12 }}>Đổi mật khẩu,...</ListItem.Subtitle>
               </ListItem.Content>
               <ListItem.Chevron />
             </ListItem>
             <ListItem >
-              <Icon name="log-out-outline" type="ionicon" color="#FE9B4B" />
+              <Icon name="person" type="ionicon" color="#FE9B4B" />
               <ListItem.Content >
                 <ListItem.Title>Cập nhật thông tin</ListItem.Title>
+                <ListItem.Subtitle style={{ fontSize: 12 }}></ListItem.Subtitle>
               </ListItem.Content>
             </ListItem>
             <ListItem onPress={handleSingOut}>
               <Icon name="log-out-outline" type="ionicon" color="#FE9B4B" />
               <ListItem.Content >
                 <ListItem.Title>Đăng xuất </ListItem.Title>
+                <ListItem.Subtitle style={{ fontSize: 12 }}></ListItem.Subtitle>
               </ListItem.Content>
             </ListItem>
           </View>

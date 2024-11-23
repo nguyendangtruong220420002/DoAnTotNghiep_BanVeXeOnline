@@ -18,4 +18,6 @@ export const calendarsConfig = {
     dayNames: ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ 7', 'Chủ Nhật'],
     dayNamesShort: ['CN', 'TH 2', 'TH 3', 'TH 4', 'TH 5', 'TH 6', 'TH 7'],
     today: "Hôm nay"
+
+ 
 }

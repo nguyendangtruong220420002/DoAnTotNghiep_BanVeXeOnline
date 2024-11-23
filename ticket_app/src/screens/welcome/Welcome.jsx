@@ -31,12 +31,12 @@ const Welcome = () => {
         } else {
             try {
                 const response = await postData("users/check-phone", { phoneNumber })
-               
-                const fullName =  response?.data?.user?.fullName;
+
+                const fullName = response?.data?.user?.fullName;
                 console.log(response.data);
-                
+
                 if (response.status === 200 && response.data.exists) {
-                    nav.navigate("Login", { phoneNumber,fullName });
+                    nav.navigate("Login", { phoneNumber, fullName });
                 } else if (response.status === 201) {
                     setIsPhoneInput(false); // Trigger registration dialog
                 }
@@ -56,36 +56,33 @@ const Welcome = () => {
     }
 
     const handleSendOTP = async () => {
-
         const internationalPhoneNumber = `+84${phoneNumber.slice(1)}`;
         console.log(internationalPhoneNumber);
 
         try {
             const confirmation = await auth().signInWithPhoneNumber(internationalPhoneNumber);
+            console.log(confirmation.confirm());
+            
             setConfirm(confirmation);
-
         } catch (error) {
             console.log("Error send otp", error);
         }
     };
 
-
     const handleSubmitOTP = async () => {
 
         try {
-
             await confirm.confirm(OTP);
-            console.log("OTP thanh cong");
+            console.log("OTP verification successful");
 
             nav.navigate("Register", {
                 phoneNumber: phoneNumber,
                 fullName: name,
             });
-
         } catch (error) {
-            console.log('Invalid code.');
+            console.log('Invalid code:', error);
         }
-    }
+    };
 
     return (
 
@@ -110,7 +107,7 @@ const Welcome = () => {
                         ) : (
                             <View>
                                 <Text style={styles.welcomeText}> {confirm ? "Vui lòng nhập mã OTP" : "Họ Tên của bạn ?"}</Text>
-                                <Text style={{ textAlign: 'center', marginTop: 10, color: "green" }} >{confirm ? "Mã OTP đã được gửi về số: " + phone : ""} </Text>
+                                <Text style={{ textAlign: 'center', marginTop: 10, color: "green" }} >{confirm ? "Mã OTP đã được gửi về số: " + phoneNumber : ""} </Text>
 
                             </View>
                         )

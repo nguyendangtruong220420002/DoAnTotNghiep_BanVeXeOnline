@@ -4,7 +4,14 @@
     "slug": "ticket_app",
     "plugins": [
       "@react-native-firebase/app",
-      "@react-native-firebase/auth"
+      "@react-native-firebase/auth",
+      "expo-image-picker",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to let you ..."
+        }
+      ]
     ],
     "version": "1.0.0",
     "orientation": "portrait",

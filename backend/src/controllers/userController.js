@@ -37,12 +37,12 @@ const checkPhoneNumberExists = async (req, res) => {
     const user = await User.findOne({ phoneNumber });
 
     if (user) {
-      return res.status(200).json({ exists: true, message: "Số điện thoại đã tồn tại." });
+      return res.status(200).json({ exists: true, message: "Số điện thoại đã tồn tại." , user:user});
     }
 
-    return res.status(200).json({ exists: false, message: "Số điện thoại không tồn tại." });
+    return res.status(201).json({ exists: false, message: "Số điện thoại không tồn tại." });
 
-  } catch (error) {
+  } catch (error) {   
     return res.status(500).json({ message: "Lỗi khi kiểm tra số điện thoại.", error });
   }
 };
@@ -56,7 +56,7 @@ const loginUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: 'Số điện thoại không tồn tại.' });
     }
-
+ 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Mật khẩu không chính xác.' });
