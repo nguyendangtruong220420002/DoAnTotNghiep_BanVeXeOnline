@@ -1,13 +1,15 @@
-import { Image, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Image, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
 import { deleteAsyncStorage, getAsyncStorage, setAsyncStorage } from '../../utils/cookie'
 import { styles } from './styles'
 import { Icon, ListItem } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
-import { putData } from '../../utils/fetching'
+import { putData, s3_URL } from '../../utils/fetching'
 import axios from 'axios'
-import { useAuth } from '../../context/useAuth'
+import useAuthData, { useAuth } from '../../context/useAuth'
+
 import * as ImagePicker from 'expo-image-picker'
+import * as FileSystem from 'expo-file-system';
 
 const DetailAccount = () => {
 
@@ -24,11 +26,13 @@ const DetailAccount = () => {
     const [currentField, setCurrentField] = useState('');
     const [updatedValue, setUpdatedValue] = useState('');
 
-    const { user, token, setUser } = useAuth();
+    const { user, setUser } = useAuthData();
+
+    const [loadingAvatar, setLoadingAvatar] = useState(false);
+
     const [hasPermission, setHasPermisson] = useState();
 
     useEffect(() => {
-        // Set the header with dynamic data
         nav.setOptions({
             headerTitle: () => (
                 <View style={styles.viewTitle}>
@@ -42,7 +46,6 @@ const DetailAccount = () => {
                         style={styles.headerImage}
                         resizeMode="cover"
                     />
-
                 </View>
             ),
             headerStyle: {
@@ -61,6 +64,10 @@ const DetailAccount = () => {
         })();
     }, []);
 
+    useEffect(() => {
+        setImg(user?.img ? user?.image : null);
+    }, []);
+
     const handleShowUpdateform = () => {
         setIsUpdateform(true);
     };
@@ -70,8 +77,9 @@ const DetailAccount = () => {
         setUpdatedValue(user[field]);
         setModalVisible(true);
     };
+
     const handleUpdate = async () => {
-        // First, ensure that the updated values reflect the changes
+
         const updatedUser = {
             fullName: fullName || user?.fullName,
             email: email || user?.email,
@@ -85,13 +93,12 @@ const DetailAccount = () => {
             // Send the updated data to your backend API
             const response = await putData(`users/${user?._id}`, updatedUser);
 
-            // Handle the response from the API
             if (response?.status === 200) {
-                const newUser = response.data.user;  // Assuming response.data contains user data
-                setUser(newUser);  // Update local user state
-                setAsyncStorage("user", newUser);  // Update AsyncStorage with new user data
-                alert("Cập nhật thành công!");  // Show success message
-                setIsUpdateform(false);  // Switch back to view mode
+                const newUser = response.data.user;
+                setUser(newUser);
+                setAsyncStorage("user", newUser);
+                alert("Cập nhật thành công!");
+                setIsUpdateform(false);
             } else {
                 alert("Cập nhật thất bại! " + (response?.message || "Vui lòng thử lại."));
             }
@@ -102,40 +109,92 @@ const DetailAccount = () => {
     };
 
     const handleSave = () => {
-
         setUser({ ...user, [currentField]: updatedValue });
         setModalVisible(false);
-    }
+    };
 
+    const handlePickImage = async () => {
+        try {
+            setLoadingAvatar(true);
+            const result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [1, 1],
+                quality: 1,
+                base64: true,
+            });
+
+            if (!result.canceled) {
+                // Hiển thị ảnh đã chọn ngay lập tức
+                setImg(result.assets[0].uri);
+
+                // Chuẩn bị dữ liệu để upload
+                const body = {
+                    avatar: {
+                        base64: result.assets[0].base64,
+                        originalname: result.assets[0].fileName || 'image.jpg',
+                        uri: result.assets[0].uri,
+                        mimetype: result.assets[0].mimeType || 'image/jpeg',
+                        size: result.assets[0].fileSize || 0,
+                    },
+                };
+
+                // Gửi dữ liệu lên server
+                const response = await putData(`users/update-avatar-mobile/${user?._id}`, body);
+                console.log(response.data);
+                if (response?.status === 200) {
+                    // Cập nhật ảnh từ server sau khi upload thành công
+                    const newAvatarUrl = response.data.img; // Thay đổi theo API của bạn
+                    setImg(newAvatarUrl);
+
+                    // Cập nhật thông tin user
+                    const updatedUser = response.data;
+                    await setAsyncStorage("user", updatedUser);
+                    setUser(updatedUser);
+
+                } else {
+                    alert("Không thể cập nhật ảnh. Vui lòng thử lại.");
+                }
+            }
+        } catch (error) {
+            console.error("Error picking image:", error);
+            alert("Có lỗi xảy ra khi chọn hoặc tải lên ảnh.");
+        } finally {
+            setLoadingAvatar(false); // Stop loading once done
+        }
+    };
     const handleSingOut = async () => {
-
-        deleteAsyncStorage("token")
-        deleteAsyncStorage("user")
-
-
-        nav.navigate("Welcome")
-        alert("Đã đăng xuất")
-
-    }
+        deleteAsyncStorage("token");
+        deleteAsyncStorage("user");
+        nav.navigate("Welcome");
+        alert("Đã đăng xuất");
+    };
 
     return (
         <View style={styles.container}>
-
             <ScrollView style={styles.body}>
                 <View style={styles.list}>
                     <TouchableOpacity
-                        style={styles.view_user}>
-                        {img ? (
-                            <View>
-                                <Image source={{ uri: img }} style={{ width: 200, height: 200 }} />
-                            </View>
-                        ) : (<Icon name='person-circle' type='ionicon' size={130} color={"#FE9B4B"} />)}
-                        {isUpdateform ? <Icon
-                            containerStyle={{ position: 'absolute', top: 85, right: 150 }}
-                            raised
-                            type='ionicon' name='camera' color={"black"} size={15}
-                            onPress={pickImage}
-                        /> : null}
+                        style={styles.view_user}
+                        onPress={isUpdateform ? handlePickImage : null}
+                    >
+                        {loadingAvatar ? (
+                            <ActivityIndicator size="large" color="#FE9B4B" />
+                        ) : img || user?.img ? (
+                            <Image source={{ uri: user?.img }} style={{ width: 110, height: 110, borderRadius: 100 }} />
+                        ) : (
+                            <Icon name='person-circle' type='ionicon' size={130} color={"#FE9B4B"} />
+                        )}
+                        {isUpdateform && (
+                            <Icon
+                                containerStyle={{ position: 'absolute', top: 85, right: 150 }}
+                                raised
+                                type='ionicon'
+                                name='camera'
+                                color={"black"}
+                                size={15}
+                            />
+                        )}
                     </TouchableOpacity>
 
                     <View style={styles.ListItem}>
@@ -183,19 +242,23 @@ const DetailAccount = () => {
                 <View style={styles.viewBtn}>
                     <TouchableOpacity
                         onPress={isUpdateform ? handleUpdate : handleShowUpdateform}
-                        style={styles.btnUpdate}>
+                        style={styles.btnUpdate}
+                    >
                         <Text style={{ color: "white", fontSize: 17 }}>
                             {isUpdateform ? "Cập nhật" : "Cập nhật thông tin"}
                         </Text>
                     </TouchableOpacity>
 
-                    {!isUpdateform && <TouchableOpacity
-                        onPress={handleSingOut}
-                        style={styles.btnSignOut}>
-                        <Text style={{ color: "#f95300", fontSize: 17 }}>Đăng xuất</Text>
-                    </TouchableOpacity>}
+                    {!isUpdateform && (
+                        <TouchableOpacity
+                            onPress={handleSingOut}
+                            style={styles.btnSignOut}
+                        >
+                            <Text style={{ color: "#f95300", fontSize: 17 }}>Đăng xuất</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
-            </ScrollView>
+            </ScrollView >
             <Modal visible={modalVisible} transparent={true} animationType="slide">
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
@@ -214,9 +277,8 @@ const DetailAccount = () => {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </View >
+    );
+};
 
-    )
-}
-
-export default DetailAccount
+export default DetailAccount;

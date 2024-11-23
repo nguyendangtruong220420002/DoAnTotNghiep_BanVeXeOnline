@@ -6,15 +6,17 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { calendarsConfig } from '../../config/CalendarConfig';
 import { solarToLunar } from 'lunar-calendar'
 import axios from 'axios';
-import { getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
+import { deleteAsyncStorage, getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../context/useAuth';
+import useAuthData, { useAuth } from '../../context/useAuth';
+import { getData } from '../../utils/fetching';
 
 
 const Home = () => {
 
   const nav = useNavigation();
 
+  const [trips, setTrips] = useState([]);
 
   const [diemDi, setDiemDi] = useState('');
   const [diemDen, setDiemDen] = useState('');
@@ -34,10 +36,15 @@ const Home = () => {
   const [selectingDateFor, setSelectingDateFor] = useState('from');
 
   const [searchHistory, setSearchHistory] = useState([]);
+  const [visibleHistory, setVisibleHistory] = useState();
+
   LocaleConfig.locales['vi'] = calendarsConfig;
   LocaleConfig.defaultLocale = 'vi';
 
+  const { user, token, setUser } = useAuthData();
+
   const getProvinces = async () => {
+
     try {
       const diemDi = await getAsyncStorage("diemDi");
       const diemDen = await getAsyncStorage("diemDen");
@@ -47,11 +54,11 @@ const Home = () => {
       console.error(error);
     }
   };
-  
-  const { user, setUser, token } = useAuth();
+
 
   useFocusEffect(
     React.useCallback(() => {
+
       getProvinces();
       getSearchHistory();
     }, [])
@@ -60,14 +67,25 @@ const Home = () => {
 
   const getSearchHistory = async () => {
     try {
+
       const history = await getAsyncStorage('searchHistory');
+      if (history) {
+        setVisibleHistory(true);
+      }
       setSearchHistory(Array.isArray(history) ? history : []); // Ensure history is an array
     } catch (error) {
       console.error("Error fetching search history: ", error);
     }
   };
 
-
+  const deleteHistorySearch = async () => {
+    try {
+      setVisibleHistory(false);
+      await deleteAsyncStorage("searchHistory")
+    } catch (error) {
+      console.error("Error delet search history: ", error);
+    }
+  }
   const handleSwap = () => {
     const temp = diemDi;
     setDiemDi(diemDen);
@@ -151,9 +169,6 @@ const Home = () => {
 
     const newDateTo = show ? dateto.toISOString() : 'null'
 
-    console.log(diemDi);
-    console.log(diemDen);
-
     const searchItem = {
       diemdi: diemDi,
       diemden: diemDen,
@@ -171,22 +186,45 @@ const Home = () => {
       // Save the updated history array to AsyncStorage
       await setAsyncStorage('searchHistory', updatedHistory);
 
-      // Navigate to the RSearch screen with parameters
+      const response = await getData("tripsRoutes/search", {
+        departure: diemDi,
+        destination: diemDen,
+        departureDate: datefrom.toISOString(),
+        returnDate: newDateTo,
+        tripType: show,
+        userId: user?._id,
+      });
+      console.log(response?.data);
+
+      setTrips(response?.data);
+      //Navigate to the RSearch screen with parameters
       nav.navigate("RSearch", {
+        trips: response?.data,
         ngaydi: datefrom.toISOString(),
         ngayve: newDateTo,
         diemdi: diemDi,
         diemden: diemDen,
         soVe: soVe
       });
-    } catch (err) {
-      console.error("Error when saving history search: ", err);
+    } catch (error) {
+      if (error.response) {
+        console.error("Error fetching trips:", error.response.data);
+        console.error("Status code:", error.response.status);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error:", error.message);
+      }
     }
   }
 
 
   const handleGetProvinces = (type) => {
     nav.navigate("ListProvinces", { type })
+  }
+  const handleSearchHistory = (diemDi, diemDen) => {
+    setDiemDi(diemDi)
+    setDiemDen(diemDen)
   }
 
   return (
@@ -199,7 +237,12 @@ const Home = () => {
         />
         <SafeAreaView style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginHorizontal: 5 }}>
           <View style={styles.view_Wel}>
-            <Icon name='person-circle' type='ionicon' size={48} color={"white"} />
+            {user?.img ? (
+              <Image source={{ uri: user?.img }} style={{ width: 50, height: 50, borderRadius: 100 }} />
+            ) : (
+              <Icon name='person-circle' type='ionicon' size={48} color={"white"} />
+            )}
+
             <View style={styles.ViewText_Wel}>
               <Text style={{ color: "white" }}>Xin chào,</Text>
               <Text style={{ fontSize: 18, color: "white" }}>{user?.fullName}</Text>
@@ -379,22 +422,34 @@ const Home = () => {
         <ScrollView style={styles.viewNews}
           showsHorizontalScrollIndicator={false}
         >
-          <View style={styles.viewTextHistory}>
-            <Text style={{ fontSize: 16, fontWeight: "500" }}>Tìm kiếm gần đây</Text>
-            <Text style={{ fontSize: 13, color: "red" }}>Xoá lịch sử</Text>
-          </View>
 
-          <ScrollView
-            showsHorizontalScrollIndicator={false}
-            horizontal>
-            {searchHistory.map((item, index) => (
-              <TouchableOpacity
+          {visibleHistory && (
+            <View>
+              <View style={styles.viewTextHistory}>
+                <Text style={{ fontSize: 16, fontWeight: "500" }}>Tìm kiếm gần đây</Text>
+                <TouchableOpacity
+                  onPress={() => deleteHistorySearch()}
+                >
+                  <Text style={{ fontSize: 13, color: "red" }}>Xoá lịch sử</Text>
+                </TouchableOpacity>
 
-                key={index} style={styles.historyItem}>
-                <Text>{item?.diemdi} - {item?.diemden}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+              </View>
+              <ScrollView
+                showsHorizontalScrollIndicator={false}
+                horizontal>
+                {searchHistory.map((item, index) => (
+                  <TouchableOpacity
+                    onPress={() => handleSearchHistory(item.diemdi, item.diemden)}
+                    key={index} style={styles.historyItem}>
+                    <Text>{item?.diemdi} - {item?.diemden}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+
+
+          )}
+
           <View style={styles.viewTextHistory}>
             <Text style={{ fontSize: 16, fontWeight: "500" }}>Tin tức</Text>
 

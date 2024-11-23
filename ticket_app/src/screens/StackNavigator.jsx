@@ -17,6 +17,10 @@ import ResultSearch from './result_search/ResultSearch'
 import ChooseSeat from './chooseSeat/ChooseSeat'
 import { checkTokenExpiration } from '../utils/auth'
 import ListProvinces from './home/ListProvinces/ListProvinces'
+import TripRoute from './TripRoute/TripRoute'
+import Setting from './setting/Setting'
+import Payment from './Payment/Payment'
+import InfoPayment from './Payment/infoPayment/InfoPayment'
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -76,7 +80,7 @@ const StackNavigator = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen name='Welcome' options={{ headerShown: false }} component={Welcome} />
         <Stack.Screen name='Login' options={{ headerShown: false }} component={Login} />
         <Stack.Screen name='Register' options={{ headerShown: false }} component={Register} />
@@ -86,8 +90,12 @@ const StackNavigator = () => {
 
         />
         <Stack.Screen name='ListProvinces' component={ListProvinces} />
+        <Stack.Screen name='TripRoute' component={TripRoute} />
         <Stack.Screen name='RSearch' component={ResultSearch} />
         <Stack.Screen name='ChooseSeat' component={ChooseSeat} />
+        <Stack.Screen name='Setting' component={Setting} />
+        <Stack.Screen name='InfoPayment' component={InfoPayment} />
+        <Stack.Screen name='Payment' component={Payment} />
       </Stack.Navigator>
     </NavigationContainer>
   )

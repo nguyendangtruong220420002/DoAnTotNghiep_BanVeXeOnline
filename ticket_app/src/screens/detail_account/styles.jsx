@@ -62,7 +62,9 @@ export const styles = StyleSheet.create({
         alignItems: "center",
         borderBottomWidth: 1,
         borderBottomColor: "#ededed",
-        padding: 10
+        padding: 10,
+        width: "100%",
+        alignSelf: "center"
     },
     ViewText_Wel: {
         marginLeft: 10,
@@ -70,29 +72,29 @@ export const styles = StyleSheet.create({
     ListItem: {
 
     },
-    viewBtn:{
-        padding:15
+    viewBtn: {
+        padding: 15
     },
     btnUpdate: {
         alignSelf: "center",
-        alignItems:"center",
-        backgroundColor:"#f95300",
-        height:45,
-        width:"80%",
-        padding:10,
-        borderRadius:30,
-        marginBottom:15
+        alignItems: "center",
+        backgroundColor: "#f95300",
+        height: 45,
+        width: "80%",
+        padding: 10,
+        borderRadius: 30,
+        marginBottom: 15
     },
     btnSignOut: {
-        backgroundColor:"white",
+        backgroundColor: "white",
         alignSelf: "center",
-        borderColor:"grey",
-        borderWidth:1,
-        borderRadius:30,
-        height:45,
-        width:"80%",
-        padding:10,
-        alignItems:"center",
+        borderColor: "grey",
+        borderWidth: 1,
+        borderRadius: 30,
+        height: 45,
+        width: "80%",
+        padding: 10,
+        alignItems: "center",
     },
     // Các style cho modal
     modalContainer: {

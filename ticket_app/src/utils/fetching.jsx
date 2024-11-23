@@ -3,11 +3,11 @@ import { getAsyncStorage } from './cookie';
 
 // Tạo một instance của axios để tái sử dụng
 // API Host
-const host = '192.168.1.77';
+const host = '10.68.0.252';
 
 // Server Port
 const port = '5000';
-
+export const s3_URL = 'https://vexeonline6868.s3.ap-southeast-1.amazonaws.com';
 
 // Base Url
 export const BASE_URL = `http://${host}:${port}/api`;
@@ -16,7 +16,7 @@ export const BASE_URL = `http://${host}:${port}/api`;
 const api = axios.create({
     baseURL: BASE_URL,
     headers: {
-        // 'Access-Control-Allow-Origin': '*',
+
         'Content-Type': 'application/json',
     },
 });
@@ -28,7 +28,7 @@ api.interceptors.request.use(async (config) => {
     if (token) {
         config.headers['Authorization'] = `Bearer ${token}`;
     }
-    return config; 
+    return config;
 }, (error) => {
     return Promise.reject(error);
 });
@@ -38,7 +38,7 @@ api.interceptors.request.use(async (config) => {
 // Phương thức GET
 export const getData = async (url, params = {}) => {
     try {
-        const response = await axios.get(url, { params });
+        const response = await api.get(url, { params });
         return response;
     } catch (error) {
         console.error('GET request error:', error);
@@ -64,6 +64,20 @@ export const putData = async (url, data) => {
         return response;
     } catch (error) {
         console.error('PUT request error:', error);
+        throw error;
+    }
+};
+
+export const UPLOAD = async (url, data) => {
+    try {
+        const response = await api.put(url, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response;
+    } catch (error) {
+        console.error('Upload request error:', error.message);
         throw error;
     }
 };

@@ -17,6 +17,7 @@
     "@mui/material": "^6.0.1",
     "@mui/x-date-pickers": "^7.15.0",
     "@mui/x-date-pickers-pro": "^7.15.0",
+    "@popperjs/core": "^2.11.8",
     "axios": "^1.7.5",
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",

@@ -6,12 +6,15 @@ import StackNavigator from './src/screens/StackNavigator';
 import { AuthProvider } from './src/context/useContext';
 
 
+
 export default function App() {
   return (
     <>
       <AuthProvider>
         <StackNavigator />
       </AuthProvider>
+
+
     </>
   );
 }

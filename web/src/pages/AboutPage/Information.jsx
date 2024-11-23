@@ -10,6 +10,7 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import profile  from '../../../public/images/profile.png';
 
 const Information = ({ onLogout, userInfo,setUserInfo }) => {
+  
   const [value, setValue] = useState("1");
   const [isEditing, setIsEditing] = useState(false); 
   const [message, setMessage] = useState('');

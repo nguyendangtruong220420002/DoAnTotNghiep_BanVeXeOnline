@@ -1,14 +1,14 @@
-import { Image, Keyboard, SafeAreaView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, Keyboard, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useState } from 'react'
 import { styles } from './styles'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Icon } from 'react-native-elements';
 import axios from 'axios';
 import CookieUtils, { getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
-import {postData} from '../../utils/fetching'
+import { postData } from '../../utils/fetching'
 
 const Login = () => {
-  
+
   const nav = useNavigation();
 
   const route = useRoute();
@@ -25,18 +25,18 @@ const Login = () => {
     try {
 
       const response = await postData("users/login", userInfo);
-         
+
       const { user, token } = response?.data;
 
       console.log("Thông tin người dùng:", user);
       console.log("token", token);
 
-      
-      await setAsyncStorage("token",token)
-      
-      await setAsyncStorage("user",user)
-      
-      
+
+      await setAsyncStorage("token", token)
+
+      await setAsyncStorage("user", user)
+
+
       if (response.status === 200) {
 
         alert('Đăng nhập thành công');
@@ -54,84 +54,99 @@ const Login = () => {
 
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View
-          style={styles.container}
+
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={55}
+
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
         >
 
-          <Image
-            source={require("../../../img/wel-pass.png")}
-            style={styles.imgWel2}
-          />
 
-          <View>
-            <Text style={styles.welcomeText}>Xin chào,{fullName}</Text>
-           
-          </View>
+          <View
+            style={styles.container}
+          >
 
-          <View style={{ height: 340, marginTop: 20 }}>
+            <Image
+              source={require("../../../img/wel-pass.png")}
+              style={styles.imgWel2}
+            />
 
-            <View style={styles.viewInput}>
+            <View>
+              <Text style={styles.welcomeText}>Xin chào,{fullName}</Text>
 
-              <View style={{ marginBottom: 20 }}>
-                <Text style={{ left: 45, marginBottom: 5 }}>Mật Khẩu</Text>
-                <TextInput
-                  style={[styles.TextInput,{borderColor:isFocused ? "#FE9B4B" : "#ced4da"}]}
-                  placeholder={'Nhập mật khẩu'}
-                  value={password}
-                  onChangeText={(text) => setPassword(text)}
-                  secureTextEntry={!isPasswordVisible}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)} 
-                />
-              </View>
-
-              <TouchableOpacity
-                style={{ position: 'absolute', right: 50, top: 33 }}
-                onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              >
-                <Icon
-                  name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
-                  type='ionicon'
-                  size={28}
-                  color={isFocused ? "#FE9B4B" : "#ced4da"} />
-              </TouchableOpacity>
             </View>
-            <View style={{
-              flexDirection: 'row',
-              width: "83%",
-              justifyContent: "space-between",
-              alignSelf: "center"
-            }}>
 
-              <View>
-                <TouchableOpacity >
-                  <Text style={{ textDecorationLine: 'underline' }}>Quên/Tạo mật khẩu ?</Text>
-                </TouchableOpacity>
-              </View>
+            <View style={{ height: 340, marginTop: 20 }}>
 
-              <View>
+              <View style={styles.viewInput}>
+
+                <View style={{ marginBottom: 20 }}>
+                  <Text style={{ left: 45, marginBottom: 5 }}>Mật Khẩu</Text>
+                  <TextInput
+                    style={[styles.TextInput, { borderColor: isFocused ? "#FE9B4B" : "#ced4da" }]}
+                    placeholder={'Nhập mật khẩu'}
+                    value={password}
+                    onChangeText={(text) => setPassword(text)}
+                    secureTextEntry={!isPasswordVisible}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                  />
+                </View>
+
                 <TouchableOpacity
-                  onPress={() => { nav.navigate("Welcome") }}
+                  style={{ position: 'absolute', right: 50, top: 33 }}
+                  onPress={() => setIsPasswordVisible(!isPasswordVisible)}
                 >
-                  <Text style={{ textDecorationLine: 'underline' }}>Không phải tôi?</Text>
+                  <Icon
+                    name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
+                    type='ionicon'
+                    size={28}
+                    color={isFocused ? "#FE9B4B" : "#ced4da"} />
                 </TouchableOpacity>
               </View>
+              <View style={{
+                flexDirection: 'row',
+                width: "83%",
+                justifyContent: "space-between",
+                alignSelf: "center"
+              }}>
 
-            </View>
+                <View>
+                  <TouchableOpacity >
+                    <Text style={{ textDecorationLine: 'underline' }}>Quên/Tạo mật khẩu ?</Text>
+                  </TouchableOpacity>
+                </View>
 
-            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-              <TouchableOpacity style={styles.btn_submit}
-                onPress={handleLogin}
-              >
-                <Text style={styles.text_btn}>Đăng nhập</Text>
-              </TouchableOpacity>
+                <View>
+                  <TouchableOpacity
+                    onPress={() => { nav.navigate("Welcome") }}
+                  >
+                    <Text style={{ textDecorationLine: 'underline' }}>Không phải tôi?</Text>
+                  </TouchableOpacity>
+                </View>
+
+              </View>
+
+              <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                <TouchableOpacity style={styles.btn_submit}
+                  onPress={handleLogin}
+                >
+                  <Text style={styles.text_btn}>Đăng nhập</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </SafeAreaView >
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
+
   )
 }
 

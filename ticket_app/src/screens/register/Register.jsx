@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Icon } from 'react-native-elements';
 import { styles } from './styles';
 import axios from 'axios';
+import { postData } from '../../utils/fetching';
 
 
 const Register = () => {
@@ -20,11 +21,11 @@ const Register = () => {
     const handleRegister = async () => {
 
         const userInfo = { fullName, email, password, phoneNumber };
-       
+
         console.log("Thông tin:", userInfo);
 
         try {
-            const response = await axios.post('http://192.168.1.51:5000/api/users', userInfo); // Sử dụng userInfo
+            const response = await postData("users", userInfo); // Sử dụng userInfo
             console.log(response.data); // Xử lý phản hồi từ server
             console.log(response.status);
             nav.navigate("Home");
@@ -63,7 +64,7 @@ const Register = () => {
                                 placeholder={'Nhập email'}
                                 value={email}
                                 onChangeText={(text) => setEmail(text)}
-                                secureTextEntry
+                                keyboardType='email-address'
                             />
                         </View>
 
