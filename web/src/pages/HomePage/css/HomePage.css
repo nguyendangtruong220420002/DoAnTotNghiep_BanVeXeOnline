@@ -368,6 +368,101 @@ body{
     color:#323a57 !important;
      
   }
+  .button29{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    color:  #000000 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button30{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 16px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#000000 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button31{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#000000 !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+  }
+  .button32{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 14.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#4A4A4A !important;
+    font-weight: 400 !important;
+    line-height: 20px !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button33{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 16.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color: #dc635b !important;
+    font-weight: bold !important;
+    line-height: 20px !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+  }
+  .button34{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#192cfe !important;
+   
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+   
+  }
+
+  .button35{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 20px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#000000 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+    margin-bottom: 16px !important;
+   
+  }
+  .button36{
+    
+    text-transform: none !important;
+    color:#241a27 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important; 
+    font-family: apple-system, BlinkMacSystemFont, Segoe UI, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol !important;
+    
+  }
+  .button37{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: uppercase  !important;
+    color:#000000 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+    margin-bottom: 16px !important;
+    text-align: center !important;
+   
+  }
+  .button{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 16px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    color:#dc635b !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
+   
+  }
   .tab2 .Mui-selected {
     color: #dc635b !important;
     

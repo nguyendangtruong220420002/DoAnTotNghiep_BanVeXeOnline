@@ -15,6 +15,7 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
   const [isEditing, setIsEditing] = useState(false); 
   const [message, setMessage] = useState('');
   const [imagePath, setImagePath] = useState('');
+  const API_URL = import.meta.env.VITE_API_URL;
 
 
   useEffect(() => {
@@ -79,7 +80,7 @@ if (userInfo.img) {
 }
   
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userInfo._id}`, {
+      const response = await fetch(`${API_URL}/api/users/${userInfo._id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`, 

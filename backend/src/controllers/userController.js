@@ -85,15 +85,15 @@ const updateUser = async (req, res) => {
 
   try {
     // Kiểm tra req.file có tồn tại không
-    console.log('req.file:', req.file);
+    //console.log('req.file:', req.file);
 
     // Nếu có file được upload, lấy URL của file
     const img = req.file ? req.file.location : undefined;
-    console.log('Đường dẫn ảnh:', img);
+    //console.log('Đường dẫn ảnh:', img);
 
     // Kiểm tra userId
     const userId = req.params.id; // Đảm bảo bạn có userId
-    console.log('User ID:', userId);
+   // console.log('User ID:', userId);
 
     // Cập nhật thông tin người dùng
     const updatedUser = await User.findByIdAndUpdate(userId, {
