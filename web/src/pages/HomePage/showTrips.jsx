@@ -33,10 +33,9 @@ import helpdesk from '../../../public/images/setting.png';
 import '../HomePage/css/HomePage.css';
 import Content from '../HomePage/content';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
-import Login from '../AboutPage/Login'
+import Login from '../AboutPage/Login';
 import Information from '../../../src/pages/AboutPage/Information';
 import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
-
 import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
 import information from '../../../public/images/information.png'
@@ -54,20 +53,15 @@ const ShowTrips = () => {
       setUserInfo(JSON.parse(storedUserInfo));
     }
   }, []);
- 
-  // Xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
     setUserInfo(null);
     setValue("1");
     handleCloseMenu(); 
   };
-  // Mở menu
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
-  // Đóng menu
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
@@ -80,33 +74,25 @@ const ShowTrips = () => {
     setValue("5"); 
     handleCloseMenu();
   };
-  
   const handleSubmitInfo = (userInfo) => {
     console.log('Submitted Info:', userInfo);
   };
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
     if (newValue === '1') {
       window.location.reload();
     }
-   
   };
   const handleCloseLogin = () => {
     setOpenLogin(false);
   };
   const [openModal, setOpenModal] = useState(false);
- // Hàm để mở modal
- const handleOpenModal = () => {
+  const handleOpenModal = () => {
   setOpenModal(true);
-};
-
-// Hàm để đóng modal
-const handleCloseModal = () => {
+  };
+  const handleCloseModal = () => {
   setOpenModal(false);
-};
-// 
-
+  };
   const location = useLocation();
   const { dataOfShowTrips } = location.state || {};
   const [loading, setLoading] = useState(true);
@@ -116,6 +102,7 @@ const handleCloseModal = () => {
   const [selectedBox, setSelectedBox] = useState(null);
   const [tripType, setTripType] = useState(dataOfShowTrips.tripType);
   const [openTabs, setOpenTabs] = useState({});
+  
   const formatDate = (date) => {
     if (!date) return "Không xác định";
     const options = {
@@ -195,7 +182,6 @@ const handleCloseModal = () => {
   const handleSearchHome = () => {
     navigate('/');
   };
-
   return (
     <Box>
        <Box sx={{ position: 'relative' }}>
@@ -229,7 +215,7 @@ const handleCloseModal = () => {
           <Box component="img" src={shed} sx={{ width: '30px', height: '30px', marginLeft: '10px' }} />
           <Box sx={{ marginTop: '5px' }}>Trang Chủ</Box>  
         </Button>
-                  
+            
             <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Mã Giảm Giá</Box>}  value="2" className='button2'  iconPosition="start"  
             icon={<Box component='img'  src={sale} sx={{ width:'23px', height:'23px', }}></Box>}>  
            
@@ -334,22 +320,18 @@ const handleCloseModal = () => {
                   )}
           </TabList>
         </TabContext>
-         
           </Box>
         </Box>
       </Toolbar>
-    
       </AppBar>
       <Box sx={{ position: 'relative', height: 'auto' }}> 
-        <Box
-        >
+        <Box>
           <TabContext value={value}>
             <TabPanel value="1" sx={{
                padding:0,
                margin:0,
                boxSizing:'border-box',
             }}>
-            
             </TabPanel>
             <TabPanel value="2">
               <Typography>Mã Giảm giá</Typography>
@@ -366,19 +348,14 @@ const handleCloseModal = () => {
             </TabPanel>
           </TabContext>
         </Box>
-        
       </Box>
-      
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
       <ConfirmInfo
-  open={openModal} 
-  handleClose={handleCloseModal}
-  onSubmit={handleSubmitInfo}
-  phoneNumber="0123456789" 
- // Thêm thông tin số điện thoại hoặc bất kỳ dữ liệu nào khác
-/>
+        open={openModal} 
+        handleClose={handleCloseModal}
+        onSubmit={handleSubmitInfo}
+        phoneNumber="0123456789" />
     </Box>
-       
         <Box><SearchTrips userInfo={userInfo}></SearchTrips></Box>
       {loading ? (
         <Box
@@ -386,14 +363,12 @@ const handleCloseModal = () => {
           justifyContent="center"
           alignItems="center"
           flexDirection="column"
-          height="100vh"
-        >
+          height="100vh">
           <AirportShuttleIcon style={{ fontSize: 50, marginBottom: 20 }} />
           <LinearProgress style={{ width: "80%" }} />
         </Box>
       ) : (
-        <Box>
-            
+        <Box>  
           <Box
             sx={{
               width: "1200px",
@@ -404,8 +379,7 @@ const handleCloseModal = () => {
               border: "1px solid #ececec",
               backgroundColor: "#ffffff",
               borderRadius: "8px",
-            }}
-          >
+            }}>
             <Box
               sx={{
                 width: "60%",
@@ -414,8 +388,7 @@ const handleCloseModal = () => {
                 margin: "auto",
                 justifyContent: "space-around",
                 marginLeft: "20px",
-              }}
-            >
+              }}>
               <Typography className="button13">Sắp xếp theo:</Typography>
               <Typography className="button14">Giá </Typography>
               <Typography className="button14">Xếp hạng</Typography>
@@ -428,8 +401,7 @@ const handleCloseModal = () => {
                 display: "flex",
                 alignItems: "center",
                 margin: "auto",
-              }}
-            >
+              }}>
               <Typography sx={{ fontSize: "20px", color: "#808080" }}>
                 |
               </Typography>
@@ -449,44 +421,20 @@ const handleCloseModal = () => {
             </Box>
           </Box>
           <Box
-            sx={{
-              width: "1200px",
-              height: "auto",
-              display: "flex",
-              margin: "auto",
-              marginTop: "15px",
-            }}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            sx={{width: "1200px", height: "auto", display: "flex", margin: "auto", marginTop: "15px",}}>
+            <Box sx={{ display: "flex", flexDirection:"column" }}>
               <Box
-                sx={{
-                  width: "320px",
-                  height: "500px",
-                  alignItems: "",
-                  border: "1px solid #ececec",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "8px",
-                  marginLeft: "23px",
-                  boxShadow: "",
-                }}
-              >
+                sx={{width: "320px",height: "500px",alignItems: "",border: "1px solid #ececec",backgroundColor: "#ffffff",borderRadius: "8px",marginLeft: "23px",boxShadow: "",}}>
                 <Typography> Bộ Lọc</Typography>
               </Box>
             </Box>
 
             <Box
-              sx={{
-                width: "100%",
-                maxHeight: "800px",
-                overflowY: "auto",
-                scrollbarWidth: "none",
-                "&::-webkit-scrollbar": { display: "none" },
-              }}
-            >
+              sx={{width: "100%",maxHeight: "800px",overflowY: "auto",scrollbarWidth: "none","&::-webkit-scrollbar": { display: "none" }}}>
               {dataOfShowTrips.tripType === "Khứ hồi" ? (
                 <Box>
                   <Tabs value={tabIndex1} onChange={handleTabChange1} centered>
-                    <Tab label={`Chuyến đi (${departureDateLabel})`} />
+                    <Tab label={`Chuyến đi (${departureDateLabel})`}/>
                     <Tab label={`Chuyến về (${returnDateLabel})`} />
                   </Tabs>
                   {tabIndex1 === 0 && (
@@ -532,8 +480,7 @@ const handleCloseModal = () => {
                             ? "0 4px 4px rgba(239, 82, 34, .3), 0 -3px 8px rgba(239, 82, 34, .3), inset 0 0 0 1px rgb(240, 82, 34)"
                             : "0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .2)",
                         transition: "all 0.3s ease",
-                      }}
-                    >
+                      }}>
                       <Box sx={{ display: "flex" }}>
                         <Box sx={{ margin: "20px", width: "250px" }}>
                           <Typography className="button17">
@@ -541,22 +488,15 @@ const handleCloseModal = () => {
                           </Typography>
                           <Typography className="button19">
                             {trip.busId.busType}
+                          
                           </Typography>
                           <Box sx={{ display: "flex", marginLeft: "10px" }}>
-                            {" "}
                             <AddCircleRoundedIcon
-                              sx={{
-                                color: "#202020",
-                                fontSize: "16px",
-                                marginTop: "3px",
-                                marginLeft: "4px",
-                              }}
-                            ></AddCircleRoundedIcon>
+                              sx={{color: "#202020",fontSize: "16px",marginTop: "3px",marginLeft: "4px",}}>
+                            </AddCircleRoundedIcon>
                             <Typography
                               className="button22"
-                              sx={{ marginLeft: "20px" }}
-                            >
-                              chỗ trống
+                              sx={{ marginLeft: "20px" }}>chỗ trống
                             </Typography>
                           </Box>
                         </Box>
@@ -571,8 +511,7 @@ const handleCloseModal = () => {
                             )}
                             <Typography
                               className="button21"
-                              sx={{ width: "auto" }}
-                            >
+                              sx={{ width: "auto" }}>
                               {trip.routeId.from}
                             </Typography>
                           </Box>
@@ -587,8 +526,7 @@ const handleCloseModal = () => {
                           {trip.departureTime && trip.endTime && (
                             <Box
                               sx={{ display: "flex", marginTop: "12px" }}
-                              className="button19"
-                            >
+                              className="button19">
                               --------------------
                               <Typography className="button20">
                                 {(() => {
@@ -655,36 +593,26 @@ const handleCloseModal = () => {
                               <Box>
                                 <Button
                                   onClick={() => handleToggleTab(trip._id, "1")}
-                                  sx={{
-                                    textTransform: "none",
-                                    fontSize: "15px",
-                                    width: "100px",
-                                    textAlign: "center",
+                                  sx={{textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
                                     color:
                                       openTabs[trip._id] === "1"
                                         ? "#dc635b"
                                         : "#0c0c0c",
                                     textShadow:
                                       "1px 1px 2px rgba(0, 0, 0, 0.2)",
-                                  }}
-                                >
-                                  Chọn ghế
+                                  }}>Chọn ghế
                                 </Button>
                                 <Button
                                   onClick={() => handleToggleTab(trip._id, "2")}
                                   sx={{
-                                    textTransform: "none",
-                                    fontSize: "15px",
-                                    width: "100px",
-                                    textAlign: "center",
+                                    textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
                                     color:
                                       openTabs[trip._id] === "2"
                                         ? "#dc635b"
                                         : "#0a0a0a",
                                     textShadow:
                                       "1px 1px 2px rgba(0, 0, 0, 0.2)",
-                                  }}
-                                >
+                                  }}>
                                   {" "}
                                   Lịch trình
                                 </Button>
@@ -701,8 +629,7 @@ const handleCloseModal = () => {
                                         : "#070707",
                                     textShadow:
                                       "1px 1px 2px rgba(0, 0, 0, 0.2)",
-                                  }}
-                                >
+                                  }}>
                                   Chính sách
                                 </Button>
                                 <Button
@@ -718,11 +645,9 @@ const handleCloseModal = () => {
                                         : "#000000",
                                     textShadow:
                                       "1px 1px 2px rgba(0, 0, 0, 0.2)",
-                                  }}
-                                >
+                                  }}>
                                   Trung chuyển
                                 </Button>
-
                                 <Button
                                   sx={{
                                     backgroundColor:
@@ -752,11 +677,23 @@ const handleCloseModal = () => {
 
                               {openTabs[trip._id] === "1" && (
                                 <Box>
+                                  
                                   <SeatSelection
                                     tripId={trip._id}
                                     userInfo={userInfo}
                                     totalAmount={trip.totalFareAndPrice}
                                     departureDate={departureDateLabel}
+                                    departureTime={trip.departureTime}
+                                    endTime={trip.endTime}
+                                    from={trip.routeId.from}
+                                    to={trip.routeId.to}
+                                    schedule={trip.schedule}
+                                    departure={trip.routeId.departure}
+                                    destination={trip.routeId.destination}
+                                   
+                            
+                                    
+
                                   ></SeatSelection>
                                 </Box>
                               )}
@@ -771,11 +708,8 @@ const handleCloseModal = () => {
                                 >
                                   <Box>
                                     <Box
-                                      sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                      }}
-                                    >
+                                      sx={{display: "flex",alignItems: "center",}}>
+                                       
                                       <Typography className="button28">
                                         {moment(
                                           trip.departureTime,
@@ -814,16 +748,11 @@ const handleCloseModal = () => {
                                         key={stop._id}
                                         sx={{
                                           display: "flex",
-                                          alignItems: "center",
+                                        
                                         }}
                                       >
-                                        <Typography className="button28">
-                                          {moment(
-                                            stop.time,
-                                            "DD/MM/YYYY, HH:mm"
-                                          )
-                                            .tz("Asia/Ho_Chi_Minh")
-                                            .format("HH:mm")}
+                                        <Typography className="button28" sx={{marginTop:'2px'}} >
+                                          {stop.time}{" "}
                                         </Typography>
                                         <Box
                                           sx={{

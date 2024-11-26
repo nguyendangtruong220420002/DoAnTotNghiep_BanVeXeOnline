@@ -142,12 +142,13 @@
   border-radius: 10px; 
   border: 2px solid #ef5733;
   padding: 8px; 
-  background-color: #ededed !important;
+  background-color: #f6f6f6 !important;
 }
 
 /* Ẩn viền mặc định của TextField để áp dụng màu viền tùy chỉnh */
 .date .MuiOutlinedInput-root {
   border: none; 
+  
 }
 
 .date .MuiOutlinedInput-notchedOutline {

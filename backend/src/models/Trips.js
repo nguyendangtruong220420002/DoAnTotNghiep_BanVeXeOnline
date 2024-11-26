@@ -52,13 +52,17 @@ const tripSchema = new mongoose.Schema({
         {
           booked: [
             {
-              seatId: { type:String, required: true }, // ID ghế
+              seatId: { type:String, required: true },
               userId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
                 required: true, 
-              },bookingDate: { type: Date, default: Date.now }
-               // ID người dùng đặt ghế
+              },bookingDate: { type: Date, default: Date.now },
+              status: { 
+                type: String, 
+                enum: ['Đã đặt', 'Đã thanh toán'], 
+                default: 'Đã đặt' 
+              }
             }
           ]
         }  
