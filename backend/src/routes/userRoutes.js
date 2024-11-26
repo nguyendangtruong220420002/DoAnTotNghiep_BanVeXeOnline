@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, changePassword } = require('../controllers/userController')
 const authenticateToken = require('../../src/middlewares/authenticateToken');
-const { upload } = require('../../src/config/s3');
+const { upload } = require('../config/s3');
 
 // Route tạo người dùng
 router.post('/', createUser);

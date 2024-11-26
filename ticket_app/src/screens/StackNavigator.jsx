@@ -21,6 +21,9 @@ import TripRoute from './TripRoute/TripRoute'
 import Setting from './setting/Setting'
 import Payment from './Payment/Payment'
 import InfoPayment from './Payment/infoPayment/InfoPayment'
+import PaymentScreen from './Payment/PaymentScreen'
+import Toast from 'react-native-toast-message'
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -80,6 +83,7 @@ const StackNavigator = () => {
 
   return (
     <NavigationContainer>
+      <Toast />
       <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen name='Welcome' options={{ headerShown: false }} component={Welcome} />
         <Stack.Screen name='Login' options={{ headerShown: false }} component={Login} />
@@ -94,8 +98,11 @@ const StackNavigator = () => {
         <Stack.Screen name='RSearch' component={ResultSearch} />
         <Stack.Screen name='ChooseSeat' component={ChooseSeat} />
         <Stack.Screen name='Setting' component={Setting} />
+
         <Stack.Screen name='InfoPayment' component={InfoPayment} />
         <Stack.Screen name='Payment' component={Payment} />
+        <Stack.Screen name='PaymentScreen' component={PaymentScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   )

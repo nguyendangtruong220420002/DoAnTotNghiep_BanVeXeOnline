@@ -3,7 +3,7 @@ import { getAsyncStorage } from './cookie';
 
 // Tạo một instance của axios để tái sử dụng
 // API Host
-const host = '10.68.0.252';
+const host = '10.68.1.62';
 
 // Server Port
 const port = '5000';
@@ -16,7 +16,6 @@ export const BASE_URL = `http://${host}:${port}/api`;
 const api = axios.create({
     baseURL: BASE_URL,
     headers: {
-
         'Content-Type': 'application/json',
     },
 });

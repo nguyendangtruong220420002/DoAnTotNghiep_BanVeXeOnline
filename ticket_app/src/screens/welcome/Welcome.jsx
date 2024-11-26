@@ -9,6 +9,7 @@ import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import { getData, postData } from '../../utils/fetching';
 import { getAsyncStorage } from '../../utils/cookie';
+import { showErrorToast, showWarningToast } from '../../utils/toast';
 
 
 const Welcome = () => {
@@ -28,7 +29,7 @@ const Welcome = () => {
     const handleContinue = async () => {
         const regexPhone = /^0\d{9}$/;
         if (!regexPhone.test(phoneNumber)) {
-            alert('Vui lòng nhập số điện thoại hợp lệ');
+            showWarningToast("Số điện thoại không hợp lệ", "Vui lòng nhập số điện thoại hợp lệ",)
         } else {
             try {
                 const response = await postData("users/check-phone", { phoneNumber })
@@ -39,7 +40,7 @@ const Welcome = () => {
                 if (response.status === 200 && response.data.user?.role === "User") {
                     nav.navigate("Login", { phoneNumber, fullName });
                 } else if (response.data.user?.role !== "User" && response.status === 200) {
-                    alert("Bạn phải đăng nhập vào web dành cho doanh nghiệp");
+                    showErrorToast("Bạn phải đăng nhập vào web dành cho doanh nghiệp")
                 }
                 if (response.status === 201) {
                     setIsPhoneInput(false); // Trigger registration dialog
@@ -90,59 +91,87 @@ const Welcome = () => {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
-                keyboardVerticalOffset={80}
-
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
             >
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    <View style={styles.container}>
-                        <Image
-                            source={showOTP ? require("../../../img/wel-pass.png") : require("../../../img/welcome-template.png")}
-                            style={showOTP ? styles.imgWel2 : styles.imgWel}
-                        />
+                <View style={styles.container}>
+                    <Image
+                        source={showOTP ? require("../../../img/wel-pass.png") : require("../../../img/welcome-template.png")}
+                        style={showOTP ? styles.imgWel2 : styles.imgWel}
+                    />
 
-                        {isPhoneInput ? (
-                            <View>
-                                <Text style={styles.welcomeText}>Chào mừng bạn đến với</Text>
-                                <Text style={styles.welcomeText}>Vé Xe Online</Text>
-                            </View>
-                        ) : (
-                            <View>
-                                <Text style={styles.welcomeText}>
-                                    {confirm ? "Vui lòng nhập mã OTP" : "Họ Tên của bạn ?"}
-                                </Text>
-                                <Text style={{ textAlign: 'center', marginTop: 10, color: "green" }}>
-                                    {confirm ? "Mã OTP đã được gửi về số: " + phoneNumber : ""}
-                                </Text>
-                            </View>
-                        )}
+                    {isPhoneInput ? (
+                        <View>
+                            <Text style={styles.welcomeText}>Chào mừng bạn đến với</Text>
+                            <Text style={styles.welcomeText}>Vé Xe Online</Text>
+                        </View>
+                    ) : (
+                        <View>
+                            <Text style={styles.welcomeText}>
+                                {confirm ? "Vui lòng nhập mã OTP" : "Họ Tên của bạn ?"}
+                            </Text>
+                            <Text style={{ textAlign: 'center', marginTop: 10, color: "green" }}>
+                                {confirm ? "Mã OTP đã được gửi về số: " + phoneNumber : ""}
+                            </Text>
+                        </View>
+                    )}
 
-                        {confirm ? (
+                    {confirm ? (
+                        <View style={{
+                            height: 350,
+                            marginTop: 20,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}>
+                            <View style={{ marginVertical: 22, width: '80%' }}>
+                                <OtpInput
+                                    numberOfDigits={6}
+                                    onTextChange={(text) => setOTP(text)}
+                                />
+                            </View>
+                            <View style={{ marginTop: 10, flexDirection: 'row' }}>
+                                <Text>Không nhận được mã !</Text>
+                                <TouchableOpacity onPress={handleSendOTP}>
+                                    <Text style={{ color: '#3399FF' }}>Gửi lại</Text>
+                                </TouchableOpacity>
+                            </View>
                             <View style={{
-                                height: 350,
-                                marginTop: 20,
+                                marginTop: 80,
+                                backgroundColor: "white",
+                                width: 60,
+                                height: 60,
+                                alignSelf: 'center',
                                 justifyContent: 'center',
-                                alignItems: 'center',
-                                width: '100%'
+                                borderRadius: 50
                             }}>
-                                <View style={{ marginVertical: 22, width: '80%' }}>
-                                    <OtpInput
-                                        numberOfDigits={6}
-                                        onTextChange={(text) => setOTP(text)}
-                                    />
-                                </View>
-                                <View style={{ marginTop: 10, flexDirection: 'row' }}>
-                                    <Text>Không nhận được mã !</Text>
-                                    <TouchableOpacity onPress={handleSendOTP}>
-                                        <Text style={{ color: '#3399FF' }}>Gửi lại</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                <TouchableOpacity onPress={handleBackName}>
+                                    <Icon name='arrow-back-outline' type='ionicon' color={'#FE9B4B'} size={38} />
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                                <TouchableOpacity style={styles.btn_submit} onPress={handleSubmitOTP}>
+                                    <Text style={styles.text_btn}>Xác Nhận</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ) : (
+                        <View style={{ height: 300, marginTop: 20 }}>
+                            <View style={styles.viewInput}>
+                                <Icon name={isPhoneInput ? 'phone' : 'person'} color={isFocused ? "#FE9B4B" : "#ced4da"} size={40} />
+                                <TextInput
+                                    style={[styles.TextInput, { borderColor: isFocused ? "#FE9B4B" : "#ced4da" }]}
+                                    placeholder={isPhoneInput ? "Nhập số điện thoại" : 'Nhập họ và tên'}
+                                    value={isPhoneInput ? phoneNumber : name}
+                                    onChangeText={(text) => isPhoneInput ? setPhoneNumber(text) : setName(text)}
+                                    keyboardType={isPhoneInput ? "numeric" : "default"}
+                                    onFocus={() => setIsFocused(true)}
+                                    onBlur={() => setIsFocused(false)}
+                                />
+                            </View>
+                            {!isPhoneInput && (
                                 <View style={{
                                     marginTop: 80,
                                     backgroundColor: "white",
@@ -152,55 +181,21 @@ const Welcome = () => {
                                     justifyContent: 'center',
                                     borderRadius: 50
                                 }}>
-                                    <TouchableOpacity onPress={handleBackName}>
+                                    <TouchableOpacity onPress={() => setIsPhoneInput(true)}>
                                         <Icon name='arrow-back-outline' type='ionicon' color={'#FE9B4B'} size={38} />
                                     </TouchableOpacity>
                                 </View>
-                                <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                                    <TouchableOpacity style={styles.btn_submit} onPress={handleSubmitOTP}>
-                                        <Text style={styles.text_btn}>Xác Nhận</Text>
-                                    </TouchableOpacity>
-                                </View>
+                            )}
+                            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                                <TouchableOpacity style={styles.btn_submit} onPress={isPhoneInput ? handleContinue : handleSendOTP}>
+                                    <Text style={styles.text_btn}>Tiếp Tục</Text>
+                                </TouchableOpacity>
                             </View>
-                        ) : (
-                            <View style={{ height: 300, marginTop: 20 }}>
-                                <View style={styles.viewInput}>
-                                    <Icon name={isPhoneInput ? 'phone' : 'person'} color={isFocused ? "#FE9B4B" : "#ced4da"} size={40} />
-                                    <TextInput
-                                        style={[styles.TextInput, { borderColor: isFocused ? "#FE9B4B" : "#ced4da" }]}
-                                        placeholder={isPhoneInput ? "Nhập số điện thoại" : 'Nhập họ và tên'}
-                                        value={isPhoneInput ? phoneNumber : name}
-                                        onChangeText={(text) => isPhoneInput ? setPhoneNumber(text) : setName(text)}
-                                        keyboardType={isPhoneInput ? "numeric" : "default"}
-                                        onFocus={() => setIsFocused(true)}
-                                        onBlur={() => setIsFocused(false)}
-                                    />
-                                </View>
-                                {!isPhoneInput && (
-                                    <View style={{
-                                        marginTop: 80,
-                                        backgroundColor: "white",
-                                        width: 60,
-                                        height: 60,
-                                        alignSelf: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: 50
-                                    }}>
-                                        <TouchableOpacity onPress={() => setIsPhoneInput(true)}>
-                                            <Icon name='arrow-back-outline' type='ionicon' color={'#FE9B4B'} size={38} />
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                                <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                                    <TouchableOpacity style={styles.btn_submit} onPress={isPhoneInput ? handleContinue : handleSendOTP}>
-                                        <Text style={styles.text_btn}>Tiếp Tục</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        )}
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
+                        </View>
+                    )}
+                </View>
+            </ScrollView>
+
         </TouchableWithoutFeedback>
     );
 }

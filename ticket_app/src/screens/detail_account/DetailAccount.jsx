@@ -10,6 +10,7 @@ import useAuthData, { useAuth } from '../../context/useAuth'
 
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system';
+import { showErrorToast, showSuccessToast } from '../../utils/toast'
 
 const DetailAccount = () => {
 
@@ -97,14 +98,14 @@ const DetailAccount = () => {
                 const newUser = response.data.user;
                 setUser(newUser);
                 setAsyncStorage("user", newUser);
-                alert("Cập nhật thành công!");
+                showSuccessToast("Cập nhật thành công!");
                 setIsUpdateform(false);
             } else {
-                alert("Cập nhật thất bại! " + (response?.message || "Vui lòng thử lại."));
+                showErrorToast("Cập nhật thất bại! " + (response?.message || "Vui lòng thử lại."));
             }
         } catch (error) {
             console.error("Error updating user:", error);
-            alert("Có lỗi xảy ra khi cập nhật thông tin.");
+            showErrorToast("Có lỗi xảy ra khi cập nhật thông tin.");
         }
     };
 
@@ -166,8 +167,10 @@ const DetailAccount = () => {
     const handleSingOut = async () => {
         deleteAsyncStorage("token");
         deleteAsyncStorage("user");
+
+        showSuccessToast("Đã đăng xuất");
         nav.navigate("Welcome");
-        alert("Đã đăng xuất");
+        
     };
 
     return (

@@ -1,13 +1,12 @@
 import Toast from 'react-native-toast-message';
 
 // Thông báo thành công
-export const showSuccessToast = (text1, text2 = '', visibilityTime = 1500) => {
+export const showSuccessToast = (text1, text2 = '', visibilityTime = 1900) => {
     Toast.show({
         type: 'success',
         text1: text1,
         text2: text2,
         visibilityTime: visibilityTime,
-        position: 'top',
     });
 };
 
@@ -18,17 +17,15 @@ export const showErrorToast = (text1, text2 = '', visibilityTime = 1500) => {
         text1: text1,
         text2: text2,
         visibilityTime: visibilityTime,
-        position: 'top',
     });
 };
 
 // Thông báo cảnh báo
-export const showWarningToast = (text1, text2 = '', visibilityTime = 1500) => {
+export const showWarningToast = (text1, text2) => {
     Toast.show({
-        type: 'warning',
+        type: 'info',
         text1: text1,
         text2: text2,
-        visibilityTime: visibilityTime,
-        position: 'top',
+        visibilityTime: 1500
     });
 };

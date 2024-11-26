@@ -7,6 +7,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CookieUtils, { deleteAsyncStorage, getAsyncStorage } from '../../utils/cookie'
 import useAuthData, { useAuth } from '../../context/useAuth'
 import { AuthContext } from '../../context/useContext'
+import { showSuccessToast } from '../../utils/toast'
 
 const Account = () => {
 
@@ -23,8 +24,9 @@ const Account = () => {
     deleteAsyncStorage("user")
     deleteAsyncStorage("token")
 
+    showSuccessToast("Đã đăng xuất")
     nav.navigate("Welcome")
-    alert("Đã đăng xuất")
+
 
   }
 
