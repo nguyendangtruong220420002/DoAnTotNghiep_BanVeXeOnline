@@ -4,7 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { styles } from './styles';
 import axios from 'axios';
 import { setAsyncStorage } from '../../../utils/cookie';
-import { Icon, Input } from 'react-native-elements';
+import { Icon, Input, SearchBar } from 'react-native-elements';
 
 const ListProvinces = () => {
 

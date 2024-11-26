@@ -138,16 +138,14 @@ export const styles = StyleSheet.create({
         color: 'blue',
     },
     listTicket: {
-        padding: 15,
-
+        padding: 3,
     },
     listItem: {
-        //height: 80,
         width: "100%",
         backgroundColor: "white",
         borderRadius: 10,
         marginBottom: 5,
-        padding: 18
+        padding: 15
     },
     viewtop: {
         justifyContent: "space-between",
@@ -207,5 +205,13 @@ export const styles = StyleSheet.create({
     viewDateTime: {
         flexDirection: "row",
 
+    },
+    tripsRoute: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingTop: 10,
+        alignContent: "center",
+        width:100,
+        height:35
     }
 })

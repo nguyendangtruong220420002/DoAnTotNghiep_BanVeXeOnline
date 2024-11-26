@@ -33,35 +33,60 @@ export const styles = StyleSheet.create({
         top: 0,
         backgroundColor: '#f95300',
     },
-  
-    body: { height: "100%" },
+    topBody: {
+        justifyContent: "center",
+        alignItems: "center",
+        alignContent: "center",
+        width: "100%",
+        elevation: 0.2,
+        borderBottomWidth: 0.1,
+
+    },
+    body: { height: "100%", justifyContent: 'space-between' },
+
     seatContainer: {
+
         marginVertical: 10,
         flexDirection: "row",
+        marginLeft: 15,
+        justifyContent: "space-between"
     },
+
     column: { flex: 1, alignItems: 'center' },
+    column1: {
+
+    },
     seatRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 10,
+        justifyContent: 'space-between',
+        gap: 5
     },
     seatWrapper: {
         alignItems: 'center',
-        margin: 5,
         position: 'relative',
-        width: 40,
-        height: 40,
+        width: 35,
+        margin: 1,
+        height: 35,
+        justifyContent: 'center',
+    },
+    seatWrapper1: {
+        alignItems: 'center',
+        position: 'relative',
+        width: 35,
+        marginHorizontal: 5,
+        marginBottom: 9.5,
+        height: 35,
         justifyContent: 'center',
     },
     seatNumber: {
         position: 'absolute',
-        fontSize: 13,
+        fontSize: 11,
         fontWeight: 'bold',
         textAlign: 'center',
         width: '100%',
         color: "#fff",
-        top: 2,
+        top: 5
     },
     emptySeat: { width: 30, height: 30 },
     radioIcon: {
@@ -74,4 +99,24 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 5,
     },
+    bottom: {
+        width: "100%",
+        height: 200,
+        elevation: 0.2,
+        borderTopWidth: 0.1,
+        paddingBottom:15
+    },
+    btnContinue: {
+        height: 40,
+        width: "90%",
+        alignSelf: 'center',
+        justifyContent: "center",
+        backgroundColor: "#FE9B4B",
+        borderRadius: 20,
+    },
+    textbtn: {
+        color: "white",
+        fontSize: 14,
+        textAlign: 'center',
+    }
 });

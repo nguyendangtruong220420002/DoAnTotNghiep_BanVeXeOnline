@@ -3,15 +3,16 @@ import { styles } from './styles'
 import React, { useContext, useEffect, useState } from 'react'
 import { Icon, ListItem } from 'react-native-elements'
 import auth from '@react-native-firebase/auth'
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CookieUtils, { deleteAsyncStorage, getAsyncStorage } from '../../utils/cookie'
-import {useAuth } from '../../context/useAuth'
+import useAuthData, { useAuth } from '../../context/useAuth'
+import { AuthContext } from '../../context/useContext'
 
 const Account = () => {
 
   const nav = useNavigation();
 
-  const { user } = useAuth();
+  const { user, token, setUser } = useAuthData();
 
   const handleDetailAccount = () => {
     nav.navigate("DetailAccount")
@@ -19,15 +20,14 @@ const Account = () => {
 
   const handleSingOut = async () => {
 
-    deleteAsyncStorage("token")
     deleteAsyncStorage("user")
-
+    deleteAsyncStorage("token")
 
     nav.navigate("Welcome")
     alert("Đã đăng xuất")
 
   }
-  
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.viewHeader}>
@@ -46,7 +46,12 @@ const Account = () => {
           <TouchableOpacity
             onPress={handleDetailAccount}
             style={styles.view_user}>
-            <Icon name='person-circle' type='ionicon' size={58} color={"#FE9B4B"} />
+            {user?.img ? (
+              <Image source={{ uri: user?.img }} style={{ width: 70, height: 70, borderRadius: 100 }} />
+            ) : (
+              <Icon name='person-circle' type='ionicon' size={58} color={"#FE9B4B"} />
+            )}
+
             <View style={styles.ViewText_Wel}>
               <Text style={{ fontSize: 18, color: "black", marginBottom: 8 }}>{user?.fullName}</Text>
               <Text style={{ color: "gray" }}>{user?.phoneNumber}</Text>
@@ -54,7 +59,7 @@ const Account = () => {
           </TouchableOpacity>
 
           <View style={styles.ListItem}>
-            <ListItem >
+            <ListItem onPress={() => nav.navigate("Setting")}>
               <Icon name="settings-outline" type="ionicon" color="#FE9B4B" />
               <ListItem.Content>
                 <ListItem.Title>Cài đặt</ListItem.Title>
@@ -63,17 +68,16 @@ const Account = () => {
               <ListItem.Chevron />
             </ListItem>
             <ListItem >
-              <Icon name="person" type="ionicon" color="#FE9B4B" />
+              <Icon name="ban-outline" type="ionicon" color="#FE9B4B" />
               <ListItem.Content >
-                <ListItem.Title>Cập nhật thông tin</ListItem.Title>
-                <ListItem.Subtitle style={{ fontSize: 12 }}></ListItem.Subtitle>
+                <ListItem.Title>Xoá tài khoản</ListItem.Title>
+
               </ListItem.Content>
             </ListItem>
             <ListItem onPress={handleSingOut}>
               <Icon name="log-out-outline" type="ionicon" color="#FE9B4B" />
               <ListItem.Content >
                 <ListItem.Title>Đăng xuất </ListItem.Title>
-                <ListItem.Subtitle style={{ fontSize: 12 }}></ListItem.Subtitle>
               </ListItem.Content>
             </ListItem>
           </View>

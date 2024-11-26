@@ -1,4 +1,4 @@
-import { FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, Modal, ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { Icon } from 'react-native-elements';
 import { styles } from './styles';
@@ -6,9 +6,9 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import darkColors from 'react-native-elements/dist/config/colorsDark';
 import { generateDateRange } from "../../config/DateConfig"
 import Loading from '../loading/Loading'; // Import the Loading component
+import moment from 'moment-timezone';
 
 const ResultSearch = () => {
-
 
 
     const route = useRoute();
@@ -19,6 +19,9 @@ const ResultSearch = () => {
     const diemdi = route.params?.diemdi;
     const diemden = route.params?.diemden;
     const soVe = route.params?.soVe;
+    const trips = route.params?.trips;
+
+
     // Generate initial dates starting from ngaydi
     const [dateArray, setDateArray] = useState(generateDateRange(ngaydi));
 
@@ -103,9 +106,7 @@ const ResultSearch = () => {
                     </View>
 
                     <View>
-                        <Text style={{ color: "white" }}>{soVe} vé, {day}/{month} </Text>
-
-
+                        <Text style={{ color: "white" }}>{soVe} vé, {date}/{month} </Text>
                     </View>
                 </View>
 
@@ -127,7 +128,7 @@ const ResultSearch = () => {
             headerTitleAlign: "center",
             headerTintColor: 'white',
         });
-    }, [nav, diemdi, diemden]);
+    }, [nav, diemdi, diemden, date, month]);
     // Display the Loading component if loading is true
     if (loading) {
         return <Loading />;
@@ -153,13 +154,18 @@ const ResultSearch = () => {
         // Update the date array to include the selected date range
         setDateArray(generateDateRange(selectedFullDate));
     };
-    const handleChooseSeat = () => {
+    const handleChooseSeat = (trip) => {
+
         nav.navigate("ChooseSeat", {
             diemden,
-            diemdi
+            diemdi,
+            trip
         })
     }
-
+    // Update handleTripRoute to accept a trip parameter
+    const handleTripRoute = (trip) => {
+        nav.navigate("TripRoute", { trip });
+    };
     return (
         <View style={styles.container}>
 
@@ -175,7 +181,7 @@ const ResultSearch = () => {
                         bounces={false}
                         contentContainerStyle={[styles.containerGap]}
                         renderItem={({ item, index }) => (
-                            <TouchableOpacity
+                            <TouchableWithoutFeedback
                                 onPress={() => handleSelectDate(item, index)}
                             >
                                 <View style={[
@@ -198,7 +204,7 @@ const ResultSearch = () => {
                                         paddingVertical: 5
                                     }}>{item.date}/{item.month}</Text>
                                 </View>
-                            </TouchableOpacity>
+                            </TouchableWithoutFeedback>
                         )}
                         getItemLayout={getItemLayout}
                     />
@@ -253,225 +259,95 @@ const ResultSearch = () => {
 
                 </View>
                 <ScrollView
+                    showsVerticalScrollIndicator={false}
                     style={styles.listTicket}
-                    contentContainerStyle={{ paddingBottom: 120 }}>
-                    <TouchableOpacity style={styles.listItem}
-                        onPress={() => handleChooseSeat()}
-                    >
-                        <View style={styles.viewtop}>
-                            <View style={styles.viewIcon}>
-                                <Icon type='ionicon' name='wifi' />
-                                <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
-                                <Image source={require('../../../img/curtains.png')} style={{
-                                    height: 21,
-                                    width: 21,
-                                }} />
-                            </View>
-                            <View>
-                                <View style={styles.viewPrice}>
-                                    <Text style={{ fontFamily: "inter", fontSize: 18 }}>135,000đ/vé</Text>
+                    contentContainerStyle={{ paddingBottom: 10 }}
+                >
+                    {trips.map((trip, index) => (
+                        <TouchableWithoutFeedback
+                            key={index}
+                            onPress={() => handleChooseSeat(trip)}
+                        >
+                            <View style={styles.listItem}>
+                                <View style={styles.viewtop}>
+                                    <View style={styles.viewIcon}>
+                                        <Icon type='ionicon' name='wifi' />
+                                        <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
+                                        <Image source={require('../../../img/curtains.png')} style={{ height: 21, width: 21 }} />
+                                    </View>
+                                    <View>
+                                        <View style={styles.viewPrice}>
+                                            <Text style={{ fontFamily: "inter", fontSize: 18, color: "#458CC7" }}>
+                                                {trip.busId.Price} VNĐ/vé
+                                            </Text>
+                                        </View>
+                                        <View style={styles.viewSeat}>
+                                            <Text style={{ fontFamily: "inter", textAlign: 'right' }}>
+                                                còn {trip.busId.cartSeat} ghế
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
-                                <View style={styles.viewSeat}>
-                                    <Text style={{ fontFamily: "inter", textAlign: 'right' }}>còn 10 ghế</Text>
+
+                                {/* Đường kẻ ngang dạng gạch */}
+                                <View style={styles.dashedLineHorizontal} />
+
+                                <View style={styles.listContent}>
+                                    <View>
+                                        <Text style={styles.textDiemdi}>{trip.routeId.departure}</Text>
+                                        {trip?.departureTime && (
+                                            <Text style={styles.textTime}>
+                                                {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
+                                                    .tz('Asia/Ho_Chi_Minh')
+                                                    .format('HH:mm')}
+                                            </Text>
+                                        )}
+                                        <View style={styles.viewDateTime}>
+                                            <Text style={styles.textDay}>
+                                                {day} {date}/{month}
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.dashedHorizontal}>
+                                        <View style={styles.iconContainer}>
+                                            <Icon
+                                                type='ionicon'
+                                                name='bus-outline'
+                                                color={"#FE9B4B"}
+                                            />
+                                        </View>
+                                    </View>
+
+                                    <View style={{ alignItems: "flex-end" }}>
+                                        <Text style={styles.textDiemdi}>{trip.routeId.destination}</Text>
+                                        {trip?.endTime && (
+                                            <Text style={styles.textTime}>
+                                                {moment(trip.endTime, 'DD/MM/YYYY, HH:mm')
+                                                    .tz('Asia/Ho_Chi_Minh')
+                                                    .format('HH:mm')}
+                                            </Text>
+                                        )}
+                                        <View style={styles.viewDateTime}>
+                                            <Text style={styles.textDay}>
+                                                {day} {date}/{month}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </View>
+                                <TouchableWithoutFeedback
+                                    onPress={() => handleTripRoute(trip)}
+                                >
+                                    <View style={styles.tripsRoute}>
+                                        <Icon type='ionicon' name='alert-circle-outline' size={16} />
+                                        <Text style={{ fontFamily: "inter", fontSize: 14, color: "darkblue" }}>Lịch trình</Text>
+                                    </View>
+                                </TouchableWithoutFeedback>
                             </View>
-                        </View>
-                        {/* dashed*/}
-                        <View style={styles.dashedLineHorizontal} />
-                        <View style={styles.listContent}>
-                            <View>
-                                <Text style={styles.textDiemdi}>{diemdi}</Text>
-                                <Text style={styles.textTime}>5:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                            <View style={styles.dashedHorizontal}>
-                                <View style={styles.iconContainer}>
-                                    <Icon
-                                        type='ionicon'
-                                        name='bus-outline'
-                                        color={"#FE9B4B"}
-
-                                    />
-                                </View>
-                            </View>
-
-
-                            <View style={{ alignItems: "flex-end" }}>
-                                <Text style={styles.textDiemdi}>{diemden}</Text>
-                                <Text style={styles.textTime}>10:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.listItem}
-                        onPress={() => handleChooseSeat()}
-                    >
-                        <View style={styles.viewtop}>
-                            <View style={styles.viewIcon}>
-                                <Icon type='ionicon' name='wifi' />
-                                <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
-                                <Image source={require('../../../img/curtains.png')} style={{
-                                    height: 21,
-                                    width: 21,
-                                }} />
-                            </View>
-                            <View>
-                                <View style={styles.viewPrice}>
-                                    <Text style={{ fontFamily: "inter", fontSize: 18 }}>135,000đ/vé</Text>
-                                </View>
-                                <View style={styles.viewSeat}>
-                                    <Text style={{ fontFamily: "inter", textAlign: 'right' }}>còn 10 ghế</Text>
-                                </View>
-                            </View>
-                        </View>
-                        {/* dashed*/}
-                        <View style={styles.dashedLineHorizontal} />
-                        <View style={styles.listContent}>
-                            <View>
-                                <Text style={styles.textDiemdi}>{diemdi}</Text>
-                                <Text style={styles.textTime}>5:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                            <View style={styles.dashedHorizontal}>
-                                <View style={styles.iconContainer}>
-                                    <Icon
-                                        type='ionicon'
-                                        name='bus-outline'
-                                        color={"#FE9B4B"}
-
-                                    />
-                                </View>
-                            </View>
-
-
-                            <View style={{ alignItems: "flex-end" }}>
-                                <Text style={styles.textDiemdi}>{diemden}</Text>
-                                <Text style={styles.textTime}>10:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.listItem}
-                        onPress={() => handleChooseSeat()}
-                    >
-                        <View style={styles.viewtop}>
-                            <View style={styles.viewIcon}>
-                                <Icon type='ionicon' name='wifi' />
-                                <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
-                                <Image source={require('../../../img/curtains.png')} style={{
-                                    height: 21,
-                                    width: 21,
-                                }} />
-                            </View>
-                            <View>
-                                <View style={styles.viewPrice}>
-                                    <Text style={{ fontFamily: "inter", fontSize: 18 }}>135,000đ/vé</Text>
-                                </View>
-                                <View style={styles.viewSeat}>
-                                    <Text style={{ fontFamily: "inter", textAlign: 'right' }}>còn 10 ghế</Text>
-                                </View>
-                            </View>
-                        </View>
-                        {/* dashed*/}
-                        <View style={styles.dashedLineHorizontal} />
-                        <View style={styles.listContent}>
-                            <View>
-                                <Text style={styles.textDiemdi}>{diemdi}</Text>
-                                <Text style={styles.textTime}>5:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                            <View style={styles.dashedHorizontal}>
-                                <View style={styles.iconContainer}>
-                                    <Icon
-                                        type='ionicon'
-                                        name='bus-outline'
-                                        color={"#FE9B4B"}
-
-                                    />
-                                </View>
-                            </View>
-
-
-                            <View style={{ alignItems: "flex-end" }}>
-                                <Text style={styles.textDiemdi}>{diemden}</Text>
-                                <Text style={styles.textTime}>10:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.listItem}
-                        onPress={() => handleChooseSeat()}
-                    >
-                        <View style={styles.viewtop}>
-                            <View style={styles.viewIcon}>
-                                <Icon type='ionicon' name='wifi' />
-                                <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
-                                <Image source={require('../../../img/curtains.png')} style={{
-                                    height: 21,
-                                    width: 21,
-                                }} />
-                            </View>
-                            <View>
-                                <View style={styles.viewPrice}>
-                                    <Text style={{ fontFamily: "inter", fontSize: 18 }}>135,000đ/vé</Text>
-                                </View>
-                                <View style={styles.viewSeat}>
-                                    <Text style={{ fontFamily: "inter", textAlign: 'right' }}>còn 10 ghế</Text>
-                                </View>
-                            </View>
-                        </View>
-                        {/* dashed*/}
-                        <View style={styles.dashedLineHorizontal} />
-                        <View style={styles.listContent}>
-                            <View>
-                                <Text style={styles.textDiemdi}>{diemdi}</Text>
-                                <Text style={styles.textTime}>5:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                            <View style={styles.dashedHorizontal}>
-                                <View style={styles.iconContainer}>
-                                    <Icon
-                                        type='ionicon'
-                                        name='bus-outline'
-                                        color={"#FE9B4B"}
-
-                                    />
-                                </View>
-                            </View>
-
-
-                            <View style={{ alignItems: "flex-end" }}>
-                                <Text style={styles.textDiemdi}>{diemden}</Text>
-                                <Text style={styles.textTime}>10:30</Text>
-                                <View style={styles.viewDateTime}>
-
-                                    <Text style={styles.textDay}>{day}/{month}</Text>
-                                </View>
-                            </View>
-                        </View>
-                    </TouchableOpacity>
+                        </TouchableWithoutFeedback>
+                    ))}
                 </ScrollView>
+
             </View>
         </View>
     );
