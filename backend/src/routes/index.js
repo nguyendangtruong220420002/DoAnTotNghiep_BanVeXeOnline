@@ -4,6 +4,8 @@ const userRoutes = require('../../src/routes/userRoutes');
 const busRoutes = require('../../src/routes/busRoutes');
 const addBusRoute = require('../../src/routes/busRouteRoutes');
 const addTripsRoute = require('../../src/routes/tripsRoutes');
+const addBookingRoute = require('../../src/routes/bookingRoute');
+const addPaymentRoute = require('../../src/routes/paymentRoute');
 
 // Định nghĩa routes ở đây
 router.get('/', (req, res) => {
@@ -21,6 +23,12 @@ router.use('/busRoutes', addBusRoute);
 
 // Routes quản lý chuyến xe
 router.use('/tripsRoutes', addTripsRoute);
+
+// Routes quản lý hóa đơn khách hàng
+router.use('/bookingRoutes', addBookingRoute);
+
+// Routes quản lý Thanh toán khcacsh hàng
+router.use('/addPaymentRoute', addPaymentRoute);
 
 
 module.exports = router;

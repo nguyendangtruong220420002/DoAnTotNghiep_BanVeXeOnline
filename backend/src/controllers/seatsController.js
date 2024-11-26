@@ -4,24 +4,36 @@ const moment = require('moment-timezone');
 const bookSeats = async (req, res) => {
   try {
     const { tripId, bookingDate, seats, userId } = req.body;
-    if (!tripId || !bookingDate || !Array.isArray(seats) || seats.length === 0 || !userId) {
-      return res.status(400).json({ message: "Thông tin đặt vé không đầy đủ" });
+    if (!userId) {
+      return res.status(401).json({ message: "Bạn cần đăng nhập để đặt vé.Vui lòng đăt nhập lại !!!" });
+    }
+    if (!Array.isArray(seats)) {
+      return res.status(400).json({ message: "Dữ liệu ghế không hợp lệ. Vui lòng chọn lại ghế." });
+    }
+    console.log("Received Data:", { tripId, bookingDate, seats, userId });
+    if (!seats || seats.length === 0) {
+      return res.status(400).json({ message: "Bạn chưa chọn ghế." });
     }
     const formattedBookingDate = moment.tz(bookingDate, 'Asia/Ho_Chi_Minh').startOf('day');
     if (!formattedBookingDate.isValid()) {
       return res.status(400).json({ message: "Ngày đặt vé không hợp lệ" });
     }
+
+    // Tìm chuyến đi theo tripId
     const trip = await Trips.findById(tripId);
     if (!trip) {
       return res.status(404).json({ message: "Chuyến đi không tồn tại" });
     }
+
+    // Kiểm tra ngày chuyến đi
     const tripDate = trip.tripDates.find((td) =>
       moment(td.date).tz('Asia/Ho_Chi_Minh').isSame(formattedBookingDate, "day")
     );
-
     if (!tripDate) {
       return res.status(404).json({ message: "Ngày này không có sẵn cho chuyến xe" });
     }
+
+    // Kiểm tra ghế đã được đặt chưa
     if (!tripDate.bookedSeats) {
       tripDate.bookedSeats = { booked: [] };
     }
@@ -34,6 +46,8 @@ const bookSeats = async (req, res) => {
         conflictingSeats 
       });
     }
+
+    // Thêm ghế vào danh sách đã đặt
     seats.forEach((seat) => {
       if (!seat || !userId) {
         return res.status(400).json({ message: "Ghế hoặc userId không hợp lệ" });
@@ -47,15 +61,20 @@ const bookSeats = async (req, res) => {
       tripDate.bookedSeats.booked.push({
         seatId: seat,
         userId: userId,
-        bookingDate: new Date() 
+        bookingDate: new Date(),
+        status: 'Đã đặt',
       });
     });
 
+    // Cập nhật thông tin vé đã bán
     const newSeatsBooked = seats.length;
     const ticketPrice = trip.totalFareAndPrice || 0;
     tripDate.sales.totalTicketsSold += newSeatsBooked;
     tripDate.sales.totalRevenue = tripDate.sales.totalTicketsSold * ticketPrice;
+
+    // Lưu lại thông tin chuyến đi sau khi đặt ghế
     await trip.save();
+
     res.status(200).json({ 
       message: "Đặt ghế thành công!", 
       bookedSeats: tripDate.bookedSeats 
@@ -91,8 +110,15 @@ const getBookedSeats = async (req, res) => {
     const bookedSeats = tripDate.bookedSeats ? tripDate.bookedSeats.booked : [];
     res.status(200).json({
       message: "Danh sách ghế đã đặt",
-      bookedSeats: bookedSeats
-    });
+    //   bookedSeats: bookedSeats
+    // });
+    bookedSeats: bookedSeats.map(seat => ({
+      seatId: seat.seatId,
+      userId: seat.userId,
+      bookingDate: seat.bookingDate,
+      status: seat.status, // Thêm trạng thái ghế
+    }))
+  });
 
   } catch (error) {
     console.error("Error fetching booked seats:", error);
@@ -100,8 +126,32 @@ const getBookedSeats = async (req, res) => {
   }
 };
 
+const updateSeatStatus = async (tripId, seatIds, newStatus) => {
+  const trip = await Trips.findById(tripId);
+  if (!trip) {
+    throw new Error('Chuyến đi không tồn tại');
+  }
+
+  const tripDate = trip.tripDates.find((td) => 
+    moment(td.date).tz('Asia/Ho_Chi_Minh').isSame(new Date(), 'day')
+  );
+
+  if (!tripDate) {
+    throw new Error('Ngày này không có sẵn cho chuyến xe');
+  }
+
+  seatIds.forEach((seatId) => {
+    const seat = tripDate.bookedSeats.booked.find(s => s.seatId === seatId);
+    if (seat) {
+      seat.status = newStatus; // Cập nhật trạng thái ghế
+    }
+  });
+
+  await trip.save();
+};
+
 
   
  
 
-  module.exports = { bookSeats ,getBookedSeats };
+  module.exports = { bookSeats ,getBookedSeats,updateSeatStatus };
