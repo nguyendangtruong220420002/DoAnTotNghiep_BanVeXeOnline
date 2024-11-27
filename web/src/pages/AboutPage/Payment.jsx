@@ -9,6 +9,8 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useLocation } from 'react-router-dom';
 import moment from "moment-timezone";
+import axios from 'axios';
+
 
 
 const Payment = () => {
@@ -26,9 +28,17 @@ const Payment = () => {
   const destination = location.state?.destination; 
   const endTime = location.state?.endTime;
   const selectedSeats = location.state?.selectedSeats;
+  const totalAmountAll = location.state?.totalAmountAll;
+  const bookingId = location.state?.bookingId;
+  const bookingID = location.state?.bookingID;
+  
+  
 
   const [paymentMethod, setPaymentMethod] = useState('Ví Zalopay');
-
+  const API_URL = import.meta.env.VITE_API_URL;
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [paymentTransactionId, setPaymentTransactionId] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState('');
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
@@ -44,8 +54,36 @@ const Payment = () => {
   }, [timeLeft]);
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
+  
 
- 
+  const handlePayment = async () => {
+    if (!paymentMethod) {
+      alert('Vui lòng chọn phương thức thanh toán');
+      return;
+    }
+
+    try {
+      // Gửi yêu cầu thanh toán tới server
+      const response = await axios.post(`${API_URL}/api/addPaymentRoute/add`, {
+        bookingId,
+        bookingID,
+        paymentMethod,
+        totalAmountAll,
+        SeatCode,
+      });
+
+      // Kiểm tra kết quả trả về từ server
+      if (response.data.checkoutUrl) {
+        // Chuyển hướng người dùng đến URL thanh toán của PayOS
+        window.location.href = response.data.checkoutUrl;
+      } else {
+        setPaymentStatus('Thanh toán thất bại');
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      alert('Đã có lỗi xảy ra khi thanh toán.');
+    }
+  };
   
 
   return (
@@ -74,15 +112,24 @@ const Payment = () => {
                        
                         <FormControl sx={{ marginLeft: '18px', marginTop: '10px' }} component="fieldset">
                     
-                      <RadioGroup
-                        value={paymentMethod}
-                        onChange={handlePaymentMethodChange}
-                      >
-                        <FormControlLabel value="Ví Zalopay" control={<Radio />} label="Ví Zalopay" />
-                        <FormControlLabel value="Tiền mặt" control={<Radio />} label="Tiền mặt" />
-                      </RadioGroup>
-                    </FormControl>
-                       
+                        <RadioGroup
+        value={paymentMethod}
+        onChange={handlePaymentMethodChange} // Gọi handlePaymentMethodChange khi chọn phương thức
+      >
+        <FormControlLabel
+          value="Chuyen khoan"
+          control={<Radio />}
+          label="Chuyển khoản"
+        />
+        <FormControlLabel
+          value="Tien ma"
+          control={<Radio />}
+          label="Tiền mặt"
+        />
+      </RadioGroup>
+
+      <button onClick={handlePayment}>Thanh toán</button>
+                    </FormControl>     
                     </Box>
                    
                   </Box>

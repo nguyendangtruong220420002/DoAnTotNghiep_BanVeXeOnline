@@ -8,7 +8,7 @@ const paymentSchema = new mongoose.Schema({
   },
   paymentMethod: { 
     type: String, 
-    enum: ['Tiền mặt', 'Chuyển khoản'],
+    enum: ['Tien mat', 'Chuyen khoan' , 'Quet ma Qr'],
     required: true 
   },
   paymentDate: { 
