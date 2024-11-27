@@ -3,7 +3,7 @@ import { getAsyncStorage } from './cookie';
 
 // Tạo một instance của axios để tái sử dụng
 // API Host
-const host = '10.68.1.62';
+const host = '192.168.1.54';
 
 // Server Port
 const port = '5000';

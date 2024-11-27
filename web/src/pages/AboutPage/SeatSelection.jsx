@@ -80,7 +80,10 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       }
     }
   };
+  
   const fetchBookedSeats = async () => {
+    console.log(departureDate);
+    
     try {
       const formattedDepartureDate = departureDate.replace("Th ", "").trim();
       const parts = formattedDepartureDate.split(", ");
@@ -88,7 +91,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       const formattedDepartureTime = moment(dayMonthYear, "D/MM/YYYY")
         .tz("Asia/Ho_Chi_Minh")
         .format("YYYY-MM-DD");
-
+      console.log(formattedDepartureTime);
       const response = await axios.get(`${API_URL}/api/tripsRoutes/getBooked-seats`, {
         params: { tripId, bookingDate: formattedDepartureTime },
       });
@@ -119,6 +122,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
   const SeatCodeSelect =  selectedSeats.map((id) => getSeatCode(id));
   const SeatCode = selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
   const totalAmountAll  =   (selectedSeats.length * totalAmount);
+  
   const handleSeatClick = (seatId) => {
 
     if (!userInfo || !userInfo._id) {

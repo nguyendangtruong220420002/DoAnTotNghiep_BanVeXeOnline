@@ -7,6 +7,8 @@ import { useEffect } from 'react'
 import { styles } from './styles'
 import Loading from '../loading/Loading'
 import moment from 'moment-timezone';
+import { getData } from '../../utils/fetching'
+
 
 const ChooseSeat = () => {
 
@@ -14,6 +16,18 @@ const ChooseSeat = () => {
     const route = useRoute();
 
     const trip = route.params?.trip;
+    const tripId = route.params?.trip?._id;
+    const ngaydi = route.params?.ngaydi
+
+    const date = new Date(ngaydi);
+
+    const departureDate = new Intl.DateTimeFormat('vi-VN', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        weekday: "short"
+    }).format(date);
+
     const diemdi = route.params?.diemdi
     const diemden = route.params?.diemden
 
@@ -23,36 +37,79 @@ const ChooseSeat = () => {
     const [selectedSeatArray, setSelectedSeatArray] = useState([]);
     const [price, setPrice] = useState();
 
+    const [selectedSeats, setSelectedSeats] = useState([]);
+
+    const [seats, setSeats] = useState(
+        Array.from({ length: 40 }, (_, index) => ({
+            id: index + 1,
+            status: 'Còn trống',
+        }))
+    );
+
+    const fetchBookedSeats = async () => {
+
+        try {
+            const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
+                .tz("Asia/Ho_Chi_Minh")
+                .format("YYYY-MM-DD");
+            console.log(formattedDepartureTime);
+
+            const response = await getData(`tripsRoutes/getBooked-seats`,
+                { tripId, bookingDate: formattedDepartureTime },
+            );
+
+            const bookedSeats = response.data.bookedSeats || [];
+            console.log("Booked Seats Data:", bookedSeats);
+            setSeats((prevSeats) =>
+                prevSeats.map((seat) => ({
+                    ...seat,
+                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+                        ? "Đã mua"
+                        : "Còn trống",
+                }))
+            );
+        } catch (error) {
+            console.error("Lỗi khi lấy ghế đã đặt:", error);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchBookedSeats();
+    }, [tripId, trip.departureTime]);
+
+    const getSeatCode = (id) => {
+        return id <= 20 ? `A${id}` : `B${id - 20}`;
+    };
+
+    const SeatCodeSelect = selectedSeats.map((id) => getSeatCode(id));
+    const SeatCode = selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
+    const totalAmountAll = (selectedSeats.length * totalFareAndPrice);
+
+    const handleSeatClick = (seatId) => {
+        setSeats((prevSeats) =>
+            prevSeats.map((seat) => {
+                if (seat.id === seatId) {
+                    if (seat.status === 'Đã mua') {
+                        return seat; // Không làm gì nếu ghế đã mua
+                    }
+                    const newStatus = seat.status === 'Còn trống' ? 'Đã chọn' : 'Còn trống';
+                    return { ...seat, status: newStatus };
+                }
+                return seat;
+            })
+        );
+
+        setSelectedSeats((prevSelected) =>
+            prevSelected.includes(seatId)
+                ? prevSelected.filter((id) => id !== seatId)
+                : [...prevSelected, seatId]
+        );
+    };
 
     const [loading, setLoading] = useState(true); // Loading state
 
-    const selectedSeat = (index, subIndex, number) => {
-        if (!twoSeatArray[index][subIndex].taken) {
-            let array = [...selectedSeatArray];
-            let temp = [...twoSeatArray];
-            temp[index][subIndex].selected = !temp[index][subIndex].selected;
 
-            // Determine the prefix based on seat number
-            let seatLabel = number <= 23 ? `A${number}` : `B${number}`;
-
-            // Toggle selection logic
-            if (!array.includes(seatLabel)) {
-                // Seat is selected, so we add it to the array
-                array.push(seatLabel);
-            } else {
-                // Seat is unselected, so we remove it from the array
-                const tempIndex = array.indexOf(seatLabel);
-                if (tempIndex > -1) {
-                    array.splice(tempIndex, 1);
-                }
-            }
-
-            setSelectedSeatArray(array);  // Update the selectedSeatArray
-            // Update price based on the number of selected seats
-            setPrice(array.length * totalFareAndPrice);
-            setTwoSeatArray(temp);  // Update the seat array
-        }
-    };
 
 
     useEffect(() => {
@@ -96,12 +153,52 @@ const ChooseSeat = () => {
         return <Loading />;
     }
     const handleInfoPayment = () => {
-        nav.navigate("InfoPayment", { trip, diemdi, diemden, selectedSeatArray, price })
+        nav.navigate("InfoPayment", { trip, ngaydi, diemdi, diemden, SeatCodeSelect, totalAmountAll, SeatCode })
     }
+    const renderSeats = (seats, startIndex, columnsPerRow) => {
+        const rows = [];
+        for (let i = 0; i < seats.length; i += columnsPerRow) {
+            rows.push(seats.slice(i, i + columnsPerRow));
+        }
+
+        return rows.map((row, rowIndex) => (
+            <View key={`row-${startIndex + rowIndex}`} style={styles.row}>
+                {row.map((seat) => (
+                    <TouchableWithoutFeedback
+                        key={seat.id}
+                        onPress={() => seat.status !== 'Đã mua' && handleSeatClick(seat.id)}
+                    >
+                        <View style={styles.seatWrapper}>
+                            <Icon
+                                name="chair"
+                                type="material"
+                                color={
+                                    seat.status === 'Đã mua'
+                                        ? '#ccc'
+                                        : seat.status === 'Đã chọn'
+                                            ? '#ffc9b9'
+                                            : '#b1dffb'
+                                }
+                                size={34}
+                            />
+                            <Text style={[styles.seatNumber, {
+                                color:
+                                    seat.status === "Đã mua"
+                                        ? "#888585"
+                                        : seat.status === "Đã chọn"
+                                            ? "#f06843"
+                                            : "#2b7ecc"
+                            }]}>{getSeatCode(seat.id)}</Text>
+                        </View>
+                    </TouchableWithoutFeedback>
+                ))
+                }
+            </View >
+        ));
+    };
+
     return (
         <View style={styles.container}>
-
-
             <View style={styles.body}>
                 <View>
                     <View style={styles.topBody}>
@@ -110,77 +207,25 @@ const ChooseSeat = () => {
                             <Text style={styles.textTime}>
                                 {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
                                     .tz('Asia/Ho_Chi_Minh')
-                                    .format('HH:mm, DD/MM/YYYY ')}
+                                    .format('HH:mm')} {departureDate}
                             </Text>
                         )}
                     </View>
+
                     <View style={styles.seatContainer}>
-                        {/* First column: seats 1-16 */}
-                        <View style={styles.column1}>
-                            <Text style={{ textAlign: 'center' }}>Tầng dưới</Text>
-                            {twoSeatArray.slice(0, 7).map((row, rowIndex) => ( // Adjusted row count for first 16 seats
-                                <View key={`row1-${rowIndex}`} style={styles.seatRow}>
-                                    {row.map((subItem, colIndex) => (
-                                        <TouchableWithoutFeedback
-                                            key={subItem?.number ?? `seat1-${rowIndex}-${colIndex}`}
-                                            onPress={() => subItem && !subItem.taken && selectedSeat(rowIndex, colIndex, subItem.number)}
-                                        >
-                                            <View
-                                                style={[
-                                                    styles.seatWrapper,
-                                                    !subItem ? styles.emptySeatWrapper : {},
-                                                ]}
-                                            >
-                                                {subItem ? (
-                                                    <>
-                                                        <Icon
-                                                            name="chair"
-                                                            type="material"
-                                                            color={subItem.selected ? "#f95300" : subItem.taken ? "#757575" : "#BDD8F1"}
-                                                            size={34}
-                                                        />
-                                                        <Text style={styles.seatNumber}>A{subItem.number}</Text>
-                                                    </>
-                                                ) : (
-                                                    <View style={styles.emptySeat}></View>
-                                                )}
-                                            </View>
-                                        </TouchableWithoutFeedback>
-                                    ))}
-                                </View>
-                            ))}
+                        {/* Tầng dưới */}
+                        <View style={styles.levelContainer}>
+                            <Text style={styles.levelLabel}>Tầng dưới</Text>
+                            {renderSeats(seats.slice(0, 15), 0, 3)}
+                            {renderSeats(seats.slice(15, 20), 15, 5)}
                         </View>
 
-                        <View style={styles.column}>
-                            <Text style={{ textAlign: 'center' }}>Tầng trên</Text>
-                            {twoSeatArray.slice(7).map((row, rowIndex) => ( // Remaining rows
-                                <View key={`row2-${rowIndex}`} style={styles.seatRow}>
-                                    {row.map((subItem, colIndex) => (
-                                        <TouchableWithoutFeedback
-                                            key={subItem?.number ?? `seat2-${rowIndex}-${colIndex}`}
-                                            onPress={() => subItem && !subItem.taken && selectedSeat(rowIndex + 7, colIndex, subItem?.number)} // Adjusted index for second column
-                                        >
-                                            <View style={styles.seatWrapper1}>
-                                                {subItem ? (
-                                                    <>
-                                                        <Icon
-                                                            name="chair"
-                                                            type="material"
-                                                            color={subItem.selected ? "#f95300" : subItem.taken ? "#757575" : "#BDD8F1"}
-                                                            size={34}
-                                                        />
-                                                        <Text style={styles.seatNumber}>B{subItem.number}</Text>
-                                                    </>
-                                                ) : (
-                                                    <View style={styles.emptySeat}></View>
-                                                )}
-                                            </View>
-                                        </TouchableWithoutFeedback>
-                                    ))}
-                                </View>
-                            ))}
+                        {/* Tầng trên */}
+                        <View style={styles.levelContainer}>
+                            <Text style={styles.levelLabel}>Tầng trên</Text>
+                            {renderSeats(seats.slice(20, 35), 20, 3)}
+                            {renderSeats(seats.slice(35, 40), 35, 5)}
                         </View>
-
                     </View>
                 </View>
 
@@ -196,7 +241,7 @@ const ChooseSeat = () => {
                             <Text>Còn trống</Text>
                         </View>
                         <View style={styles.chosing}>
-                            <Icon name='ellipse' type='ionicon' color={"#f95300"} />
+                            <Icon name='ellipse' type='ionicon' color={"#ffc9b9"} />
                             <Text>Đang chọn</Text>
                         </View>
 
@@ -204,12 +249,12 @@ const ChooseSeat = () => {
                     <View style={styles.bottom}>
                         <View style={{ marginLeft: 20, paddingVertical: 10 }}>
                             <Text style={{ fontWeight: 500 }} >Chiều đi</Text>
-                            <Text style={{ fontWeight: '300' }}>{selectedSeatArray.length || 0} vé</Text>
-                            <Text style={{ fontWeight: '300' }}>{selectedSeatArray.map(seat => seat).join(', ')}</Text>
+                            <Text style={{ fontWeight: '300' }}>{selectedSeats.length || 0} vé</Text>
+                            <Text style={{ fontWeight: '300' }}>{selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ")}</Text>
                         </View>
 
                         <View style={{ marginLeft: 20, paddingVertical: 15 }}>
-                            <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {price?.toLocaleString("vi-VN") || 0}đ</Text>
+                            <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {totalAmountAll?.toLocaleString("vi-VN") || 0}đ</Text>
                         </View>
                         <TouchableOpacity
                             onPress={() => handleInfoPayment()}
@@ -218,11 +263,7 @@ const ChooseSeat = () => {
                         </TouchableOpacity>
                     </View>
                 </View>
-
-
-
             </View>
-
         </View>
     )
 }

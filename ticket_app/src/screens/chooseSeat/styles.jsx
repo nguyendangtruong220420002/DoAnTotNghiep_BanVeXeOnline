@@ -45,50 +45,33 @@ export const styles = StyleSheet.create({
     body: { height: "100%", justifyContent: 'space-between' },
 
     seatContainer: {
-
-        marginVertical: 10,
-        flexDirection: "row",
-        marginLeft: 15,
-        justifyContent: "space-between"
-    },
-
-    column: { flex: 1, alignItems: 'center' },
-    column1: {
-
-    },
-    seatRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 5
+        flexDirection:"row"
+    },
+    levelContainer: {   
+        marginBottom: 20,
+    },
+    levelLabel: {
+        fontSize: 14,
+        textAlign:"center",
+        marginBottom: 10,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        
     },
     seatWrapper: {
         alignItems: 'center',
-        position: 'relative',
-        width: 35,
-        margin: 1,
-        height: 35,
-        justifyContent: 'center',
-    },
-    seatWrapper1: {
-        alignItems: 'center',
-        position: 'relative',
-        width: 35,
-        marginHorizontal: 5,
-        marginBottom: 9.5,
-        height: 35,
-        justifyContent: 'center',
+        margin:3
     },
     seatNumber: {
-        position: 'absolute',
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: 'bold',
-        textAlign: 'center',
-        width: '100%',
-        color: "#fff",
-        top: 5
+       
+        position:"absolute",
+        top:5
     },
-    emptySeat: { width: 30, height: 30 },
     radioIcon: {
         flexDirection: 'row',
         justifyContent: 'space-around',
@@ -104,7 +87,7 @@ export const styles = StyleSheet.create({
         height: 200,
         elevation: 0.2,
         borderTopWidth: 0.1,
-        paddingBottom:15
+        paddingBottom: 15
     },
     btnContinue: {
         height: 40,
