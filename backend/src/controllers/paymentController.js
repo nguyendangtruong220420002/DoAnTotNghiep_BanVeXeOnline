@@ -1,29 +1,37 @@
 const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
+const axios = require('axios');
+const PayOS = require('@payos/node');
+
+// const CLIENT_ID = process.env.CLIENT_ID;
+// const API_KEY = process.env.API_KEY;
+// const CHECKSUM_KEY = process.env.CHECKSUM_KEY;
+
 
 const processPayment = async (req, res) => {
-    const { bookingId, paymentMethod, amountPaid, paymentTransactionId } = req.body;
-  
-    // Kiểm tra xem booking có tồn tại không
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.status(404).send('Không tìm thấy booking.');
-    }
-  
-    // Tạo thông tin thanh toán
-    const payment = new Payment({
-      bookingId,
-      paymentMethod,
-      amountPaid,
-      paymentTransactionId,
-      paymentStatus: amountPaid >= booking.totalFare ? 'Thành công' : 'Thất bại', 
-    });
-  
-    await payment.save();
-    booking.paymentStatus = payment.paymentStatus;
-    await booking.save();
-  
-    res.status(201).send(payment);
-  };
-  
-  module.exports = {  processPayment };
+  try {
+    const { bookingId,bookingID, paymentMethod, totalAmountAll,SeatCode } = req.body;
+    const amount = totalAmountAll; 
+    const orderCode = bookingID;
+    const returnUrl = 'https://yourwebsite.com/payment/success';  // Thay thế URL này với URL thành công thực tế
+    const cancelUrl = 'https://yourwebsite.com/payment/cancel';  // Thay thế URL này với URL hủy thực tế
+    const description = `Thanh toán vé xe ${SeatCode}`.slice(0, 25); 
+
+    const order ={
+      orderCode:orderCode,
+      amount:amount,
+      description:description,
+      returnUrl:returnUrl ,
+      cancelUrl:cancelUrl ,
+
+    };
+    const paymentLink = await payos.createPaymentLink(order);
+    res.json({ checkoutUrl: paymentLink.checkoutUrl });
+   
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).send('Lỗi khi xử lý thanh toán.');
+  }
+};
+
+module.exports = { processPayment };

@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */
 import React ,  { useState, useEffect } from 'react';
 import {Box, AppBar, Toolbar ,Typography, Button, Menu, MenuItem, TextField, Select, FormControl ,InputLabel} from '@mui/material'
 import logo from '../../../public/images/logohome (2).png';
@@ -62,12 +63,15 @@ const InforCustoOfTrips = () => {
     email: InforCusto?.email || '',
 });
 const [Timehouse, setTimehouse] = useState(null);
+
 useEffect(() => {
   if (departureTime) {
     const formattedTime = moment(departureTime, "DD/MM/YYYY, HH:mm").tz("Asia/Ho_Chi_Minh").format("HH:mm");
     setTimehouse(formattedTime); 
   }
 }, [departureTime]);
+
+{selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""} 
 const handleChangeDeparture = (event) => {
   setSelectedDeparture(event.target.value); 
 };
@@ -153,9 +157,11 @@ const selectedDepartureName =
     
        // console.log("bookingData", bookingData);     
      await axios.post(`${API_URL}/api/tripsRoutes/book-seats`, bookingData);
-          console.log("bookingId",createBookingResponse.data._id)
+          const bookingId = createBookingResponse.data._id;
+          const bookingID = createBookingResponse.data.BookingID;
+          //console.log("bookingId",bookingId)
         setTimeout(() => {
-          navigate('/payment', { state: { bookingId: createBookingResponse.data._id,userInfo ,from, schedule ,to, endTime, selectedSeats,
+          navigate('/payment', { state: { bookingId,bookingID,userInfo ,from, schedule ,to, endTime, selectedSeats,
             totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,formDataCustoOfTrips } });
         }, 2000);
     
@@ -367,6 +373,35 @@ const handleCloseModal = () => {
                   <Box sx={{display:'flex',flexDirection:'column',}} >
                     <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px', width:'620px',backgroundColor:'rgb(255, 255, 255)'}}> 
                         <Typography className='button35' sx={{marginLeft:'18px', marginTop:'20px' }} >Thông tin liên hệ  <span style={{color:'red'}}>*</span></Typography>
+                            <TextField 
+                              className='select1'
+                              label="Tên người đi"
+                              variant="outlined"
+                              fullWidth
+                              required 
+                              name="fullName"
+                              value={formDataCustoOfTrips.fullName}
+                              onChange={handleChange}/>
+                            <TextField
+                              label="Số điện thoại"
+                              className='select1'         
+                              variant="outlined"
+                              fullWidth
+                              required
+                              type="tel"
+                              name="phoneNumber"
+                              value={formDataCustoOfTrips.phoneNumber}
+                              onChange={handleChange}/>
+                            <TextField
+                              label="Email"
+                              className='select1'
+                              variant="outlined"
+                              fullWidth
+                              required
+                              type="email"
+                              name="email"
+                              value={formDataCustoOfTrips.email}
+                              onChange={handleChange}/>
                         <Box  className='select1' sx={{border: "1px solid #43b975", borderRadius:'10px', display:'flex', backgroundColor:'#eefbf4', alignItems:'center', justifyContent:'center' ,padding:'8px 0px'}}>
                           <VerifiedUserIcon sx={{width:'17px', color:'#27ae60', margin:'10px'}}></VerifiedUserIcon>  
                           <Typography className='button36' sx={{fontSize:'14px'}}>Số điện thoại và email được sử dụng để gửi thông tin đơn hàng và liên hệ khi cần thiết.</Typography>   
@@ -564,4 +599,4 @@ const handleCloseModal = () => {
   );
 };
 
-export default InforCustoOfTrips;
+export default InforCustoOfTrips;           

@@ -6,12 +6,21 @@ const createBooking = async (req, res) => {
   if (!tripId || !userId || !seatId || !totalFare || !passengerInfo) {
     return res.status(400).send('Thiếu dữ liệu yêu cầu.');
   }
+
+  const lastBooking = await Booking.findOne().sort({ BookingID: -1 });
+  console.log("lastBooking", lastBooking);
+  const newBookingID = lastBooking ? lastBooking.BookingID + 1 : 1;
+  console.log("newBookingID",newBookingID);
   const trip = await Trips.findById(tripId);
   if (trip.bookedSeats && trip.bookedSeats.some(seat => seat.seatId === seatId)) {
     return res.status(400).send('Ghế đã được đặt');
   }
+
+ 
+
   // Tạo booking
   const booking = new Booking({
+    BookingID:newBookingID,
     tripId,
     userId,
     seatId,
