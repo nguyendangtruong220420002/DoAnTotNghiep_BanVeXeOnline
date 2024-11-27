@@ -10,7 +10,6 @@ import moment from 'moment-timezone';
 
 const ResultSearch = () => {
 
-
     const route = useRoute();
     const nav = useNavigation();
     const flatListRef = useRef(null);
@@ -37,9 +36,9 @@ const ResultSearch = () => {
     const monthValue = ngaydi.getMonth() + 1;
     const dayValue = ngaydi.getDate();
 
-    const [date, setDate] = useState('');
+    const [date, setDate] = useState(dayValue.toString());
     const [month, setMonth] = useState(monthValue.toString().padStart(2, '0'));
-    const [day, setDay] = useState(dayValue.toString().padStart(2));
+    const [day, setDay] = useState("");
 
 
 
@@ -85,6 +84,7 @@ const ResultSearch = () => {
         }));
         setModalVisible(false);
     };
+
     useEffect(() => {
         // Simulating a data fetching or processing delay
         setTimeout(() => {
@@ -133,6 +133,7 @@ const ResultSearch = () => {
     if (loading) {
         return <Loading />;
     }
+
     const closeModal = () => setModalVisible(false);
 
     // Provide item layout for better scrolling performance
@@ -278,7 +279,7 @@ const ResultSearch = () => {
                                     <View>
                                         <View style={styles.viewPrice}>
                                             <Text style={{ fontFamily: "inter", fontSize: 18, color: "#458CC7" }}>
-                                                {trip.busId.Price} VNĐ/vé
+                                                {trip.totalFareAndPrice?.toLocaleString("vi-VN")} VNĐ/vé
                                             </Text>
                                         </View>
                                         <View style={styles.viewSeat}>

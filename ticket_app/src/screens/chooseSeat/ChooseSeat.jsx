@@ -17,7 +17,7 @@ const ChooseSeat = () => {
     const diemdi = route.params?.diemdi
     const diemden = route.params?.diemden
 
-    const pricebus = trip?.busId?.Price;
+    const totalFareAndPrice = trip?.totalFareAndPrice;
 
     const [twoSeatArray, setTwoSeatArray] = useState(generate41Seats())
     const [selectedSeatArray, setSelectedSeatArray] = useState([]);
@@ -49,7 +49,7 @@ const ChooseSeat = () => {
 
             setSelectedSeatArray(array);  // Update the selectedSeatArray
             // Update price based on the number of selected seats
-            setPrice(array.length * pricebus);
+            setPrice(array.length * totalFareAndPrice);
             setTwoSeatArray(temp);  // Update the seat array
         }
     };
@@ -96,7 +96,7 @@ const ChooseSeat = () => {
         return <Loading />;
     }
     const handleInfoPayment = () => {
-        nav.navigate("InfoPayment", { trip, diemdi, diemden,selectedSeatArray })
+        nav.navigate("InfoPayment", { trip, diemdi, diemden, selectedSeatArray, price })
     }
     return (
         <View style={styles.container}>
@@ -209,7 +209,7 @@ const ChooseSeat = () => {
                         </View>
 
                         <View style={{ marginLeft: 20, paddingVertical: 15 }}>
-                            <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {price || 0}đ</Text>
+                            <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {price?.toLocaleString("vi-VN") || 0}đ</Text>
                         </View>
                         <TouchableOpacity
                             onPress={() => handleInfoPayment()}

@@ -226,10 +226,10 @@ export const styles = StyleSheet.create({
     viewBtn: {
         justifyContent: "center",
         height: 100,
-        backgroundColor:"white",
+        backgroundColor: "white",
         elevation: 20,
-        borderTopLeftRadius:10,
-        borderTopRightRadius:10
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10
     },
     btnContinue: {
         height: 40,
@@ -243,6 +243,17 @@ export const styles = StyleSheet.create({
         color: "white",
         fontSize: 16,
         textAlign: 'center',
-        fontWeight:"500"
-    }
+        fontWeight: "500"
+    },
+    label: {
+        fontSize: 16,
+        marginVertical: 8,
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        padding: 10,
+        borderRadius: 5,
+        marginBottom: 15,
+    },
 })

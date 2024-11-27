@@ -6,6 +6,7 @@ import { Icon } from 'react-native-elements';
 import axios from 'axios';
 import CookieUtils, { getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
 import { postData } from '../../utils/fetching'
+import { showSuccessToast } from '../../utils/toast';
 
 const Login = () => {
 
@@ -39,7 +40,7 @@ const Login = () => {
 
       if (response.status === 200) {
 
-        alert('Đăng nhập thành công');
+        showSuccessToast('Đăng nhập thành công');
 
         nav.navigate("Home");
 
@@ -59,8 +60,6 @@ const Login = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={55}
-
       >
         <ScrollView
           showsVerticalScrollIndicator={false}

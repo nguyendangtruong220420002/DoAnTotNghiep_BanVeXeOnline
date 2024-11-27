@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableWithoutFeedback, Modal, TouchableOpacity, ScrollView } from 'react-native'
+import { View, Text, Image, TouchableWithoutFeedback, Modal, TouchableOpacity, ScrollView, TextInput, Button, Alert } from 'react-native'
 import React, { useState } from 'react'
 import { useEffect } from 'react';
 import { Icon, ListItem } from 'react-native-elements';
@@ -6,6 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { styles } from './styles';
 import moment from 'moment-timezone';
 import useAuthData from '../../../context/useAuth';
+import { showErrorToast } from '../../../utils/toast';
 
 const InfoPayment = () => {
 
@@ -14,11 +15,23 @@ const InfoPayment = () => {
 
     const { user } = useAuthData();
 
+    const [fullName, setFullName] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState(null);
+    const [email, setEmail] = useState(null);
+
     const trip = route.params?.trip;
     const diemdi = route.params?.diemdi;
     const diemden = route.params?.diemden;
+
+    const gia = route.params?.price
+    const price = gia.toLocaleString("vi-VN");
+
+
+
     const selectedSeatArray = route.params?.selectedSeatArray;
     const [modalVisible, setModalVisible] = useState(false);
+
+    const [modalEditVisible, setModalEditVisible] = useState(false);
 
     useEffect(() => {
 
@@ -60,13 +73,13 @@ const InfoPayment = () => {
                 </View>
             ),
             headerStyle: {
-                height: 75,
+                height: 100,
                 backgroundColor: "#f95300",
             },
             headerTitleAlign: "center",
             headerTintColor: 'white',
         });
-    }, [nav, diemdi, diemden]);
+    }, [nav, diemdi, diemden, trip]);
 
     const [currentSelection, setCurrentSelection] = useState(null); // 'pickup' hoặc 'dropoff'
     const [pickupPoint, setPickupPoint] = useState(null);
@@ -76,6 +89,7 @@ const InfoPayment = () => {
         nav.navigate("TripRoute", { trip });
     };
     const closeModal = () => setModalVisible(false);
+
     const openModal = (selection) => {
         setCurrentSelection(selection);
         setModalVisible(true);
@@ -90,6 +104,37 @@ const InfoPayment = () => {
         setModalVisible(false);
     };
 
+    const handlePayment = () => {
+
+        if (!pickupPoint || !dropOffPoint) {
+
+            showErrorToast("Vui lòng nhập Điểm đón và Điểm trả", "Vui lòng chọn đầy đủ Điểm đón và Điểm trả trước khi tiếp tục")
+
+            return; // Dừng việc tiếp tục điều hướng
+        }
+        const CustomerInfo = {
+            fullName: fullName || user?.fullName,
+            phoneNumber: phoneNumber || user?.phoneNumber,
+            email: email || user?.email,
+        };
+
+        nav.navigate("Payment", { trip, pickupPoint, dropOffPoint, CustomerInfo, selectedSeatArray, price })
+    }
+
+    const handleEditInfo = () => {
+
+        setModalEditVisible(true)
+    }
+    const handleSave = (fullName, phoneNumber, email) => {
+
+
+        setFullName(fullName ? fullName : user?.fullName);
+        setPhoneNumber(phoneNumber ? phoneNumber : user?.phoneNumber);
+        setEmail(email ? email : user?.email);
+
+        setModalEditVisible(false);
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.body}>
@@ -101,7 +146,9 @@ const InfoPayment = () => {
                             </Text>
                         </View>
                         <View>
-                            <TouchableWithoutFeedback>
+                            <TouchableWithoutFeedback
+                                onPress={() => handleEditInfo()}
+                            >
                                 <Icon type='material' name='border-color' color={"#f95300"} />
                             </TouchableWithoutFeedback>
                         </View>
@@ -113,20 +160,20 @@ const InfoPayment = () => {
                             <ListItem.Content>
                                 <ListItem.Title><Text style={styles.textListItem}>Họ và tên</Text></ListItem.Title>
                             </ListItem.Content>
-                            <ListItem.Title><Text>{user?.fullName}</Text></ListItem.Title>
+                            <ListItem.Title><Text>{fullName ? fullName : user?.fullName}</Text></ListItem.Title>
                         </ListItem>
                         <ListItem containerStyle={{ padding: 5 }}>
 
                             <ListItem.Content >
                                 <ListItem.Title><Text style={styles.textListItem}>Số điện thoại</Text></ListItem.Title>
                             </ListItem.Content>
-                            <ListItem.Title><Text>{user?.phoneNumber}</Text></ListItem.Title>
+                            <ListItem.Title><Text>{phoneNumber ? phoneNumber : user?.phoneNumber}</Text></ListItem.Title>
                         </ListItem>
                         <ListItem containerStyle={{ padding: 5 }}>
                             <ListItem.Content >
                                 <ListItem.Title><Text style={styles.textListItem}>Email</Text></ListItem.Title>
                             </ListItem.Content>
-                            <ListItem.Title><Text>{user?.email}</Text></ListItem.Title>
+                            <ListItem.Title><Text>{email ? email : user?.email}</Text></ListItem.Title>
                         </ListItem>
                     </View>
 
@@ -223,7 +270,15 @@ const InfoPayment = () => {
                                 </TouchableOpacity>
 
                                 <Text style={{ color: "#F95300", fontSize: 16, padding: 5 }}>
-                                    {pickupPoint ? `Quý khách vui lòng có mặt tại "${pickupPoint?.name}" trước ${pickupPoint?.time} để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!` : ""}
+                                    {pickupPoint ? (
+                                        <Text style={{ color: "#F95300", fontSize: 16, padding: 5 }}>
+                                            Quý khách vui lòng có mặt tại "{pickupPoint?.name}" trước {pickupPoint?.time} để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!
+                                        </Text>
+                                    ) : (
+                                        <Text style={{ color: "red", fontSize: 14, paddingTop: 5 }}>
+                                            Vui lòng chọn Điểm đón.
+                                        </Text>
+                                    )}
                                 </Text>
                             </View>
                         </View>
@@ -243,6 +298,11 @@ const InfoPayment = () => {
                                 <Icon type="ionicon" name="caret-down" size={16} color="#333" />
                             </View>
                         </TouchableOpacity>
+                        {!dropOffPoint && (
+                            <Text style={{ color: "red", fontSize: 14, paddingTop: 5 }}>
+                                Vui lòng chọn Điểm trả.
+                            </Text>
+                        )}
                     </View>
 
                 </View>
@@ -292,8 +352,63 @@ const InfoPayment = () => {
                     </View>
                 </View>
             </Modal>
+
+            <Modal
+                onDismiss={() => setModalEditVisible(false)}
+                animationType="slide"
+                transparent={true}
+                visible={modalEditVisible}
+                onRequestClose={closeModal}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Thông tin khách hàng</Text>
+
+
+
+                        <Text style={styles.label}>Họ và tên</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={fullName ? fullName : user?.fullName}
+                            onChangeText={(text) => setFullName(text)}
+                            placeholder="Nhập họ và tên"
+                        />
+
+                        <Text style={styles.label}>Số điện thoại</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={phoneNumber ? phoneNumber : user?.phoneNumber}
+                            onChangeText={(text) => setPhoneNumber(text)}
+                            placeholder="Nhập số điện thoại"
+                            keyboardType="phone-pad"
+                        />
+
+                        <Text style={styles.label}>Email</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={email ? email : user?.email}
+                            onChangeText={(text) => setEmail(text)}
+                            placeholder="Nhập email"
+                            keyboardType="email-address"
+                        />
+
+                        <Button title="Lưu" onPress={() => handleSave(
+                            fullName ? fullName : user?.fullName,
+                            phoneNumber ? phoneNumber : user?.phoneNumber,
+                            email ? email : user?.email)}
+                            color="#f95300"
+                        />
+
+                        <TouchableOpacity style={styles.btnClose} onPress={() => setModalEditVisible(false)}>
+
+                            <Text style={styles.btnCloseText}>Đóng</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
             <View style={styles.viewBtn}>
                 <TouchableOpacity
+                    onPress={() => handlePayment()}
                     style={styles.btnContinue}>
                     <Text style={styles.textbtn}>Tiếp tục</Text>
                 </TouchableOpacity>

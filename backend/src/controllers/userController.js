@@ -1,7 +1,7 @@
 const User = require('../../src/models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { upload, uploadMobile } = require('../../src/config/s3');
+const { upload, uploadMobile } = require('../config/s3');
 const { formatBase64ToBuffer } = require('../config/base64');
 
 // Đăng ký người dùng
