@@ -33,6 +33,7 @@ const ResultSearch = () => {
         'Loại ghế': '',
         'Khung giờ': '',
     });
+
     const monthValue = ngaydi.getMonth() + 1;
     const dayValue = ngaydi.getDate();
 
@@ -160,7 +161,8 @@ const ResultSearch = () => {
         nav.navigate("ChooseSeat", {
             diemden,
             diemdi,
-            trip
+            trip,
+            ngaydi,
         })
     }
     // Update handleTripRoute to accept a trip parameter

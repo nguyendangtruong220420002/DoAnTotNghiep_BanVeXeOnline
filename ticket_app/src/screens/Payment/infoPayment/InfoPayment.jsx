@@ -7,6 +7,7 @@ import { styles } from './styles';
 import moment from 'moment-timezone';
 import useAuthData from '../../../context/useAuth';
 import { showErrorToast } from '../../../utils/toast';
+import { postData } from '../../../utils/fetching';
 
 const InfoPayment = () => {
 
@@ -18,17 +19,38 @@ const InfoPayment = () => {
     const [fullName, setFullName] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(null);
     const [email, setEmail] = useState(null);
+    const totalAmountAll = route.params?.totalAmountAll;
 
     const trip = route.params?.trip;
+    const tripId = route.params?.trip?._id;
+    const ngaydi = route?.params?.ngaydi;
+
+    const date = new Date(ngaydi);
+
+    const departureDate = new Intl.DateTimeFormat('vi-VN', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        weekday: "short"
+    }).format(date);
+
     const diemdi = route.params?.diemdi;
     const diemden = route.params?.diemden;
+    const seatCode = route.params?.SeatCode;
+    const SeatCodeSelect = route.params?.SeatCodeSelect;
+
+    const Timehouse = moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
+        .tz('Asia/Ho_Chi_Minh')
+        .format('HH:mm')
+
+    const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
+        .tz('Asia/Ho_Chi_Minh')
+        .format("YYYY-MM-DDTHH:mm:ss.SSSZ")
 
     const gia = route.params?.price
-    const price = gia.toLocaleString("vi-VN");
+    const price = gia?.toLocaleString("vi-VN");
 
 
-
-    const selectedSeatArray = route.params?.selectedSeatArray;
     const [modalVisible, setModalVisible] = useState(false);
 
     const [modalEditVisible, setModalEditVisible] = useState(false);
@@ -96,6 +118,8 @@ const InfoPayment = () => {
     };
 
     const handleSelect = (point) => {
+        console.log(point);
+
         if (currentSelection === "pickup") {
             setPickupPoint(point);
         } else if (currentSelection === "dropoff") {
@@ -104,21 +128,62 @@ const InfoPayment = () => {
         setModalVisible(false);
     };
 
-    const handlePayment = () => {
-
+    const handlePayment = async () => {
+        const CustomerInfo = {
+            fullName: fullName || user?.fullName,
+            phoneNumber: phoneNumber || user?.phoneNumber,
+            email: email || user?.email,
+        }
         if (!pickupPoint || !dropOffPoint) {
 
             showErrorToast("Vui lòng nhập Điểm đón và Điểm trả", "Vui lòng chọn đầy đủ Điểm đón và Điểm trả trước khi tiếp tục")
 
             return; // Dừng việc tiếp tục điều hướng
         }
-        const CustomerInfo = {
-            fullName: fullName || user?.fullName,
-            phoneNumber: phoneNumber || user?.phoneNumber,
-            email: email || user?.email,
+        const bookingDataForPayment = {
+            tripId,
+            userId: user?._id,
+            seatId: seatCode,
+            totalFare: totalAmountAll,
+            selectedDepartureName: pickupPoint,
+            selectedDestinationName: dropOffPoint,
+            Timehouse: Timehouse,
+            departureDate: departureDate,
+            passengerInfo: {
+                fullName: fullName || user?.fullName,
+                phoneNumber: phoneNumber || user?.phoneNumber,
+                email: email || user?.email,
+            },
         };
+        try {
+            const createBookingResponse = await postData(`/bookingRoutes/add`, bookingDataForPayment);
+            const bookingData = {
+                tripId,
+                bookingDate: formattedDepartureTime,
+                seats: SeatCodeSelect,
+                userId: user?._id,
+                selectedDepartureName: pickupPoint,
+                selectedDestinationName: dropOffPoint,
+                Timehouse: Timehouse,
+                departureDate: departureDate,
+            };
 
-        nav.navigate("Payment", { trip, pickupPoint, dropOffPoint, CustomerInfo, selectedSeatArray, price })
+            // console.log("bookingData", bookingData);     
+            await postData(`tripsRoutes/book-seats`, bookingData);
+            console.log("bookingId", createBookingResponse.data._id)
+            setTimeout(() => {
+                nav.navigate("Payment", { bookingId: createBookingResponse.data._id, trip, pickupPoint, dropOffPoint, CustomerInfo, SeatCodeSelect, price: totalAmountAll })
+            }, 2000);
+
+        } catch (error) {
+            console.error("Lỗi khi thanh toán:", error);
+            setAlert({
+                open: true,
+                severity: 'error',
+                message: error.response?.data || 'Đặt vé thất bại. Vui lòng thử lại.',
+            });
+        }
+
     }
 
     const handleEditInfo = () => {
@@ -241,7 +306,7 @@ const InfoPayment = () => {
                         </View>
                     </View>
                     <View style={{ paddingLeft: 5 }}>
-                        <Text>{selectedSeatArray?.map(seat => seat).join(', ')}</Text>
+                        <Text>{SeatCodeSelect}</Text>
                     </View>
                 </View>
                 <View style={styles.ViewPickUp_Drop_Info}>
@@ -263,7 +328,7 @@ const InfoPayment = () => {
 
                                     <View style={styles.modalTitleContainer}>
                                         <Text style={styles.textSelected}>
-                                            {pickupPoint ? `${pickupPoint?.name} - ${pickupPoint?.address}` : "Chọn điểm đón"}
+                                            {pickupPoint ? `${pickupPoint}` : "Chọn điểm đón"}
                                         </Text>
                                         <Icon type="ionicon" name="caret-down" size={16} color="#333" />
                                     </View>
@@ -272,7 +337,7 @@ const InfoPayment = () => {
                                 <Text style={{ color: "#F95300", fontSize: 16, padding: 5 }}>
                                     {pickupPoint ? (
                                         <Text style={{ color: "#F95300", fontSize: 16, padding: 5 }}>
-                                            Quý khách vui lòng có mặt tại "{pickupPoint?.name}" trước {pickupPoint?.time} để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!
+                                            Quý khách vui lòng có mặt tại "{pickupPoint}" trước 15ph để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!
                                         </Text>
                                     ) : (
                                         <Text style={{ color: "red", fontSize: 14, paddingTop: 5 }}>
@@ -293,7 +358,7 @@ const InfoPayment = () => {
 
                             <View style={styles.modalTitleContainer}>
                                 <Text style={styles.textSelected}>
-                                    {dropOffPoint ? `${dropOffPoint?.name} - ${dropOffPoint?.address}` : "Chọn điểm trả"}
+                                    {dropOffPoint ? `${dropOffPoint}` : "Chọn điểm trả"}
                                 </Text>
                                 <Icon type="ionicon" name="caret-down" size={16} color="#333" />
                             </View>
@@ -322,7 +387,33 @@ const InfoPayment = () => {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Đón tại Trạm/văn phòng</Text>
+                        <Text style={styles.modalTitle}>
+                            {currentSelection === "pickup" ? "Đón tại Trạm/văn phòng" : "Trả tại Trạm/văn phòng"}
+                        </Text>
+                        {currentSelection === "pickup" && (
+                            <TouchableOpacity
+                                style={styles.radioButton}
+                                onPress={() => handleSelect(currentSelection === "pickup" && trip?.routeId?.from)}
+                            >
+                                <View style={styles.radioIcon}>
+                                    {/* Đánh dấu tùy chọn đã chọn nếu trùng */}
+                                </View>
+
+                                <View>
+                                    <Text>  {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
+                                        .tz('Asia/Ho_Chi_Minh')
+                                        .format('HH:mm')}
+                                    </Text>
+                                    <Text style={styles.radioTextName}>
+                                        {currentSelection === "pickup" && trip?.routeId?.from}
+                                    </Text>
+                                    <Text style={styles.radioTextAddress}>
+                                        {currentSelection === "pickup" && trip?.routeId?.from}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                        {/* Thêm lựa chọn mặc định từ trip.routeId */}
 
                         {(currentSelection === "pickup"
                             ? trip?.schedule.slice(0, -1) // Loại bỏ item cuối nếu là điểm đón
@@ -331,7 +422,7 @@ const InfoPayment = () => {
                             <TouchableOpacity
                                 key={index}
                                 style={styles.radioButton}
-                                onPress={() => handleSelect(stop)}
+                                onPress={() => handleSelect(stop.name)}
                             >
                                 <View style={styles.radioIcon}>
                                     {/* Đánh dấu tùy chọn đã chọn cho filter hiện tại */}
@@ -345,6 +436,29 @@ const InfoPayment = () => {
 
                             </TouchableOpacity>
                         ))}
+                        {currentSelection === "dropoff" && (
+                            <TouchableOpacity
+                                style={styles.radioButton}
+                                onPress={() => handleSelect(currentSelection === "dropoff" && trip?.routeId?.to)}
+                            >
+                                <View style={styles.radioIcon}>
+                                    {/* Đánh dấu tùy chọn đã chọn nếu trùng */}
+                                </View>
+
+                                <View>
+                                    <Text>  {moment(trip.endTime, 'DD/MM/YYYY, HH:mm')
+                                        .tz('Asia/Ho_Chi_Minh')
+                                        .format('HH:mm')}
+                                    </Text>
+                                    <Text style={styles.radioTextName}>
+                                        {currentSelection === "dropoff" && trip?.routeId?.to}
+                                    </Text>
+                                    <Text style={styles.radioTextAddress}>
+                                        {currentSelection === "dropoff" && trip?.routeId?.to}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        )}
 
                         <TouchableOpacity style={styles.btnClose} onPress={closeModal}>
                             <Text style={styles.btnCloseText}>Đóng</Text>

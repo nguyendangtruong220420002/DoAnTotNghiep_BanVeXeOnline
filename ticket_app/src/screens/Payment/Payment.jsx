@@ -1,4 +1,4 @@
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useAuthData from '../../context/useAuth';
@@ -6,10 +6,13 @@ import { Icon, ListItem } from 'react-native-elements';
 import { styles } from './styles';
 import moment from 'moment-timezone';
 import axios from 'axios';
+import Loading from '../loading/Loading';
 
 const Payment = () => {
 
   const [timeLeft, setTimeLeft] = useState(600);
+  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -40,13 +43,16 @@ const Payment = () => {
   const trip = route.params?.trip;
   const diemdi = route.params?.trip.routeId.departure;
   const diemden = route.params?.trip.routeId.destination;
-  const selectedSeatArray = route.params?.selectedSeatArray;
+  const SeatCodeSelect = route.params?.SeatCodeSelect;
   const dropOffPoint = route.params?.dropOffPoint;
   const pickupPoint = route.params?.pickupPoint;
 
 
-  useEffect(() => {
 
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false); // Set loading to false after data is processed/fetched
+    }, 200);
     // Set the header with dynamic data
     nav.setOptions({
       headerTitle: () => (
@@ -91,26 +97,30 @@ const Payment = () => {
       headerTitleAlign: "center",
       headerTintColor: 'white',
     });
+    const unsubscribe = nav.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+
+      Alert.alert(
+        'Xác nhận',
+        'Bạn có chắc chắn muốn thoát khỏi trang thanh toán?',
+        [
+          { text: 'Hủy', style: 'cancel', onPress: () => { } },
+          {
+            text: 'Đồng ý',
+            style: 'destructive',
+            onPress: () => nav.dispatch(e.data.action), // Cho phép quay lại
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
   }, [nav, diemdi, diemden, trip]);
 
+  if (loading) {
+    return <Loading />;
+  }
   const handlePayment = () => {
-
-    // // Gửi yêu cầu thanh toán đến backend
-    // axios.post('http://192.168.1.2:5000/api/order/create_payment_url', {
-    //   amount: price,
-    // })
-    //   .then(response => {
-    //     // Chuyển tới màn hình thanh toán VNPAY
-    //     if (response.data && response.data.url) {
-    //       nav.navigate('PaymentScreen', { paymentUrl: response.data.url });
-    //     } else {
-    //       Alert.alert('Error', 'Không thể tạo URL thanh toán!');
-    //     }
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //     Alert.alert('Error', 'Đã xảy ra lỗi khi tạo URL thanh toán!');
-    //   });
 
   }
 
@@ -172,15 +182,9 @@ const Payment = () => {
               </ListItem>
               <ListItem containerStyle={{ padding: 5 }}>
                 <ListItem.Content >
-                  <ListItem.Title><Text style={styles.textListItem}>Số lượng vé</Text></ListItem.Title>
-                </ListItem.Content>
-                <ListItem.Title><Text style={styles.textTitle} >{selectedSeatArray.length} vé</Text></ListItem.Title>
-              </ListItem>
-              <ListItem containerStyle={{ padding: 5 }}>
-                <ListItem.Content >
                   <ListItem.Title><Text style={styles.textListItem}>Vị trí ghế</Text></ListItem.Title>
                 </ListItem.Content>
-                <ListItem.Title><Text style={styles.textTitle} >{selectedSeatArray.map(seat => seat).join(', ')}</Text></ListItem.Title>
+                <ListItem.Title><Text style={styles.textTitle} >{SeatCodeSelect}</Text></ListItem.Title>
               </ListItem>
 
               <ListItem containerStyle={{ padding: 5 }}>
@@ -190,27 +194,18 @@ const Payment = () => {
 
                 <ListItem.Title>
                   <Text style={styles.textTitle} >
-                    {pickupPoint?.name}
+                    {pickupPoint}
                   </Text>
                 </ListItem.Title>
               </ListItem>
-              <ListItem containerStyle={{ paddingHorizontal: 5, paddingVertical: 0 }}>
-                <ListItem.Content >
-                  <ListItem.Title><Text style={styles.textListItem}></Text></ListItem.Title>
-                </ListItem.Content>
 
-                <ListItem.Title style={{ flexDirection: "column" }}>
-                  <Text style={styles.textaddress}>{pickupPoint?.address}</Text>
-                </ListItem.Title>
-
-              </ListItem>
               <ListItem containerStyle={{ paddingHorizontal: 5, paddingTop: 0 }}>
                 <ListItem.Content >
                   <ListItem.Title>
                     <Text style={{ color: "#F95300", fontSize: 16 }}>
-                      Quý khách vui lòng có mặt tại "{pickupPoint?.name}" trước {pickupPoint?.time} {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
+                      Quý khách vui lòng có mặt tại "{pickupPoint}" trước {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
                         .tz('Asia/Ho_Chi_Minh')
-                        .format('DD/MM/YYYY ')} để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!
+                        .format('HH:mm')} để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!
                     </Text></ListItem.Title>
                 </ListItem.Content>
               </ListItem>
@@ -221,21 +216,13 @@ const Payment = () => {
                   <ListItem.Title><Text style={styles.textListItem}>Điểm xuống xe</Text></ListItem.Title>
                 </ListItem.Content>
                 <ListItem.Title style={{ flexDirection: "column" }}>
-                  <Text style={styles.textTitle} >{dropOffPoint?.name}</Text>
+                  <Text style={styles.textTitle} >{dropOffPoint}</Text>
 
                 </ListItem.Title>
 
               </ListItem>
 
-              <ListItem containerStyle={{ paddingHorizontal: 5, paddingVertical: 0 }}>
-                <ListItem.Content >
-                  <ListItem.Title><Text style={styles.textListItem}></Text></ListItem.Title>
-                </ListItem.Content>
-                <ListItem.Title style={{ flexDirection: "column" }}>
-                  <Text style={styles.textaddress}>{dropOffPoint?.address}</Text>
-                </ListItem.Title>
 
-              </ListItem>
             </View>
           </View>
 
