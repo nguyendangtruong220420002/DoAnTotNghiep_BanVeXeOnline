@@ -28,6 +28,7 @@ import AddBus from '../../../src/pages/Business/addBus';
 import BusRoute from '../../../src/pages/Business/busRoute';
 import Trips from '../../../src/pages/Business/Trips';
 import Schedule from '../../../src/pages/Business/schedule';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -42,7 +43,8 @@ const Business = () => {
   const [showMenuXe, setShowMenuXe] = useState(false);
   const [selectedTab, setSelectedTab] = useState('');
   const [selectedSubMenu, setSelectedSubMenu] = useState(null);
-  
+  const navigate = useNavigate();
+
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
@@ -50,12 +52,17 @@ const Business = () => {
     }
   }, []);
  
+  
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.clear();
+    console.log(localStorage.getItem('userInfo')); 
     setUserInfo(null);
-    setValue("1");
-    handleCloseMenu(); 
+    setValue("1");   
+    navigate('/');
+    handleCloseMenu();
+    window.location.reload(); 
   };
+
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };

@@ -12,7 +12,7 @@ import Stack from '@mui/material/Stack';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime}) => {
+const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business}) => {
   const navigate = useNavigate();
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -285,7 +285,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
               {selectedSeats.length > 0 && (
                 <Button 
                 onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
-                  totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect} })}
+                  totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business} })}
                 sx={{backgroundColor:  'rgb(220,99,91)' ,
                   color:  'white' ,
                   borderRadius:"50px",
@@ -317,6 +317,7 @@ SeatSelection.propTypes = {
   endTime:PropTypes.string.isRequired,
   departure:PropTypes.string.isRequired,
   destination:PropTypes.string.isRequired,
+  business:PropTypes.string.isRequired,
  
 };
 

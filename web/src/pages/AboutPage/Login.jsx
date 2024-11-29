@@ -10,6 +10,8 @@ import PasswordRoundedIcon from '@mui/icons-material/PasswordRounded';
 import RegisterForm from '../../../src/pages/AboutPage/RegisterForm'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 
 
@@ -21,6 +23,22 @@ const Login = ({ open, handleClose, setUserInfo }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
+  const [alerts, setAlerts] = useState([]);
+
+  const showAlert = (severity, message) => {
+    const newAlert = {
+      severity: severity,
+      message: message,
+      id: Date.now(),
+    };
+    setAlerts((prevAlerts) => {
+      const updatedAlerts = [...prevAlerts, newAlert];
+      if (updatedAlerts.length > 3) {
+        updatedAlerts.shift(); 
+      }
+      return updatedAlerts;
+    });
+  };
   
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -45,11 +63,11 @@ const Login = ({ open, handleClose, setUserInfo }) => {
   
         alert('Đăng nhập thành công');
         if (user.role === 'User') {
-          navigate('/'); // Điều hướng đến trang mặc định (homepage)
+           navigate('/'); 
         } else if (user.role === 'Business') {
-          navigate('/business'); // Điều hướng đến trang Business
+          navigate('/business'); 
         } else if (user.role === 'Admin') {
-          navigate('/admin'); // Điều hướng đến trang Admin
+          navigate('/admin');
         }
         
         

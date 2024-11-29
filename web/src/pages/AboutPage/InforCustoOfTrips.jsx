@@ -42,7 +42,7 @@ const InforCustoOfTrips = () => {
   const totalAmount = location.state?.totalAmount;  
   const SeatCode = location.state?.SeatCode;  
   const SeatCodeSelect = location.state?.SeatCodeSelect;  
-  
+   const business = location.state?.business;  
   const departure = location.state?.departure; 
   const departureDate = location.state?.departureDate; 
   const departureTime = location.state?.departureTime; 
@@ -62,7 +62,9 @@ const InforCustoOfTrips = () => {
     phoneNumber: InforCusto?.phoneNumber || '',
     email: InforCusto?.email || '',
 });
+
 const [Timehouse, setTimehouse] = useState(null);
+
 
 useEffect(() => {
   if (departureTime) {
@@ -161,7 +163,7 @@ const selectedDepartureName =
           const bookingID = createBookingResponse.data.BookingID;
           //console.log("bookingId",bookingId)
         setTimeout(() => {
-          navigate('/payment', { state: { bookingId,bookingID,userInfo ,from, schedule ,to, endTime, selectedSeats,
+          navigate('/payment', { state: { bookingId,bookingID,userInfo ,from, schedule ,to, endTime, selectedSeats,business,
             totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,formDataCustoOfTrips } });
         }, 2000);
     

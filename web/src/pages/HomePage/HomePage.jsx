@@ -19,7 +19,7 @@ import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
 import information from '../../../public/images/information.png'
 import profile from '../../../public/images/profile.png'
-
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -28,22 +28,25 @@ const HomePage = () => {
   const [openLogin, setOpenLogin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-
+  const navigate = useNavigate();
   
 
   useEffect(() => {
+    
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
     }
   }, []);
  
-  // Xử lý đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.clear();
+    console.log(localStorage.getItem('userInfo')); 
     setUserInfo(null);
-    setValue("1");
-    handleCloseMenu(); 
+    setValue("1");   
+    handleCloseMenu();
+    navigate('/');
+    window.location.reload(); 
   };
   // Mở menu
   const handleClickMenu = (event) => {
