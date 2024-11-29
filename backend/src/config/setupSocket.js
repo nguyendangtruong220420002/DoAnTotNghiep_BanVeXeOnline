@@ -1,34 +1,57 @@
 const { Server } = require('socket.io');
+const express = require('express');
+const http = require("http");
+const cors = require('cors');
 
-// Hàm cấu hình Socket.IO
-const setupSocket = (server) => {
-  const io = new Server(server, {
-    cors: {
-      origin: "*", // Cho phép kết nối từ bất kỳ đâu
-       
-    }
-  });
+const SOCKET_PORT = process.env.SOCKET_PORT || 3000; // Default port if env not set
 
-  // Lắng nghe sự kiện kết nối từ client
-  io.on('connection', (socket) => {
-    console.log('Một client đã kết nối với server');
+const socketApp = express();
+socketApp.use(cors());
 
-    // Gửi thông báo đến client khi kết nối thành công
-    socket.emit('message', 'Kết nối thành công với server');
+// Http Server
+const socketServer = http.createServer(socketApp);
 
-    // Lắng nghe sự kiện 'message' từ client
-    socket.on('message', (data) => {
+const io = new Server(socketServer, {
+  cors: {
+    origin: "*", // Allow connections from any origin
+  }
+});
+
+// Function to set up the socket connections
+const setupSocket = () => {
+  io.on("connection", (client) => {
+    console.log('New client connected:', client.id);
+
+    // Send success message to the newly connected client
+    client.emit('message', 'Kết nối thành công với server');
+
+    // Listen for 'message' events from the client
+    client.on('message', (data) => {
       console.log('Tin nhắn từ client:', data);
-      io.emit('message', data); // Gửi lại tin nhắn cho tất cả client
+      io.emit('message', data); // Broadcast message to all clients
     });
 
-    // Lắng nghe khi client ngắt kết nối
-    socket.on('disconnect', () => {
-      console.log('Client đã ngắt kết nối');
+    // Handle client disconnection
+    client.on('disconnect', () => {
+      console.log('Client disconnected:', client.id);
+
+      // Update the users list after disconnect
+      const users = [];
+      for (const [id, socket] of io.of("/").sockets) {
+        users.push({
+          clientID: id,
+          user: socket?.user,
+        });
+      }
+      io.emit("users", users);
     });
   });
-
-  return io;
 };
 
+socketServer.listen(SOCKET_PORT, () => {
+  console.log(`Socket server running on port ${SOCKET_PORT}`);
+});
+// Start the server and set up the socket
 module.exports = setupSocket;
+
+

@@ -3,8 +3,8 @@ import { getAsyncStorage } from './cookie';
 
 // Tạo một instance của axios để tái sử dụng
 // API Host
-const host = '172.28.80.60';
-
+export const host = '192.168.1.83';
+export const Socket_Port = "2820";
 // Server Port
 const port = '5000';
 export const s3_URL = 'https://vexeonline6868.s3.ap-southeast-1.amazonaws.com';

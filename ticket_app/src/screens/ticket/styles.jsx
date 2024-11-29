@@ -43,4 +43,58 @@ export const styles = StyleSheet.create({
         right: 0,
         zIndex: 2,
     },
+    headerCard: {
+        justifyContent: "space-between",
+        flexDirection: "row"
+    },
+    bookingCard: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 15,
+        marginBottom: 10,
+        marginHorizontal: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.5,
+        elevation: 5, // For Android shadow effect
+    },
+    bookingTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    bookingDetails: {
+        fontSize: 14,
+        color: '#555',
+        marginTop: 5,
+    },
+    bookingDate: {
+        fontSize: 14,
+        color: '#f95300',
+        marginTop: 5,
+        marginLeft: 5,
+        fontWeight: "bold"
+    },
+    bookingInfo: {
+        fontSize: 14,
+        color: '#555',
+        marginTop: 5,
+        marginLeft: 5,
+        fontWeight: "bold"
+    },
+    bookingFare: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        color: '#f95300',
+        textAlign: "right"
+    },
+    dashedLineHorizontal: {
+        width: '100%',
+        height: 1,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: '#E0E0E0',
+        marginVertical: 10,
+    },
 })

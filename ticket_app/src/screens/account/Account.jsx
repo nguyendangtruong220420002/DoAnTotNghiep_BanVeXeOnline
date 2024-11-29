@@ -6,7 +6,6 @@ import auth from '@react-native-firebase/auth'
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import CookieUtils, { deleteAsyncStorage, getAsyncStorage } from '../../utils/cookie'
 import useAuthData, { useAuth } from '../../context/useAuth'
-import { AuthContext } from '../../context/useContext'
 import { showSuccessToast } from '../../utils/toast'
 
 const Account = () => {

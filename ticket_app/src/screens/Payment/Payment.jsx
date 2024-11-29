@@ -13,19 +13,16 @@ import PaymentScreen from './PaymentScreen';
 
 const Payment = () => {
 
-  const [timeLeft, setTimeLeft] = useState(600);
+  const [timeLeft, setTimeLeft] = useState(300);
   const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-
-      return () => clearInterval(timer); // Xóa timer khi component unmount
+    if (timeLeft > 0 && !orderInfo) {
+      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+      return () => clearInterval(timer);
     }
-  }, [timeLeft]);
+  }, [timeLeft, orderInfo]);
 
   // Hàm định dạng thời gian (giây -> phút:giây)
   const formatTime = (seconds) => {
@@ -347,7 +344,7 @@ const Payment = () => {
         <View style={styles.viewBtn}>
           <View style={{}}>
             <Text style={{ textAlign: "center", padding: 5 }}> Thời gian giữ vé còn lại</Text>
-            <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
+            <Text style={styles.timerText}>{!orderInfo ? formatTime(timeLeft) : "0"} </Text>
           </View>
 
           <TouchableOpacity
@@ -359,7 +356,7 @@ const Payment = () => {
       </View>
       ) : (
         <View style={styles.container}>
-          <PaymentScreen data={orderInfo} />
+          <PaymentScreen data={orderInfo} bookingId={bookingId} />
         </View>
       )}
     </View>
