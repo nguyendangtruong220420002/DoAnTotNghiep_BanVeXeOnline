@@ -225,19 +225,19 @@ const Content = ({userInfo}) => {
     // Lưu trữ vào localStorage
     localStorage.setItem('fromProvince', JSON.stringify(fromProvince));
     localStorage.setItem('toProvince', JSON.stringify(toProvince));
-    localStorage.setItem('dateRange', JSON.stringify([departureDate, returnDate])); // Save dates as array
+    localStorage.setItem('dateRange', JSON.stringify([departureDate, returnDate])); 
     localStorage.setItem('selectedValue', selectedValue);
   
     // Dữ liệu chuyến đi
     const dataOfShowTrips = {
-      departure: fromProvince.name,
-      destination: toProvince.name,
+      departure: fromProvince?.name,
+      destination: toProvince?.name,
       departureDate: dateRange[0],
       returnDate: dateRange[1],
       tripType: selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi',
-      userId: userInfo._id
+      userId: userInfo ? userInfo._id : undefined 
     };
-  
+  console.log("dataOfShowTripsconetx",dataOfShowTrips);
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);
     navigate('/showTrips', { state: { dataOfShowTrips, userInfo } });
@@ -659,7 +659,7 @@ const Content = ({userInfo}) => {
 
 Content.propTypes = {
   
-  userInfo: PropTypes.func.isRequired,
+  userInfo: PropTypes.func,
   
 };
 

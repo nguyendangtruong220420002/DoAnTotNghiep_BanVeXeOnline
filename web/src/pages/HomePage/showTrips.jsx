@@ -54,10 +54,13 @@ const ShowTrips = () => {
     }
   }, []);
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.clear();
+    console.log(localStorage.getItem('userInfo')); 
     setUserInfo(null);
-    setValue("1");
-    handleCloseMenu(); 
+    setValue("1");   
+    handleCloseMenu();
+    navigate('/');
+    window.location.reload(); 
   };
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -142,7 +145,7 @@ const ShowTrips = () => {
           returnDate:
             tripType === "Khứ hồi" ? dataOfShowTrips.returnDate : undefined,
           tripType: tripType,
-          userId: dataOfShowTrips.userId,
+          userId: userInfo ? userInfo._id : undefined ,
         },
       });
       console.log("Fetched trips data from API:", response.data);
@@ -439,9 +442,393 @@ const ShowTrips = () => {
                   </Tabs>
                   {tabIndex1 === 0 && (
                     <Box sx={{ mt: 2 }}>
-                      <Typography variant="h6">Thông tin chuyến đi:</Typography>
                       {trips.map((trip) => (
-                        <Box key={trip._id}></Box>
+                        <Box key={trip._id}>
+                            <Box
+                      key={trip._id}
+                      onClick={() => handleBoxClick(trip._id)}
+                      sx={{
+                        width: "780px",
+                        backgroundColor: "#ffffff",
+                        marginLeft: "25px",
+                        marginTop: "20px",
+                        height: "auto",
+                        borderRadius: "10px",
+                        boxShadow:
+                          selectedBox?._id === trip._id
+                            ? "0 4px 4px rgba(239, 82, 34, .3), 0 -3px 8px rgba(239, 82, 34, .3), inset 0 0 0 1px rgb(240, 82, 34)"
+                            : "0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .2)",
+                        transition: "all 0.3s ease",
+                      }}>
+                      <Box sx={{ display: "flex" }}>
+                        <Box sx={{ margin: "20px", width: "250px" }}>
+                          <Typography className="button17">
+                            {trip.userId.fullName}
+                          </Typography>
+                          <Typography className="button19">
+                            {trip.busId.busType}
+                          
+                          </Typography>
+                          <Box sx={{ display: "flex", marginLeft: "10px" }}>
+                            <AddCircleRoundedIcon
+                              sx={{color: "#202020",fontSize: "16px",marginTop: "3px",marginLeft: "4px",}}>
+                            </AddCircleRoundedIcon>
+                            <Typography
+                              className="button22"
+                              sx={{ marginLeft: "20px" }}>chỗ trống
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: "flex", marginTop: "20px" }}>
+                          <Box>
+                            {trip.departureTime && (
+                              <Typography className="button18">
+                                {moment(trip.departureTime, "DD/MM/YYYY, HH:mm")
+                                  .tz("Asia/Ho_Chi_Minh")
+                                  .format("HH:mm")}
+                              </Typography>
+                            )}
+                            <Typography
+                              className="button21"
+                              sx={{ width: "auto" }}>
+                              {trip.routeId.from}
+                            </Typography>
+                          </Box>
+                          <MyLocationRoundedIcon
+                            sx={{
+                              color: "#00613d",
+                              fontSize: "21px",
+                              marginTop: "10px",
+                              marginLeft: "4px",
+                            }}
+                          />
+                          {trip.departureTime && trip.endTime && (
+                            <Box
+                              sx={{ display: "flex", marginTop: "12px" }}
+                              className="button19">
+                              --------------------
+                              <Typography className="button20">
+                                {(() => {
+                                  const departure = moment(
+                                    trip.departureTime,
+                                    "DD/MM/YYYY, HH:mm"
+                                  );
+                                  const end = moment(
+                                    trip.endTime,
+                                    "DD/MM/YYYY, HH:mm"
+                                  );
+                                  if (departure.isValid() && end.isValid()) {
+                                    const duration = moment.duration(
+                                      end.diff(departure)
+                                    );
+                                    const hours = duration.hours();
+                                    const minutes = duration.minutes();
+                                    return ` ${hours}h${minutes}'`;
+                                  }
+                                })()}
+                              </Typography>
+                              --------------------
+                            </Box>
+                          )}
+                          <PinDropRoundedIcon
+                            sx={{
+                              color: "#f2754e",
+                              fontSize: "25px",
+                              marginTop: "10px",
+                              marginRight: "4px",
+                            }}
+                          />
+                          <Box>
+                            {trip.endTime && (
+                              <Typography className="button23">
+                                {moment(trip.endTime, "DD/MM/YYYY, HH:mm")
+                                  .tz("Asia/Ho_Chi_Minh")
+                                  .format("HH:mm")}
+                              </Typography>
+                            )}
+                            <Typography
+                              className="button21"
+                              sx={{ width: "auto" }}
+                            >
+                              {trip.routeId.to}{" "}
+                            </Typography>
+                            <Typography
+                              sx={{ marginTop: "15px ", marginLeft: "5px" }}
+                              className="button24"
+                            >
+                              {new Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              }).format(trip.totalFareAndPrice)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Box sx={{ marginLeft: "20px", marginRight: "20px" }}>
+                        <Divider></Divider>
+                        <Box sx={{ display: "flex" }}>
+                          <Box sx={{ width: "100%", display: "flex" }}>
+                            <Box sx={{ width: "100%" }}>
+                              <Box>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "1")}
+                                  sx={{textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "1"
+                                        ? "#dc635b"
+                                        : "#0c0c0c",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>Chọn ghế
+                                </Button>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "2")}
+                                  sx={{
+                                    textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "2"
+                                        ? "#dc635b"
+                                        : "#0a0a0a",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>
+                                  {" "}
+                                  Lịch trình
+                                </Button>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "3")}
+                                  sx={{
+                                    textTransform: "none",
+                                    fontSize: "15px",
+                                    width: "100px",
+                                    textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "3"
+                                        ? "#dc635b"
+                                        : "#070707",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>
+                                  Chính sách
+                                </Button>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "4")}
+                                  sx={{
+                                    textTransform: "none",
+                                    fontSize: "15px",
+                                    width: "130px",
+                                    textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "4"
+                                        ? "#dc635b"
+                                        : "#000000",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>
+                                  Trung chuyển
+                                </Button>
+                                <Button
+                                  sx={{
+                                    backgroundColor:
+                                      selectedBox?._id === trip._id
+                                        ? "rgb(220,99,91)"
+                                        : "rgb(180, 155, 153)",
+                                    color:
+                                      selectedBox?._id === trip._id
+                                        ? "white"
+                                        : "rgb(106, 44, 44)",
+                                    borderRadius: "50px",
+                                    width: "125px",
+                                    height: "35px",
+                                    textTransform: "none",
+                                    textAlign: "center",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.1)",
+                                    fontSize: "13.5px",
+                                    marginTop: "5px",
+                                    marginLeft: "170px",
+                                  }}
+                                  onClick={() => handleToggleTab(trip._id, "1")}
+                                >
+                                  Chọn chuyến
+                                </Button>
+                              </Box>
+
+                              {openTabs[trip._id] === "1" && (
+                                <Box>
+                                  
+                                  <SeatSelection
+                                    tripId={trip._id}
+                                    userInfo={userInfo}
+                                    totalAmount={trip.totalFareAndPrice}
+                                    departureDate={departureDateLabel}
+                                    departureTime={trip.departureTime}
+                                    endTime={trip.endTime}
+                                    from={trip.routeId.from}
+                                    to={trip.routeId.to}
+                                    schedule={trip.schedule}
+                                    departure={trip.routeId.departure}
+                                    destination={trip.routeId.destination}
+                                   
+                            
+                                    
+
+                                  ></SeatSelection>
+                                </Box>
+                              )}
+                              {openTabs[trip._id] === "2" && (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    marginLeft: "30px",
+                                    marginTop: "10px",
+                                    flexDirection: "column",
+                                  }}
+                                >
+                                  <Box>
+                                    <Box
+                                      sx={{display: "flex",alignItems: "center",}}>
+                                       
+                                      <Typography className="button28">
+                                        {moment(
+                                          trip.departureTime,
+                                          "DD/MM/YYYY, HH:mm"
+                                        )
+                                          .tz("Asia/Ho_Chi_Minh")
+                                          .format("HH:mm")}{" "}
+                                      </Typography>
+                                      <RadioButtonCheckedTwoToneIcon
+                                        sx={{
+                                          marginLeft: "30px",
+                                          width: "20px",
+                                          color: "#00613d",
+                                        }}
+                                      ></RadioButtonCheckedTwoToneIcon>
+                                      <Typography
+                                        className="button26"
+                                        sx={{
+                                          marginLeft: "30px",
+                                          width: "200px",
+                                        }}
+                                      >
+                                        {trip.routeId.from}
+                                      </Typography>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        height: "25px",
+                                        width: "1.5px",
+                                        marginLeft: "76px",
+                                        borderLeft: "1px dotted #b0aeae",
+                                      }}
+                                    ></Box>
+                                    {trip.schedule.map((stop, index) => (
+                                      <Box
+                                        key={stop._id}
+                                        sx={{
+                                          display: "flex",
+                                        
+                                        }}
+                                      >
+                                        <Typography className="button28" sx={{marginTop:'2px'}} >
+                                          {stop.time}{" "}
+                                        </Typography>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                          }}
+                                        >
+                                          <Box>
+                                            <RadioButtonCheckedTwoToneIcon
+                                              sx={{
+                                                marginLeft: "30px",
+                                                width: "20px",
+                                                color: "#7e7f7f",
+                                              }}
+                                            ></RadioButtonCheckedTwoToneIcon>
+                                          </Box>
+                                          <Box
+                                            sx={{
+                                              height: "25px",
+                                              width: "1.5px",
+                                              marginLeft: "40px",
+                                              borderLeft: "1px dotted #b0aeae",
+                                            }}
+                                          ></Box>
+                                        </Box>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            marginLeft: "30px",
+                                          }}
+                                        >
+                                          <Typography className="button26">
+                                            {stop.name}
+                                          </Typography>
+                                          <Typography className="button27">
+                                            {stop.address}
+                                          </Typography>
+                                        </Box>
+                                      </Box>
+                                    ))}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography className="button28">
+                                        {moment(
+                                          trip.endTime,
+                                          "DD/MM/YYYY, HH:mm"
+                                        )
+                                          .tz("Asia/Ho_Chi_Minh")
+                                          .format("HH:mm")}{" "}
+                                      </Typography>
+                                      <WhereToVoteTwoToneIcon
+                                        sx={{
+                                          marginLeft: "30px",
+                                          color: "#f2754e",
+                                          width: "20px",
+                                        }}
+                                      ></WhereToVoteTwoToneIcon>
+                                      <Typography
+                                        className="button26"
+                                        sx={{
+                                          marginLeft: "30px",
+                                          width: "200px",
+                                        }}
+                                      >
+                                        {trip.routeId.to}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              )}
+                              {openTabs[trip._id] === "3" && (
+                                <Box>
+                                  <Typography>
+                                    Nội dung cho tab Chính Sách
+                                  </Typography>
+                                </Box>
+                              )}
+                              {openTabs[trip._id] === "4" && (
+                                <Box>
+                                  <Typography>
+                                    Nội dung cho tab Trung Chuyển
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Box sx={{ height: "10px" }}></Box>
+                      </Box>
+                    </Box>
+
+                        </Box>
                       ))}
                     </Box>
                   )}
@@ -450,13 +837,389 @@ const ShowTrips = () => {
                       <Typography variant="h6">Thông tin chuyến về:</Typography>
                       {trips.map((trip) => (
                         <Box key={trip._id}>
-                          <Typography>
-                            {trip.departure} đến {trip.destination}
+                         <Box
+                      key={trip._id}
+                      onClick={() => handleBoxClick(trip._id)}
+                      sx={{
+                        width: "780px",
+                        backgroundColor: "#ffffff",
+                        marginLeft: "25px",
+                        marginTop: "20px",
+                        height: "auto",
+                        borderRadius: "10px",
+                        boxShadow:
+                          selectedBox?._id === trip._id
+                            ? "0 4px 4px rgba(239, 82, 34, .3), 0 -3px 8px rgba(239, 82, 34, .3), inset 0 0 0 1px rgb(240, 82, 34)"
+                            : "0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .2)",
+                        transition: "all 0.3s ease",
+                      }}>
+                      <Box sx={{ display: "flex" }}>
+                        <Box sx={{ margin: "20px", width: "250px" }}>
+                          <Typography className="button17">
+                            {trip.userId.fullName}
                           </Typography>
-                          <Typography>
-                            Quay lại:{" "}
-                            {new Date(trip.returnDate).toLocaleString()}
+                          <Typography className="button19">
+                            {trip.busId.busType}
+                          
                           </Typography>
+                          <Box sx={{ display: "flex", marginLeft: "10px" }}>
+                            <AddCircleRoundedIcon
+                              sx={{color: "#202020",fontSize: "16px",marginTop: "3px",marginLeft: "4px",}}>
+                            </AddCircleRoundedIcon>
+                            <Typography
+                              className="button22"
+                              sx={{ marginLeft: "20px" }}>chỗ trống
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: "flex", marginTop: "20px" }}>
+                          <Box>
+                            {trip.departureTime && (
+                              <Typography className="button18">
+                                {moment(trip.departureTime, "DD/MM/YYYY, HH:mm")
+                                  .tz("Asia/Ho_Chi_Minh")
+                                  .format("HH:mm")}
+                              </Typography>
+                            )}
+                            <Typography
+                              className="button21"
+                              sx={{ width: "auto" }}>
+                              {trip.routeId.from}
+                            </Typography>
+                          </Box>
+                          <MyLocationRoundedIcon
+                            sx={{
+                              color: "#00613d",
+                              fontSize: "21px",
+                              marginTop: "10px",
+                              marginLeft: "4px",
+                            }}
+                          />
+                          {trip.departureTime && trip.endTime && (
+                            <Box
+                              sx={{ display: "flex", marginTop: "12px" }}
+                              className="button19">
+                              --------------------
+                              <Typography className="button20">
+                                {(() => {
+                                  const departure = moment(
+                                    trip.departureTime,
+                                    "DD/MM/YYYY, HH:mm"
+                                  );
+                                  const end = moment(
+                                    trip.endTime,
+                                    "DD/MM/YYYY, HH:mm"
+                                  );
+                                  if (departure.isValid() && end.isValid()) {
+                                    const duration = moment.duration(
+                                      end.diff(departure)
+                                    );
+                                    const hours = duration.hours();
+                                    const minutes = duration.minutes();
+                                    return ` ${hours}h${minutes}'`;
+                                  }
+                                })()}
+                              </Typography>
+                              --------------------
+                            </Box>
+                          )}
+                          <PinDropRoundedIcon
+                            sx={{
+                              color: "#f2754e",
+                              fontSize: "25px",
+                              marginTop: "10px",
+                              marginRight: "4px",
+                            }}
+                          />
+                          <Box>
+                            {trip.endTime && (
+                              <Typography className="button23">
+                                {moment(trip.endTime, "DD/MM/YYYY, HH:mm")
+                                  .tz("Asia/Ho_Chi_Minh")
+                                  .format("HH:mm")}
+                              </Typography>
+                            )}
+                            <Typography
+                              className="button21"
+                              sx={{ width: "auto" }}
+                            >
+                              {trip.routeId.to}{" "}
+                            </Typography>
+                            <Typography
+                              sx={{ marginTop: "15px ", marginLeft: "5px" }}
+                              className="button24"
+                            >
+                              {new Intl.NumberFormat("vi-VN", {
+                                style: "currency",
+                                currency: "VND",
+                              }).format(trip.totalFareAndPrice)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Box sx={{ marginLeft: "20px", marginRight: "20px" }}>
+                        <Divider></Divider>
+                        <Box sx={{ display: "flex" }}>
+                          <Box sx={{ width: "100%", display: "flex" }}>
+                            <Box sx={{ width: "100%" }}>
+                              <Box>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "1")}
+                                  sx={{textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "1"
+                                        ? "#dc635b"
+                                        : "#0c0c0c",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>Chọn ghế
+                                </Button>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "2")}
+                                  sx={{
+                                    textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "2"
+                                        ? "#dc635b"
+                                        : "#0a0a0a",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>
+                                  {" "}
+                                  Lịch trình
+                                </Button>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "3")}
+                                  sx={{
+                                    textTransform: "none",
+                                    fontSize: "15px",
+                                    width: "100px",
+                                    textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "3"
+                                        ? "#dc635b"
+                                        : "#070707",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>
+                                  Chính sách
+                                </Button>
+                                <Button
+                                  onClick={() => handleToggleTab(trip._id, "4")}
+                                  sx={{
+                                    textTransform: "none",
+                                    fontSize: "15px",
+                                    width: "130px",
+                                    textAlign: "center",
+                                    color:
+                                      openTabs[trip._id] === "4"
+                                        ? "#dc635b"
+                                        : "#000000",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                  }}>
+                                  Trung chuyển
+                                </Button>
+                                <Button
+                                  sx={{
+                                    backgroundColor:
+                                      selectedBox?._id === trip._id
+                                        ? "rgb(220,99,91)"
+                                        : "rgb(180, 155, 153)",
+                                    color:
+                                      selectedBox?._id === trip._id
+                                        ? "white"
+                                        : "rgb(106, 44, 44)",
+                                    borderRadius: "50px",
+                                    width: "125px",
+                                    height: "35px",
+                                    textTransform: "none",
+                                    textAlign: "center",
+                                    textShadow:
+                                      "1px 1px 2px rgba(0, 0, 0, 0.1)",
+                                    fontSize: "13.5px",
+                                    marginTop: "5px",
+                                    marginLeft: "170px",
+                                  }}
+                                  onClick={() => handleToggleTab(trip._id, "1")}
+                                >
+                                  Chọn chuyến
+                                </Button>
+                              </Box>
+
+                              {openTabs[trip._id] === "1" && (
+                                <Box>
+                                  
+                                  <SeatSelection
+                                    tripId={trip._id}
+                                    userInfo={userInfo}
+                                    totalAmount={trip.totalFareAndPrice}
+                                    departureDate={departureDateLabel}
+                                    departureTime={trip.departureTime}
+                                    endTime={trip.endTime}
+                                    from={trip.routeId.from}
+                                    to={trip.routeId.to}
+                                    schedule={trip.schedule}
+                                    departure={trip.routeId.departure}
+                                    destination={trip.routeId.destination}
+                                   
+                            
+                                    
+
+                                  ></SeatSelection>
+                                </Box>
+                              )}
+                              {openTabs[trip._id] === "2" && (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    marginLeft: "30px",
+                                    marginTop: "10px",
+                                    flexDirection: "column",
+                                  }}
+                                >
+                                  <Box>
+                                    <Box
+                                      sx={{display: "flex",alignItems: "center",}}>
+                                       
+                                      <Typography className="button28">
+                                        {moment(
+                                          trip.departureTime,
+                                          "DD/MM/YYYY, HH:mm"
+                                        )
+                                          .tz("Asia/Ho_Chi_Minh")
+                                          .format("HH:mm")}{" "}
+                                      </Typography>
+                                      <RadioButtonCheckedTwoToneIcon
+                                        sx={{
+                                          marginLeft: "30px",
+                                          width: "20px",
+                                          color: "#00613d",
+                                        }}
+                                      ></RadioButtonCheckedTwoToneIcon>
+                                      <Typography
+                                        className="button26"
+                                        sx={{
+                                          marginLeft: "30px",
+                                          width: "200px",
+                                        }}
+                                      >
+                                        {trip.routeId.from}
+                                      </Typography>
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        height: "25px",
+                                        width: "1.5px",
+                                        marginLeft: "76px",
+                                        borderLeft: "1px dotted #b0aeae",
+                                      }}
+                                    ></Box>
+                                    {trip.schedule.map((stop, index) => (
+                                      <Box
+                                        key={stop._id}
+                                        sx={{
+                                          display: "flex",
+                                        
+                                        }}
+                                      >
+                                        <Typography className="button28" sx={{marginTop:'2px'}} >
+                                          {stop.time}{" "}
+                                        </Typography>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                          }}
+                                        >
+                                          <Box>
+                                            <RadioButtonCheckedTwoToneIcon
+                                              sx={{
+                                                marginLeft: "30px",
+                                                width: "20px",
+                                                color: "#7e7f7f",
+                                              }}
+                                            ></RadioButtonCheckedTwoToneIcon>
+                                          </Box>
+                                          <Box
+                                            sx={{
+                                              height: "25px",
+                                              width: "1.5px",
+                                              marginLeft: "40px",
+                                              borderLeft: "1px dotted #b0aeae",
+                                            }}
+                                          ></Box>
+                                        </Box>
+                                        <Box
+                                          sx={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            marginLeft: "30px",
+                                          }}
+                                        >
+                                          <Typography className="button26">
+                                            {stop.name}
+                                          </Typography>
+                                          <Typography className="button27">
+                                            {stop.address}
+                                          </Typography>
+                                        </Box>
+                                      </Box>
+                                    ))}
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Typography className="button28">
+                                        {moment(
+                                          trip.endTime,
+                                          "DD/MM/YYYY, HH:mm"
+                                        )
+                                          .tz("Asia/Ho_Chi_Minh")
+                                          .format("HH:mm")}{" "}
+                                      </Typography>
+                                      <WhereToVoteTwoToneIcon
+                                        sx={{
+                                          marginLeft: "30px",
+                                          color: "#f2754e",
+                                          width: "20px",
+                                        }}
+                                      ></WhereToVoteTwoToneIcon>
+                                      <Typography
+                                        className="button26"
+                                        sx={{
+                                          marginLeft: "30px",
+                                          width: "200px",
+                                        }}
+                                      >
+                                        {trip.routeId.to}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                              )}
+                              {openTabs[trip._id] === "3" && (
+                                <Box>
+                                  <Typography>
+                                    Nội dung cho tab Chính Sách
+                                  </Typography>
+                                </Box>
+                              )}
+                              {openTabs[trip._id] === "4" && (
+                                <Box>
+                                  <Typography>
+                                    Nội dung cho tab Trung Chuyển
+                                  </Typography>
+                                </Box>
+                              )}
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Box sx={{ height: "10px" }}></Box>
+                      </Box>
+                    </Box>
                         </Box>
                       ))}
                     </Box>
@@ -690,6 +1453,7 @@ const ShowTrips = () => {
                                     schedule={trip.schedule}
                                     departure={trip.routeId.departure}
                                     destination={trip.routeId.destination}
+                                    business={trip.userId.fullName}
                                    
                             
                                     

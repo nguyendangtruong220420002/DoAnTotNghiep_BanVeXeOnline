@@ -50,7 +50,7 @@ const Trips = ({ userInfo, }) => {
       totalFareAndPrice: totalFareAndPrice,
     }));
   }, [trips.routeId, trips.busId, busRouteList, busList]);
-  console.log("route",trips);
+  console.log("trips",trips);
  
 
   const handleChange = (e) => {
@@ -190,14 +190,17 @@ const Trips = ({ userInfo, }) => {
     fetchTripsList();
   }, []);
   const onEdit = (tripsItem) => {
+    const departureTimeEdit = moment(tripsItem.departureTime, "DD/MM/YYYY, HH:mm").tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm');
+    const endTimeEdit = moment(tripsItem.endTime, "DD/MM/YYYY, HH:mm").tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DDTHH:mm');
+   
     console.log('Editing trip item:', tripsItem); 
     setTrips({
       TripsName: tripsItem.TripsName,
       busId: tripsItem.busId,
       routeId:tripsItem.routeId,
-      departureTime: moment(tripsItem.departureTime).tz('Asia/Ho_Chi_Minh').format('YYYY-DD-MMTHH:mm'),
+      departureTime:departureTimeEdit,
       status: tripsItem.status,
-      endTime: moment(tripsItem.endTime).tz('Asia/Ho_Chi_Minh').format('YYYY-DD-MMTHH:mm'),
+      endTime: endTimeEdit,
       bookedSeats:tripsItem.bookedSeats,
       tripType:tripsItem.tripType,
       

@@ -1,9 +1,10 @@
 const app = require('./app');
 const mongoose = require('mongoose');
 
+
+
 const dbURI = process.env.MONGODB_URI;
 const PORT = process.env.PORT;
-
 mongoose.connect(dbURI)
   .then(() => {
     console.log('Connect MongoDB success!');
@@ -17,3 +18,5 @@ mongoose.connect(dbURI)
     console.error('Error connect MongoDB:', err);
     process.exit(1); 
   });
+
+  

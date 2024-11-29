@@ -5,6 +5,7 @@ import { TextField, Button, Box, MenuItem, Select, InputLabel, FormControl, Stac
 import PropTypes from 'prop-types';
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
+import moment from 'moment-timezone';
 
 const Schedule = ({ userInfo }) => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -191,7 +192,10 @@ const Schedule = ({ userInfo }) => {
         >
           {busTripsList.map((trip) => (
             <MenuItem key={trip._id} value={trip._id}>
-              {trip.TripsName} - {getRouteInfo(trip.routeId)} - {formatTime(trip.departureTime)} - {formatTime(trip.endTime)}
+              {trip.TripsName} - {getRouteInfo(trip.routeId)} - (
+                {moment(trip.departureTime, "DD/MM/YYYY, HH:mm").tz("Asia/Ho_Chi_Minh").format("HH:mm")} - 
+              {moment(trip.endTime, "DD/MM/YYYY, HH:mm").tz("Asia/Ho_Chi_Minh").format("HH:mm")}  
+              )          
             </MenuItem>
           ))}
         </Select>
@@ -287,7 +291,7 @@ const Schedule = ({ userInfo }) => {
         <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Tuyến xe</TableCell>
         <TableCell sx={{ minWidth: 10, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thời gian khởi hành</TableCell>
         <TableCell sx={{ minWidth: 10, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thời gian đến</TableCell>
-        <TableCell sx={{ minWidth: 250, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Lịch trình</TableCell>
+        <TableCell sx={{ minWidth: 250 , textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Lịch trình</TableCell>
         <TableCell sx={{ minWidth: 50, textAlign: 'center', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Thao Tác</TableCell>
         </TableRow>
         </TableHead>
@@ -302,7 +306,7 @@ const Schedule = ({ userInfo }) => {
               </TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.departureTime}</TableCell>
               <TableCell sx={{ textAlign: 'center', fontSize: '13px' }}>{tripsItem.endTime}</TableCell>
-              <TableCell sx={{ fontSize: '13px' }}>
+              <TableCell sx={{ fontSize: '13px',  }}>
                 {tripsItem.schedule && tripsItem.schedule.length > 0 ? (
                     <Box>
                     {tripsItem.schedule.slice(0, isExpanded ? tripsItem.schedule.length : 1).map((scheduleItem, idx) => (

@@ -46,7 +46,7 @@ const bookingSchema = new mongoose.Schema({
   }, 
   paymentStatus: { 
     type: String, 
-    enum: ['Đang chờ thanh toán', 'Đã thanh toán', 'Thanh toán không thành công', 'Đã Hủy'], 
+    enum: ['Đang chờ thanh toán', 'Đã thanh toán', 'Thanh toán không thành công',], 
     default: 'Đang chờ thanh toán' 
   },
   passengerInfo: {

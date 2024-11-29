@@ -31,13 +31,12 @@ const Payment = () => {
   const totalAmountAll = location.state?.totalAmountAll;
   const bookingId = location.state?.bookingId;
   const bookingID = location.state?.bookingID;
-  
+  const business = location.state?.business;  
+
   
 
   const [paymentMethod, setPaymentMethod] = useState('Ví Zalopay');
   const API_URL = import.meta.env.VITE_API_URL;
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [paymentTransactionId, setPaymentTransactionId] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('');
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
@@ -70,6 +69,7 @@ const Payment = () => {
         paymentMethod,
         totalAmountAll,
         SeatCode,
+        business,
       });
 
       // Kiểm tra kết quả trả về từ server

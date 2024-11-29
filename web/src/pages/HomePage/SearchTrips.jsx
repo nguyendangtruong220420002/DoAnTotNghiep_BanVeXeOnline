@@ -256,11 +256,12 @@ const SearchTrips = ({userInfo}) => {
       departureDate: dateRange[0],
       returnDate: dateRange[1],
       tripType: selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi',
-      userId: userInfo._id
+      userId: userInfo ? userInfo._id : undefined 
+
     };
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);
-    navigate('/showTrips', { state: { dataOfShowTrips, userInfo } });
+    navigate('/showTrips', { state: { dataOfShowTrips, userInfo }});
   };
   
   return (
@@ -656,7 +657,7 @@ const SearchTrips = ({userInfo}) => {
 
 SearchTrips.propTypes = {
   
-  userInfo: PropTypes.func.isRequired,
+  userInfo: PropTypes.func,
   
 };
 
