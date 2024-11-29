@@ -7,6 +7,7 @@ import darkColors from 'react-native-elements/dist/config/colorsDark';
 import { generateDateRange } from "../../config/DateConfig"
 import Loading from '../loading/Loading'; // Import the Loading component
 import moment from 'moment-timezone';
+import { getData } from '../../utils/fetching';
 
 const ResultSearch = () => {
 
@@ -18,7 +19,10 @@ const ResultSearch = () => {
     const diemdi = route.params?.diemdi;
     const diemden = route.params?.diemden;
     const soVe = route.params?.soVe;
-    const trips = route.params?.trips;
+
+    const [trips, setTrips] = useState(route.params?.trips)
+    const ngayve = route.params?.ngayve;
+    const show = route.params?.show;
 
 
     // Generate initial dates starting from ngaydi
@@ -34,16 +38,14 @@ const ResultSearch = () => {
         'Khung giờ': '',
     });
 
-    const monthValue = ngaydi.getMonth() + 1;
-    const dayValue = ngaydi.getDate();
+    const monthValue = ngaydi?.getMonth() + 1;
+    const dayValue = ngaydi?.getDate();
 
-    const [date, setDate] = useState(dayValue.toString());
-    const [month, setMonth] = useState(monthValue.toString().padStart(2, '0'));
+    const [newngaydi, setNewngaydi] = useState();
+
+    const [date, setDate] = useState(dayValue?.toString());
+    const [month, setMonth] = useState(monthValue?.toString().padStart(2, '0'));
     const [day, setDay] = useState("");
-
-
-
-
 
     // State for selected date index
     const [selectedDate, setSelectedDate] = useState(null);
@@ -143,7 +145,7 @@ const ResultSearch = () => {
     );
 
     // Function to handle date selection
-    const handleSelectDate = (item, index) => {
+    const handleSelectDate = async (item, index) => {
 
         const selectedFullDate = dateArray[index].fullDate;
 
@@ -155,14 +157,40 @@ const ResultSearch = () => {
 
         // Update the date array to include the selected date range
         setDateArray(generateDateRange(selectedFullDate));
+
+        setNewngaydi(selectedFullDate);
+        setTimeout(() => {
+            setLoading(false); // Set loading to false after data is processed/fetched
+        }, 200);
+
+        try {
+            // Assuming 'getData' is a function to make API requests
+            const response = await getData("tripsRoutes/search", {
+                departure: diemdi,
+                destination: diemden,
+                departureDate: selectedFullDate, // Pass the selected date here
+                returnDate: ngayve,
+                tripType: show,
+            });
+
+            if (response && response.data) {
+                // Update the trips with the new response data (you may need to store this in state)
+                // For example, assuming trips is stored in state:
+                setTrips(response.data); // Assuming 'trips' is the state variable storing the list of trips
+            } else {
+                console.warn("No trips found for the selected date.");
+            }
+        } catch (error) {
+            console.error("Error fetching trips:", error);
+        }
     };
     const handleChooseSeat = (trip) => {
 
         nav.navigate("ChooseSeat", {
             diemden,
             diemdi,
-            trip,
-            ngaydi,
+            trip: trip,
+            ngaydi: newngaydi ? newngaydi.toISOString() : ngaydi.toISOString(),
         })
     }
     // Update handleTripRoute to accept a trip parameter
@@ -273,11 +301,11 @@ const ResultSearch = () => {
                         >
                             <View style={styles.listItem}>
                                 <View style={styles.viewtop}>
-                                    <View style={styles.viewIcon}>
-                                        <Icon type='ionicon' name='wifi' />
-                                        <Image source={require('../../../img/plastic-bottle.png')} style={styles.iconimg} />
-                                        <Image source={require('../../../img/curtains.png')} style={{ height: 21, width: 21 }} />
+                                    <View>
+                                        <Text style={{ textAlign: "left", fontWeight: "bold" }}>Nhà xe {trip.user.fullName}</Text>
+                                        <Text>{trip.bus.busType}</Text>
                                     </View>
+
                                     <View>
                                         <View style={styles.viewPrice}>
                                             <Text style={{ fontFamily: "inter", fontSize: 18, color: "#458CC7" }}>
@@ -306,9 +334,7 @@ const ResultSearch = () => {
                                             </Text>
                                         )}
                                         <View style={styles.viewDateTime}>
-                                            <Text style={styles.textDay}>
-                                                {day} {date}/{month}
-                                            </Text>
+
                                         </View>
                                     </View>
 
@@ -333,19 +359,24 @@ const ResultSearch = () => {
                                         )}
                                         <View style={styles.viewDateTime}>
                                             <Text style={styles.textDay}>
-                                                {day} {date}/{month}
+
                                             </Text>
                                         </View>
                                     </View>
                                 </View>
-                                <TouchableWithoutFeedback
-                                    onPress={() => handleTripRoute(trip)}
-                                >
-                                    <View style={styles.tripsRoute}>
-                                        <Icon type='ionicon' name='alert-circle-outline' size={16} />
-                                        <Text style={{ fontFamily: "inter", fontSize: 14, color: "darkblue" }}>Lịch trình</Text>
-                                    </View>
-                                </TouchableWithoutFeedback>
+                                <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
+                                    <TouchableWithoutFeedback
+                                        onPress={() => handleTripRoute(trip)}
+                                    >
+                                        <View style={styles.tripsRoute}>
+                                            <Icon type='ionicon' name='alert-circle-outline' size={16} />
+                                            <Text style={{ fontFamily: "inter", fontSize: 14, color: "darkblue" }}>Lịch trình</Text>
+                                        </View>
+                                    </TouchableWithoutFeedback>
+
+
+                                </View>
+
                             </View>
                         </TouchableWithoutFeedback>
                     ))}

@@ -81,8 +81,11 @@ const StackNavigator = () => {
     }
   }, []);
 
+
+
   return (
-    <NavigationContainer>
+    <NavigationContainer
+    >
       <Toast />
       <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen name='Welcome' options={{ headerShown: false }} component={Welcome} />

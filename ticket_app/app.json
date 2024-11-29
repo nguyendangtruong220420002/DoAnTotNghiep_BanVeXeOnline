@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "ticket_app",
+    "scheme": "myapp",
     "slug": "ticket_app",
     "plugins": [
       "@react-native-firebase/app",

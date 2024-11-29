@@ -1,29 +1,24 @@
-import { Linking, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect } from 'react'
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import * as Linking from 'expo-linking'
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-const PaymentScreen = () => {
-
-    const { paymentUrl } = route.params;
-
-    useEffect(() => {
-        // Tự động mở URL thanh toán khi màn hình được hiển thị
-        if (paymentUrl) {
-            Linking.openURL(paymentUrl).catch(err => console.error("Không thể mở URL:", err));
-        }
-    }, [paymentUrl]);
+const PaymentScreen = (data) => {
+    const nav = useNavigation()
+    const orderInfo = data?.data?.orderInfo;
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Đang chuyển đến trang thanh toán...</Text>
-            {paymentUrl ? (
-                <Button
-                    title="Mở URL thanh toán"
-                    onPress={() => Linking.openURL(paymentUrl)}
-                />
-            ) : (
-                <Text>Đang xử lý...</Text>
-            )}
-        </View>
+            <Text style={{ padding: 15, color: orderInfo?.status === 'CANCELLED' ? "red" : "green" }}> {orderInfo?.status === 'CANCELLED' ? "Thanh toán thất bại (Bạn đã hủy thanh toán)" : "Bạn đã thanh toán thành công"} </Text>
+
+            <View>
+                <TouchableOpacity
+                    onPress={() => nav.navigate("Home")}
+                >
+                    <Text>Trở về</Text>
+                </TouchableOpacity>
+            </View>
+        </View >
     );
 };
 
@@ -32,13 +27,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 16,
-    },
-    title: {
-        fontSize: 18,
-        textAlign: 'center',
-        marginBottom: 20,
     },
 });
 
-export default PaymentScreen
+export default PaymentScreen;
