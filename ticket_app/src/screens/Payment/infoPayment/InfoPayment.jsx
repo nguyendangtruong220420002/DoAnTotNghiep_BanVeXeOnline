@@ -73,11 +73,9 @@ const InfoPayment = () => {
                     </View>
                     <View style={{ alignItems: "center" }}>
 
-                        {trip?.departureTime && (
+                        {departureDate && (
                             <Text style={styles.textTime}>
-                                {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
-                                    .tz('Asia/Ho_Chi_Minh')
-                                    .format('DD/MM/YYYY ')}
+                                {departureDate}
                             </Text>
                         )}
 
@@ -170,18 +168,28 @@ const InfoPayment = () => {
 
             // console.log("bookingData", bookingData);     
             await postData(`tripsRoutes/book-seats`, bookingData);
-            console.log("bookingId", createBookingResponse.data._id)
+
+            const bookingId = createBookingResponse.data._id;
+            const bookingID = createBookingResponse.data.BookingID;
+
             setTimeout(() => {
-                nav.navigate("Payment", { bookingId: createBookingResponse.data._id, trip, pickupPoint, dropOffPoint, CustomerInfo, SeatCodeSelect, price: totalAmountAll })
+                nav.navigate("Payment", { bookingId, bookingID, trip, pickupPoint, dropOffPoint, CustomerInfo, SeatCode: seatCode, SeatCodeSelect, price: totalAmountAll, ngaydi })
             }, 2000);
 
         } catch (error) {
             console.error("Lỗi khi thanh toán:", error);
-            setAlert({
-                open: true,
-                severity: 'error',
-                message: error.response?.data || 'Đặt vé thất bại. Vui lòng thử lại.',
-            });
+            Alert.alert(
+                'Lỗi đặt chỗ',
+                'Số ghế bạn chọn đã có người đặt chỗ! Vui lòng chọn ghế khác',
+                [
+                    { text: 'Hủy', style: 'cancel', onPress: () => { } },
+                    {
+                        text: 'Đồng ý',
+                        style: 'destructive',
+                        onPress: () => nav.goBack(),
+                    },
+                ]
+            );
         }
 
     }

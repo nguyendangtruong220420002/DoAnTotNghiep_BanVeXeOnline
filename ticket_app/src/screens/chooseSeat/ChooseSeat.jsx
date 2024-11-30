@@ -1,13 +1,14 @@
-import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
-import React, { useState } from 'react'
+import { Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import React, { useCallback, useState } from 'react'
 import { generateSeats, generate41Seats } from '../../config/seat'
 import { Icon } from 'react-native-elements'
-import { useNavigation, useRoute, tab } from '@react-navigation/native'
+import { useNavigation, useRoute, tab, useFocusEffect } from '@react-navigation/native'
 import { useEffect } from 'react'
 import { styles } from './styles'
 import Loading from '../loading/Loading'
 import moment from 'moment-timezone';
 import { getData } from '../../utils/fetching'
+
 
 
 const ChooseSeat = () => {
@@ -32,11 +33,6 @@ const ChooseSeat = () => {
     const diemden = route.params?.diemden
 
     const totalFareAndPrice = trip?.totalFareAndPrice;
-
-    const [twoSeatArray, setTwoSeatArray] = useState(generate41Seats())
-    const [selectedSeatArray, setSelectedSeatArray] = useState([]);
-    const [price, setPrice] = useState();
-
     const [selectedSeats, setSelectedSeats] = useState([]);
 
     const [seats, setSeats] = useState(
@@ -47,7 +43,7 @@ const ChooseSeat = () => {
     );
 
     const fetchBookedSeats = async () => {
-
+        setSelectedSeats([]);
         try {
             const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
                 .tz("Asia/Ho_Chi_Minh")
@@ -60,6 +56,7 @@ const ChooseSeat = () => {
 
             const bookedSeats = response.data.bookedSeats || [];
             console.log("Booked Seats Data:", bookedSeats);
+
             setSeats((prevSeats) =>
                 prevSeats.map((seat) => ({
                     ...seat,
@@ -68,23 +65,25 @@ const ChooseSeat = () => {
                         : "Còn trống",
                 }))
             );
+
         } catch (error) {
             console.error("Lỗi khi lấy ghế đã đặt:", error);
         }
     };
 
-
-    useEffect(() => {
-        fetchBookedSeats();
-    }, [tripId, trip.departureTime]);
+    useFocusEffect(
+        useCallback(() => {
+            fetchBookedSeats();
+        }, []) // If deps go wrong update.
+    );
 
     const getSeatCode = (id) => {
         return id <= 20 ? `A${id}` : `B${id - 20}`;
     };
 
     const SeatCodeSelect = selectedSeats.map((id) => getSeatCode(id));
-    const SeatCode = selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
-    const totalAmountAll = (selectedSeats.length * totalFareAndPrice);
+    const SeatCode = selectedSeats?.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
+    const totalAmountAll = (selectedSeats?.length * totalFareAndPrice);
 
     const handleSeatClick = (seatId) => {
         setSeats((prevSeats) =>
@@ -108,9 +107,7 @@ const ChooseSeat = () => {
     };
 
     const [loading, setLoading] = useState(true); // Loading state
-
-
-
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         setTimeout(() => {
@@ -197,74 +194,90 @@ const ChooseSeat = () => {
         ));
     };
 
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchBookedSeats();
+        setRefreshing(false);
+    };
+
     return (
         <View style={styles.container}>
-            <View style={styles.body}>
-                <View>
-                    <View style={styles.topBody}>
-                        <Text style={{ padding: 10 }}>Ngày đi</Text>
-                        {trip?.departureTime && (
-                            <Text style={styles.textTime}>
-                                {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
-                                    .tz('Asia/Ho_Chi_Minh')
-                                    .format('HH:mm')} {departureDate}
-                            </Text>
-                        )}
+            <ScrollView
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+                }
+            >
+                <View style={styles.body}>
+                    <View>
+                        <View style={styles.topBody}>
+                            <Text style={{ padding: 10 }}>Ngày đi</Text>
+                            {trip?.departureTime && (
+                                <Text style={styles.textTime}>
+                                    {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
+                                        .tz('Asia/Ho_Chi_Minh')
+                                        .format('HH:mm')} {departureDate}
+                                </Text>
+                            )}
+                        </View>
+
+                        <View style={styles.seatContainer}>
+                            {/* Tầng dưới */}
+                            <View style={styles.levelContainer}>
+                                <Text style={styles.levelLabel}>Tầng dưới</Text>
+                                {renderSeats(seats.slice(0, 15), 0, 3)}
+                                {renderSeats(seats.slice(15, 20), 15, 5)}
+                            </View>
+
+                            {/* Tầng trên */}
+                            <View style={styles.levelContainer}>
+                                <Text style={styles.levelLabel}>Tầng trên</Text>
+                                {renderSeats(seats.slice(20, 35), 20, 3)}
+                                {renderSeats(seats.slice(35, 40), 35, 5)}
+                            </View>
+                        </View>
                     </View>
 
-                    <View style={styles.seatContainer}>
-                        {/* Tầng dưới */}
-                        <View style={styles.levelContainer}>
-                            <Text style={styles.levelLabel}>Tầng dưới</Text>
-                            {renderSeats(seats.slice(0, 15), 0, 3)}
-                            {renderSeats(seats.slice(15, 20), 15, 5)}
+
+                    <View>
+                        <View style={styles.radioIcon}>
+                            <View style={styles.chosing}>
+                                <Icon name='ellipse' type='ionicon' color={"#757575"} />
+                                <Text>Đã bán</Text>
+                            </View>
+                            <View style={styles.chosing}>
+                                <Icon name='ellipse' type='ionicon' color={"#BDD8F1"} />
+                                <Text>Còn trống</Text>
+                            </View>
+                            <View style={styles.chosing}>
+                                <Icon name='ellipse' type='ionicon' color={"#ffc9b9"} />
+                                <Text>Đang chọn</Text>
+                            </View>
+
                         </View>
 
-                        {/* Tầng trên */}
-                        <View style={styles.levelContainer}>
-                            <Text style={styles.levelLabel}>Tầng trên</Text>
-                            {renderSeats(seats.slice(20, 35), 20, 3)}
-                            {renderSeats(seats.slice(35, 40), 35, 5)}
-                        </View>
-                    </View>
-                </View>
 
 
-                <View>
-                    <View style={styles.radioIcon}>
-                        <View style={styles.chosing}>
-                            <Icon name='ellipse' type='ionicon' color={"#757575"} />
-                            <Text>Đã bán</Text>
-                        </View>
-                        <View style={styles.chosing}>
-                            <Icon name='ellipse' type='ionicon' color={"#BDD8F1"} />
-                            <Text>Còn trống</Text>
-                        </View>
-                        <View style={styles.chosing}>
-                            <Icon name='ellipse' type='ionicon' color={"#ffc9b9"} />
-                            <Text>Đang chọn</Text>
-                        </View>
-
-                    </View>
-                    <View style={styles.bottom}>
-                        <View style={{ marginLeft: 20, paddingVertical: 10 }}>
-                            <Text style={{ fontWeight: 500 }} >Chiều đi</Text>
-                            <Text style={{ fontWeight: '300' }}>{selectedSeats.length || 0} vé</Text>
-                            <Text style={{ fontWeight: '300' }}>{selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ")}</Text>
-                        </View>
-
-                        <View style={{ marginLeft: 20, paddingVertical: 15 }}>
-                            <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {totalAmountAll?.toLocaleString("vi-VN") || 0}đ</Text>
-                        </View>
-                        <TouchableOpacity
-                            onPress={() => handleInfoPayment()}
-                            style={styles.btnContinue}>
-                            <Text style={styles.textbtn}>Tiếp tục</Text>
-                        </TouchableOpacity>
                     </View>
                 </View>
+            </ScrollView>
+            <View style={styles.bottom}>
+                <View style={{ marginLeft: 20, paddingVertical: 10 }}>
+                    <Text style={{ fontWeight: 500 }} >Chiều đi</Text>
+                    <Text style={{ fontWeight: '300' }}>{selectedSeats?.length || 0} vé</Text>
+                    <Text style={{ fontWeight: '300' }}>{selectedSeats?.length === 0 ? "" : selectedSeats?.map(id => getSeatCode(id)).join(", ")}</Text>
+                </View>
+
+                <View style={{ marginLeft: 20, paddingVertical: 15 }}>
+                    <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {totalAmountAll?.toLocaleString("vi-VN") || 0}đ</Text>
+                </View>
+                <TouchableOpacity
+                    onPress={() => handleInfoPayment()}
+                    style={styles.btnContinue}>
+                    <Text style={styles.textbtn}>Tiếp tục</Text>
+                </TouchableOpacity>
             </View>
         </View>
+
     )
 }
 

@@ -12,6 +12,7 @@ const useAuthData = () => {
     const fetchData = async () => {
         const storedToken = await getAsyncStorage('token');
         const storedUser = await getAsyncStorage('user');
+
         setToken(storedToken);
         setUser(storedUser);
     };

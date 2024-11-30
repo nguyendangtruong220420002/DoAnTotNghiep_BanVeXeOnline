@@ -6,7 +6,7 @@ import { Icon } from 'react-native-elements';
 import axios from 'axios';
 import CookieUtils, { getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
 import { postData } from '../../utils/fetching'
-import { showSuccessToast } from '../../utils/toast';
+import { showErrorToast, showSuccessToast } from '../../utils/toast';
 
 const Login = () => {
 
@@ -22,7 +22,9 @@ const Login = () => {
   const handleLogin = async () => {
 
     const userInfo = { phoneNumber, password }
-
+    if (!password) {
+      showErrorToast("Mật khẩu trống", "Vui lòng nhập mật khẩu")
+    }
     try {
 
       const response = await postData("users/login", userInfo);

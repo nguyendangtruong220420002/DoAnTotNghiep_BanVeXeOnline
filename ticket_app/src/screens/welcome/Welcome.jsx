@@ -7,14 +7,27 @@ import { useNavigation } from '@react-navigation/native';
 import { OtpInput } from 'react-native-otp-entry';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
-import { getData, postData } from '../../utils/fetching';
+import { getData, host, postData, Socket_Port } from '../../utils/fetching';
 import { getAsyncStorage } from '../../utils/cookie';
-import { showErrorToast, showWarningToast } from '../../utils/toast';
+import { showErrorToast, showSuccessToast, showWarningToast } from '../../utils/toast';
+import { useSocket } from '../../context/useSocket';
+import { io } from 'socket.io-client';
 
 
 const Welcome = () => {
 
     const nav = useNavigation();
+
+    const socket = useSocket()
+
+    // Listen for messages from the server
+    socket.on('message', (data) => {
+        console.log('Message from server:', data);
+    });
+
+    // Send a message to the server
+    socket.emit('message', 'Hello, Tao la thai gui toi be ne!');
+
 
     const [isPhoneInput, setIsPhoneInput] = useState(true)
     const [showOTP, setshowOTP] = useState(false)
@@ -79,12 +92,13 @@ const Welcome = () => {
         try {
             await confirm.confirm(OTP);
             console.log("OTP verification successful");
-
+            showSuccessToast("Xác thực OTP thành công")
             nav.navigate("Register", {
                 phoneNumber: phoneNumber,
                 fullName: name,
             });
         } catch (error) {
+            showErrorToast("Sai mã OTP", "Vui lòng nhập lại")
             console.log('Invalid code:', error);
         }
     };

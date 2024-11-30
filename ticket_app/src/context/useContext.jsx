@@ -1,4 +1,3 @@
-// AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import { deleteAsyncStorage, getAsyncStorage, setAsyncStorage } from '../utils/cookie';
 

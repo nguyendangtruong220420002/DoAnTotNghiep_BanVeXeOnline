@@ -7,29 +7,28 @@ const PayOS = require('@payos/node');
 // const API_KEY = process.env.API_KEY;
 // const CHECKSUM_KEY = process.env.CHECKSUM_KEY;
 const API_URL = 'http://127.0.0.1:5173';
-const payos = new PayOS('3e15d73c-23ac-4888-950e-21c830060668','dc5be5a7-8c48-4376-9a9d-57640516cbdc','eeb3ba38a4c869f20ddbcd7e7108201ec7eb7913bd6569c9f95040b6617ed2f5');
+const payos = new PayOS('3e15d73c-23ac-4888-950e-21c830060668', 'dc5be5a7-8c48-4376-9a9d-57640516cbdc', 'eeb3ba38a4c869f20ddbcd7e7108201ec7eb7913bd6569c9f95040b6617ed2f5');
 
 const processPayment = async (req, res) => {
   try {
-    const { bookingId,bookingID, totalAmountAll,SeatCode ,business ,  dataOfShowTrips,InforCusto,} = req.body;
+    const { bookingId,bookingID, totalAmountAll,SeatCode ,business , dataOfShowTrips,InforCusto,} = req.body;
     const amount = totalAmountAll; 
     const orderCode = bookingID;
     const returnUrl = `${API_URL}/paymentSuccess?bookingId=${bookingId}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;  
     // const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}`;
     const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;
-
     const description = `Mhd${bookingID} Vé${SeatCode} Xe${business} `.slice(0, 25); 
 
-    const order ={
-      orderCode:orderCode,
-      amount:amount,
-      description:description,
-      returnUrl:returnUrl ,
-      cancelUrl:cancelUrl ,
+    const order = {
+      orderCode: orderCode,
+      amount: amount,
+      description: description,
+      returnUrl: returnUrl,
+      cancelUrl: cancelUrl,
     };
     const paymentLink = await payos.createPaymentLink(order);
     res.json({ checkoutUrl: paymentLink.checkoutUrl });
-   
+
   } catch (error) {
     console.error('Error processing payment:', error);
     res.status(500).send('Lỗi khi xử lý thanh toán.');
@@ -39,7 +38,7 @@ const processPayment = async (req, res) => {
 const PaymetCancel = async (req, res) => {
   try {
     const { bookingId } = req.query;
-    console.log("bookingId",bookingId);
+    console.log("bookingId", bookingId);
 
     if (!bookingId || typeof bookingId !== 'string') {
       return res.status(400).json({ message: 'Booking ID không hợp lệ.' });
@@ -76,7 +75,7 @@ const PaymetCancel = async (req, res) => {
 const PaymetSuccess = async (req, res) => {
   try {
     const { bookingId } = req.query;
-    console.log("bookingId",bookingId);
+    console.log("bookingId", bookingId);
 
     if (!bookingId || typeof bookingId !== 'string') {
       return res.status(400).json({ message: 'Booking ID không hợp lệ.' });
@@ -93,20 +92,20 @@ const PaymetSuccess = async (req, res) => {
     await booking.save();
 
     const trip = await Trips.findById(tripId);
-if (!trip) {
-  return res.status(404).json({ message: 'Không tìm thấy chuyến đi.' });
-}
-
-trip.tripDates.forEach((date) => {
-  date.bookedSeats.booked = date.bookedSeats.booked.map((seat) => {
-    if (seatId.includes(seat.seatId)) {
-      seat.status = 'Đã thanh toán'; 
+    if (!trip) {
+      return res.status(404).json({ message: 'Không tìm thấy chuyến đi.' });
     }
-    return seat;
-  });
-});
 
-await trip.save();
+    trip.tripDates.forEach((date) => {
+      date.bookedSeats.booked = date.bookedSeats.booked.map((seat) => {
+        if (seatId.includes(seat.seatId)) {
+          seat.status = 'Đã thanh toán';
+        }
+        return seat;
+      });
+    });
+
+    await trip.save();
     res.json({ status: 'success', message: ' Thanh toán thành công.' });
   } catch (error) {
     console.error('Error processing cancellation:', error);
@@ -114,4 +113,35 @@ await trip.save();
   }
 };
 
-module.exports = { processPayment, PaymetCancel, PaymetSuccess};
+const getOrderfromPayOS = async (req, res) => {
+  try {
+    const bookingID = req.query?.bookingID;
+    const orderCode = bookingID;
+
+    console.log(bookingID);
+
+    if (!orderCode) {
+      res.status(201).send('OrderCode rỗng ! ');
+    } else {
+      await payos.getPaymentLinkInformation(orderCode)
+        .then((orderInfo) => {
+          if (orderInfo) {
+            res.status(200).json({ orderInfo: orderInfo });
+          } else {
+            res.status(401).send("Không tìm thấy thông tin thanh toán");
+          }
+          console.log('Order Information:', orderInfo);
+        })
+        .catch((error) => {
+          console.error('Error fetching order information:', error);
+        });
+    }
+
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    res.status(500).send('Lỗi lấy thông tin thanh toán.');
+  }
+}
+
+
+module.exports = { processPayment, PaymetCancel, PaymetSuccess, getOrderfromPayOS };

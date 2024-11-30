@@ -21,13 +21,9 @@ const Home = () => {
   const [diemDi, setDiemDi] = useState('');
   const [diemDen, setDiemDen] = useState('');
 
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState();
 
   const [datefrom, setDatefrom] = useState(new Date())
   const [dateto, setDateto] = useState(new Date())
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
 
   const [show, setShow] = useState(false);
   const [soVe, setSoVe] = useState("1");
@@ -192,7 +188,6 @@ const Home = () => {
         departureDate: datefrom.toISOString(),
         returnDate: newDateTo,
         tripType: show,
-        userId: user?._id,
       });
       console.log(response?.data);
 
@@ -204,7 +199,9 @@ const Home = () => {
         ngayve: newDateTo,
         diemdi: diemDi,
         diemden: diemDen,
-        soVe: soVe
+        soVe: soVe,
+        show
+
       });
     } catch (error) {
       if (error.response) {
@@ -222,6 +219,7 @@ const Home = () => {
   const handleGetProvinces = (type) => {
     nav.navigate("ListProvinces", { type })
   }
+
   const handleSearchHistory = (diemDi, diemDen) => {
     setDiemDi(diemDi)
     setDiemDen(diemDen)
