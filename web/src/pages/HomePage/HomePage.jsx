@@ -12,7 +12,7 @@ import Content from '../HomePage/content';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
 
-import TicketOfMy from '../AboutPage/TicketOfMy'
+import Ticket from '../AboutPage/Ticket'
 import Information from '../../../src/pages/AboutPage/Information';
 import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
 import Divider from '@mui/material/Divider';
@@ -63,7 +63,7 @@ const HomePage = () => {
     handleCloseMenu(); 
   };
   const handleHistoryClick = () => {
-    setValue("5"); 
+    setValue("3"); 
     handleCloseMenu();
   };
   
@@ -144,6 +144,7 @@ const handleCloseModal = () => {
                        anchorEl={anchorEl}
                        open={openMenu}
                        onClose={handleCloseMenu}
+                       
                        id="account-menu"
                        slotProps={{
                         paper: {
@@ -182,10 +183,10 @@ const handleCloseModal = () => {
                           src={information}
                           sx={{ width: '32px', height: '32px' }} 
                         /> 
-                          <Typography className='button4' sx={{marginLeft:'8px'}}> Thông tin cá nhân</Typography>
+                          <Typography className='button4' sx={{marginLeft:'8px'}}  MenuProps={{disableScrollLock: true, }}> Thông tin cá nhân</Typography>
                       </MenuItem>
                       <Divider />
-                      <MenuItem onClick={handleHistoryClick} >
+                      <MenuItem onClick={handleHistoryClick} MenuProps={{disableScrollLock: true, }}>
                       <Box
                           component="img"
                           src={history}
@@ -193,7 +194,7 @@ const handleCloseModal = () => {
                         /> 
                             <Typography className='button2' sx={{marginLeft:'11px'}}> Lịnh sử mua vé</Typography>
                       </MenuItem>
-                       <MenuItem onClick={handleLogout}>
+                       <MenuItem onClick={handleLogout}  MenuProps={{disableScrollLock: true, }}>
                        <Box
                           component="img"
                           src={loguot}
@@ -241,7 +242,7 @@ const handleCloseModal = () => {
               <Button onClick={handleOpenModal}>Mở modal</Button>
             </TabPanel>
             <TabPanel value="3">
-              <Typography><TicketOfMy  userInfo={userInfo}></TicketOfMy></Typography>
+             <Ticket  userInfo={userInfo}> onLogout={handleLogout} setUserInfo={setUserInfo} </Ticket>
             </TabPanel>
             <TabPanel value="4">
               <Typography>Cần Trợ Giúp</Typography>

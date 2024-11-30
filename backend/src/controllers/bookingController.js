@@ -76,18 +76,16 @@ const getBookingByUser = async (req, res) => {
   }
 
   try {
-
-
     // Tìm tất cả các booking theo userId
     const bookings = await Booking.find({
       userId,
       paymentStatus: { $ne: 'Đang chờ thanh toán' }
     }).sort({ createdAt: -1 }).populate({
-      path: 'tripId',               // Dẫn đến trường tripId trong Booking
-      select: 'busId',               // Chọn chỉ busId từ Trip
+      path: 'tripId',               
+      select: 'busId',              
       populate: {
-        path: 'busId',              // Dẫn đến trường busId trong Trip
-        select: 'busName licensePlate busType cartSeat Price' // Chọn các trường bạn muốn lấy từ Bus
+        path: 'busId',              
+        select: 'busName licensePlate busType cartSeat Price' 
       }
     });
 
@@ -102,5 +100,26 @@ const getBookingByUser = async (req, res) => {
     res.status(500).send('Đã xảy ra lỗi khi truy vấn dữ liệu.');
   }
 
+}  
+const getBookingByUserId = async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(201).json('Thiếu userId.');
+  }
+
+  try {
+    const bookings = await Booking.find({ userId }) .populate('tripId') 
+    .populate({path: 'tripId', populate: {path: 'userId',select: 'fullName phoneNumber',}
+      ,})
+    .populate({path: 'tripId', populate: {path: 'routeId',select: 'departure destination',}
+        ,})
+    .exec();
+    res.status(200).json(bookings);  
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Đã xảy ra lỗi khi truy vấn dữ liệu.');
+  }
 }
-module.exports = { createBooking, getBookingByUser };
+
+module.exports = { createBooking,getBookingByUser, getBookingByUserId };

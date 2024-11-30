@@ -10,22 +10,14 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import profile  from '../../../public/images/profile.png';
 import TicketOfMy from '../AboutPage/TicketOfMy'
 
-const Information = ({ onLogout, userInfo,setUserInfo }) => {
+const Ticket = ({ onLogout, userInfo,setUserInfo }) => {
   
-  const [value, setValue] = useState("1");
+  const [value, setValue] = useState("2");
   const [isEditing, setIsEditing] = useState(false); 
   const [message, setMessage] = useState('');
   const [imagePath, setImagePath] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
 
-
-  useEffect(() => {
-    const storedUserInfo = localStorage.getItem('userInfo');
-    if (storedUserInfo) {
-      setUserInfo(JSON.parse(storedUserInfo));
-      
-    }
-  }, []);
   useEffect(() => {
     if (message) {
       console.log('Thông báo mới:', message);
@@ -324,10 +316,10 @@ if (userInfo.img) {
   );
 };
 
-Information.propTypes = {
+Ticket.propTypes = {
   onLogout: PropTypes.func.isRequired,
   userInfo: PropTypes.func.isRequired,
   setUserInfo: PropTypes.func.isRequired,
 };
 
-export default Information;
+export default Ticket;
