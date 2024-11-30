@@ -21,17 +21,17 @@ function App() {
       setUserInfo(JSON.parse(storedUserInfo));
     }
   }, []);
-  useEffect(() => {
-    if (userInfo) {
-      if (userInfo.role === 'User') {
-        navigate('/'); 
-      } else if (userInfo.role === 'Business') {
-        navigate('/business'); 
-      } else if (userInfo.role === 'Admin') {
-        navigate('/admin'); 
-      }
-    }
-  }, [userInfo, navigate]);
+  // useEffect(() => {
+  //   if (userInfo) {
+  //     if (userInfo.role === 'User') {
+  //       navigate('/'); 
+  //     } else if (userInfo.role === 'Business') {
+  //       navigate('/business'); 
+  //     } else if (userInfo.role === 'Admin') {
+  //       navigate('/admin'); 
+  //     }
+  //   }
+  // }, [userInfo, navigate]);
   
   return (
       <Routes>

@@ -11,11 +11,13 @@ const payos = new PayOS('3e15d73c-23ac-4888-950e-21c830060668','dc5be5a7-8c48-43
 
 const processPayment = async (req, res) => {
   try {
-    const { bookingId,bookingID, totalAmountAll,SeatCode ,business} = req.body;
+    const { bookingId,bookingID, totalAmountAll,SeatCode ,business ,  dataOfShowTrips,InforCusto,} = req.body;
     const amount = totalAmountAll; 
     const orderCode = bookingID;
-    const returnUrl = `${API_URL}/paymentSuccess?bookingId=${bookingId}`;  
-    const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}`;
+    const returnUrl = `${API_URL}/paymentSuccess?bookingId=${bookingId}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;  
+    // const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}`;
+    const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;
+
     const description = `Mhd${bookingID} Vé${SeatCode} Xe${business} `.slice(0, 25); 
 
     const order ={

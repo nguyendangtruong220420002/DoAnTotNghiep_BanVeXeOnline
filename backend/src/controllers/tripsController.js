@@ -296,7 +296,6 @@ const updateTripSchedule = async (req, res) => {
 
 const getTripsSeach = async (req, res) => {
   const { departure, destination, departureDate, returnDate, tripType } = req.query;
-  console.log("departureDate",departureDate );
 
   // Kiểm tra các tham số cần thiết
   if (!departure || !destination || !departureDate || !tripType) {
@@ -304,27 +303,24 @@ const getTripsSeach = async (req, res) => {
   }
 
   try {
-      // Tìm tuyến đường
       const route = await BusRoute.findOne({ departure, destination });
 
       if (!route) {
           return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
       }
-      const departureMoment = moment(departureDate).tz('Asia/Ho_Chi_Minh');
-      // Điều kiện tìm kiếm chuyến xe
+      console.log("departureDate", departureDate);
+      const formattedTime = moment(departureDate).format('HH:mm');
+      console.log("Formatted Time:", formattedTime);
+
       const queryConditions = {
           routeId: route._id,
           'tripDates.date': {
               $gte: moment(departureDate).startOf('day').toDate(),
               $lte: moment(departureDate).endOf('day').toDate(),
           },
-       
       };
-      if (departureMoment.isSame(moment(), 'day')) {
-     
-        const filterTime = moment().tz('Asia/Ho_Chi_Minh').toDate();
-        queryConditions['departureTime'] = { $gte: filterTime }; 
-      }
+      console.log("queryConditions", queryConditions);
+
       if (tripType === "Khứ hồi" && returnDate) {
           queryConditions.returnDate = {
               $gte: moment(returnDate).startOf('day').toDate(),
@@ -340,16 +336,21 @@ const getTripsSeach = async (req, res) => {
               ...tripDate.toObject(),
               date: moment(tripDate.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
           }));
+          const departureTime = moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm');
+          console.log("Departure Time:", departureTime);
 
-          return {
-              ...trip.toObject(),
-              departureTime: moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-              endTime: moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-              tripDates: tripDatesWithLocalTime, 
-              user: trip.userId,
-              bus: trip.busId,
-          };
-      });
+          if (departureTime >= formattedTime) {
+              return {
+                  ...trip.toObject(),
+                  departureTime: moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
+                  endTime: moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
+                  tripDates: tripDatesWithLocalTime, 
+                  user: trip.userId,
+                  bus: trip.busId,
+              };
+          }
+          return null;
+      }).filter(trip => trip !== null); 
 
       res.status(200).json(tripsWithLocalTime);
   } catch (error) {
@@ -357,7 +358,6 @@ const getTripsSeach = async (req, res) => {
       res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
   }
 };
-
 const deleteTripSchedule = async (req, res) => {
   const { tripId } = req.params;
 

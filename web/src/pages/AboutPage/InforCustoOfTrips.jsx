@@ -36,6 +36,8 @@ const InforCustoOfTrips = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const InforCusto = location.state?.userInfo;
+  const dataOfShowTrips = location.state?.dataOfShowTrips;
+  console.log("dataOfShowTrips",dataOfShowTrips);
   const from = location.state?.from;
   const schedule = location.state?.schedule;
   const to = location.state?.to;
@@ -164,7 +166,7 @@ const selectedDepartureName =
           //console.log("bookingId",bookingId)
         setTimeout(() => {
           navigate('/payment', { state: { bookingId,bookingID,userInfo ,from, schedule ,to, endTime, selectedSeats,business,
-            totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,formDataCustoOfTrips } });
+            totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,formDataCustoOfTrips ,dataOfShowTrips,InforCusto} });
         }, 2000);
     
       } catch (error) {

@@ -196,7 +196,7 @@ const SearchTrips = ({userInfo}) => {
       return '';
     }
   };
-
+   
   useEffect(() => {
 
     const storedFromProvince = localStorage.getItem('fromProvince');
@@ -221,13 +221,14 @@ const SearchTrips = ({userInfo}) => {
       setSelectedValue(storedSelectedValue);
     }
   }, []);
+  
   const handleSearch = () => {
     const departureDate = new Date(dateRange[0]);
-    departureDate.setHours(0, 0, 0, 0);  
+    //departureDate.setHours(0, 0, 0, 0);  
   
     const returnDate = dateRange[1] ? new Date(dateRange[1]) : null;
     if (returnDate) {
-      returnDate.setHours(0, 0, 0, 0); 
+    //  returnDate.setHours(0, 0, 0, 0); 
     }
     const formattedDepartureDate = departureDate.toLocaleDateString('vi-VN', {
       weekday: 'short', 
@@ -244,8 +245,7 @@ const SearchTrips = ({userInfo}) => {
           year: 'numeric',
         })
       : null;
-    console.log("Ngày đi:", formattedDepartureDate);
-    console.log("Ngày về:", formattedReturnDate);
+
     localStorage.setItem('fromProvince', JSON.stringify(fromProvince));
     localStorage.setItem('toProvince', JSON.stringify(toProvince));
     localStorage.setItem('dateRange', JSON.stringify([departureDate, returnDate]));
@@ -257,11 +257,14 @@ const SearchTrips = ({userInfo}) => {
       returnDate: dateRange[1],
       tripType: selectedValue === 'one-way' ? 'Một chiều' : 'Khứ hồi',
       userId: userInfo ? userInfo._id : undefined 
-
+      
     };
+    console.log("dataOfShowTripshow",dataOfShowTrips);
+   
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);
     navigate('/showTrips', { state: { dataOfShowTrips, userInfo }});
+    
   };
   
   return (

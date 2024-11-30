@@ -198,11 +198,11 @@ const Content = ({userInfo}) => {
   const handleSearch = () => {
     
     const departureDate = new Date(dateRange[0]);
-    departureDate.setHours(0, 0, 0, 0);  
+    //departureDate.setHours(0, 0, 0, 0);  
   
     const returnDate = dateRange[1] ? new Date(dateRange[1]) : null;
     if (returnDate) {
-      returnDate.setHours(0, 0, 0, 0);  
+     // returnDate.setHours(0, 0, 0, 0);  
     }
   
     // Định dạng ngày theo kiểu "T4, 20/11/2024"
@@ -221,7 +221,7 @@ const Content = ({userInfo}) => {
           year: 'numeric',
         })
       : null;
-  
+ 
     // Lưu trữ vào localStorage
     localStorage.setItem('fromProvince', JSON.stringify(fromProvince));
     localStorage.setItem('toProvince', JSON.stringify(toProvince));
@@ -241,6 +241,7 @@ const Content = ({userInfo}) => {
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);
     navigate('/showTrips', { state: { dataOfShowTrips, userInfo } });
+    
   };
   
   return (
@@ -660,6 +661,7 @@ const Content = ({userInfo}) => {
 Content.propTypes = {
   
   userInfo: PropTypes.func,
+  
   
 };
 

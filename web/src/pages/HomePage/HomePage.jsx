@@ -9,9 +9,10 @@ import user from '../../../public/images/user.png';
 import helpdesk from '../../../public/images/setting.png';
 import '../HomePage/css/HomePage.css';
 import Content from '../HomePage/content';
-import ShowTrips from '../HomePage/showTrips';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
+
+import TicketOfMy from '../AboutPage/TicketOfMy'
 import Information from '../../../src/pages/AboutPage/Information';
 import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
 import Divider from '@mui/material/Divider';
@@ -29,7 +30,6 @@ const HomePage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     
@@ -232,17 +232,16 @@ const handleCloseModal = () => {
                padding:0,
                margin:0,
                boxSizing:'border-box',
-            }}>
-               
+            }}>       
               <Content userInfo={userInfo}  setValue={setValue}  />
-           
+             
             </TabPanel>
             <TabPanel value="2">
               <Typography>Mã Giảm giá</Typography>
               <Button onClick={handleOpenModal}>Mở modal</Button>
             </TabPanel>
             <TabPanel value="3">
-              <Typography>Vé Của Tôi</Typography>
+              <Typography><TicketOfMy  userInfo={userInfo}></TicketOfMy></Typography>
             </TabPanel>
             <TabPanel value="4">
               <Typography>Cần Trợ Giúp</Typography>

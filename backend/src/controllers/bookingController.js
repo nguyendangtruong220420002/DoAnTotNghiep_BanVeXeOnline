@@ -6,7 +6,6 @@ const createBooking = async (req, res) => {
   if (!tripId || !userId || !seatId || !totalFare || !passengerInfo) {
     return res.status(400).send('Thiếu dữ liệu yêu cầu.');
   }
-
   const lastBooking = await Booking.findOne().sort({ BookingID: -1 });
   console.log("lastBooking", lastBooking);
   const newBookingID = lastBooking ? lastBooking.BookingID + 1 : 1;
@@ -15,10 +14,6 @@ const createBooking = async (req, res) => {
   if (trip.bookedSeats && trip.bookedSeats.some(seat => seat.seatId === seatId)) {
     return res.status(400).send('Ghế đã được đặt');
   }
-
- 
-
-  // Tạo booking
   const booking = new Booking({
     BookingID:newBookingID,
     tripId,
@@ -37,8 +32,6 @@ const createBooking = async (req, res) => {
     }
     });
     console.log("booking",booking)
-
-  // Lưu booking vào database
   await booking.save();
 
   setTimeout(async () => {
@@ -69,4 +62,6 @@ const createBooking = async (req, res) => {
   res.status(201).send(booking);
 };
 
-module.exports = {createBooking};
+
+
+module.exports = {createBooking };

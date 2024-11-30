@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React ,  { useState, useEffect } from 'react';
-import {Box, AppBar, Toolbar ,Typography, Button, Menu, MenuItem, TextField, Select, FormControl ,InputLabel,FormLabel,RadioGroup,FormControlLabel,Radio} from '@mui/material'
+import {Box, AppBar, Toolbar ,Typography, Button, FormControl , Divider,RadioGroup,FormControlLabel,Radio} from '@mui/material'
 import logo from '../../../public/images/logohome (2).png';
 
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,8 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useLocation } from 'react-router-dom';
 import moment from "moment-timezone";
 import axios from 'axios';
+import QrCodeRoundedIcon from '@mui/icons-material/QrCodeRounded';
+import pay from '../../../public/images/pay.png'
 
 
 
@@ -17,6 +19,7 @@ const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const InforCusto = location.state?.userInfo;
+  const dataOfShowTrips = location.state?.dataOfShowTrips;
   const formDataCustoOfTrips = location.state?.formDataCustoOfTrips;
   const departureTime = location.state?.departureTime;
   const from = location.state?.from;
@@ -32,12 +35,13 @@ const Payment = () => {
   const bookingId = location.state?.bookingId;
   const bookingID = location.state?.bookingID;
   const business = location.state?.business;  
-
+console.log("dataOfShowTrips",dataOfShowTrips);
   
 
-  const [paymentMethod, setPaymentMethod] = useState('Ví Zalopay');
+  const [paymentMethod, setPaymentMethod] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
   const [paymentStatus, setPaymentStatus] = useState('');
+  
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
@@ -70,6 +74,8 @@ const Payment = () => {
         totalAmountAll,
         SeatCode,
         business,
+        dataOfShowTrips,
+        InforCusto,
       });
 
       // Kiểm tra kết quả trả về từ server
@@ -113,25 +119,34 @@ const Payment = () => {
                         <FormControl sx={{ marginLeft: '18px', marginTop: '10px' }} component="fieldset">
                     
                         <RadioGroup
-        value={paymentMethod}
-        onChange={handlePaymentMethodChange} // Gọi handlePaymentMethodChange khi chọn phương thức
-      >
-        <FormControlLabel
-          value="Chuyen khoan"
-          control={<Radio />}
-          label="Chuyển khoản"
-        />
-        <FormControlLabel
-          value="Tien ma"
-          control={<Radio />}
-          label="Tiền mặt"
-        />
-      </RadioGroup>
-
-      <button onClick={handlePayment}>Thanh toán</button>
+                        value={paymentMethod}
+                        onChange={handlePaymentMethodChange} 
+                      >
+                        <FormControlLabel
+                      
+                          value="Chuyen khoan"
+                          control={<Radio />}
+                          label={
+                            <>
+                            <Box sx={{display:'flex'}}> <QrCodeRoundedIcon style={{ marginRight: 8, color:'#647280' }} /> {/* Icon ở bên trái */}
+                            <Typography className='button38-4'> Chuyển khoản / Ví điện tử</Typography></Box>
+                            </>
+                          }
+                        />
+                        <Divider sx={{width:'590px', marginBottom:'10px',marginTop:'10px'}}></Divider>
+                        <FormControlLabel
+                          value="Tien ma"
+                          control={<Radio disabled  />}
+                          label={
+                            <>
+                            <Box sx={{display:'flex'}}>  <Box component="img" src={pay} alt="" sx={{width:'22px', height:'20px', marginTop:'4px', marginRight: 1}} ></Box>
+                            <Typography className='button38-5'> Tiền mặt (Tạm thời không nhận tiền mặt. Xin lỗi vì sự bất tiện này)</Typography></Box>
+                            </>
+                          }
+                        />
+                      </RadioGroup>
                     </FormControl>     
-                    </Box>
-                   
+                    </Box>      
                   </Box>
                     <Box>
                     <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd",borderRadius:'10px', width:'350px',backgroundColor:'rgb(255, 255, 255)',marginTop:'20px'}}> 
@@ -195,8 +210,18 @@ const Payment = () => {
                   <Box sx={{width:'100%', backgroundColor:'white' , }}>
                    <Box sx={{display:'flex', alignItems:'center', margin: 'auto', width:'1000px', height:'120px', justifyContent:'space-between'}}>
                           <Box sx={{display:'flex', flexDirection:"column"}}>
-                          <Button sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px', width:'620px',backgroundColor:'#e66961', height:'50px'}}>
-                          <Typography sx={{color:'white', textTransform:'none', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', marginTop:'5px'}}>Đặt chỗ</Typography>
+                          <Button  onClick={handlePayment}
+                          disabled={!paymentMethod} 
+                          sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px', width:'620px',
+                   
+                           backgroundColor: paymentMethod ? '#e66961' : '#d2d2d2',
+                          height:'50px'}}>
+                          <Typography sx={{
+                            color: paymentMethod ?'white' : 'black', 
+                            textTransform:'none', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', marginTop:'5px'}}>
+                            
+                            {paymentMethod ? 'Thanh toán' : 'Chọn phương thức thanh toán'}
+                            </Typography>
                             </Button>
                               <Typography className='button36' sx={{fontSize:'14.5px',textAlign:'center', marginTop:'10px'}}>Bằng việc nhấn nút Tiếp tục, bạn đồng ý với Chính sách bảo mật thanh toán và Quy chế</Typography>
                           </Box>

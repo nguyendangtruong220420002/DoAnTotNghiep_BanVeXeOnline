@@ -12,8 +12,9 @@ import Stack from '@mui/material/Stack';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business}) => {
+const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips}) => {
   const navigate = useNavigate();
+  console.log("Giá trị dataOfShowTrips nhập từ SeatSelection:", dataOfShowTrips);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const showAlert = (severity, message) => {
@@ -289,7 +290,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
               {selectedSeats.length > 0 && (
                 <Button 
                 onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
-                  totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business} })}
+                  totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
                 sx={{backgroundColor:  'rgb(220,99,91)' ,
                   color:  'white' ,
                   borderRadius:"50px",
@@ -322,6 +323,13 @@ SeatSelection.propTypes = {
   departure:PropTypes.string.isRequired,
   destination:PropTypes.string.isRequired,
   business:PropTypes.string.isRequired,
+  dataOfShowTrips: PropTypes.shape({
+    departure: PropTypes.string,
+    destination: PropTypes.string,
+    departureDate: PropTypes.string,
+    returnDate: PropTypes.string,
+    tripType: PropTypes.string,
+  }),
  
 };
 

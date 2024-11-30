@@ -133,14 +133,14 @@ if (userInfo.img) {
               sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
               icon={<Box component='img' src={information} sx={{ width: '37px', height: '37px' }}></Box>}
             />
-            <Tab 
+            {/* <Tab 
               label={<Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '5px' }}>Lịch sử mua vé</Box>} 
               value="2" 
               className='button6'  
               iconPosition="start"  
               sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
               icon={<Box component='img' src={history} sx={{ width: '37px', height: '37px' }}></Box>}
-            />
+            /> */}
             <Tab 
               label={<Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '5px' }}>Đăng Xuất</Box>} 
               value="3" 
@@ -312,7 +312,7 @@ if (userInfo.img) {
               </Box>
             </Box>
           </TabPanel>
-          <TabPanel value="2">Lịch sử mua vé</TabPanel>
+          
         </TabContext>
       </Box>
      

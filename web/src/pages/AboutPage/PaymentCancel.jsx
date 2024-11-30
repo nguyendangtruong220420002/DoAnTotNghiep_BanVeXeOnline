@@ -14,11 +14,44 @@ const PaymentCancel = () => {
   const location = useLocation();
   const [bookingId, setBookingId] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [dataOfShowTrips, setDataOfShowTrips] = useState(null);
+  const [InforCusto, setInforCusto] = useState(null);
 
+  // useEffect(() => {
+  //   const queryParams = new URLSearchParams(location.search);
+  //   const id = queryParams.get('bookingId');
+  //   setBookingId(id);
+  // }, [location]);
   useEffect(() => {
+    // Lấy các tham số từ URL
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get('bookingId');
+    const trips = queryParams.get('dataOfShowTrips');
+    const customer = queryParams.get('InforCusto');
+  
+    console.log("Raw Params from URL:");
+    console.log("bookingId:", id);
+    console.log("dataOfShowTrips (raw):", trips);
+    console.log("InforCusto (raw):", customer);
+  
     setBookingId(id);
+  
+    // Giải mã và log dữ liệu sau khi parse
+    try {
+      const parsedTrips = trips ? JSON.parse(decodeURIComponent(trips)) : null;
+      const parsedCustomer = customer
+        ? JSON.parse(decodeURIComponent(customer))
+        : null;
+  
+      setDataOfShowTrips(parsedTrips);
+      setInforCusto(parsedCustomer);
+  
+      console.log("Decoded Params:");
+      console.log("dataOfShowTrips (parsed):", parsedTrips);
+      console.log("InforCusto (parsed):", parsedCustomer);
+    } catch (error) {
+      console.error("Lỗi khi giải mã hoặc parse JSON:", error);
+    }
   }, [location]);
  console.log("bookingId",bookingId)
   useEffect(() => {
@@ -53,7 +86,7 @@ const PaymentCancel = () => {
                 <Box>
                   <Button
                     startIcon={<ArrowBackIosNewRoundedIcon sx={{width:'15px' , color:'#888888'}} />} 
-                    onClick={() => navigate('/showTrips')}  
+                    onClick={() => navigate('/showTrips',{ state: { dataOfShowTrips, InforCusto } })}  
                     variant="outlined"                            
                     sx={{border:'none',textTransform: "none", fontSize: "13.5px",color:'#0456ca',lineHeight:'20px', padding:"15px 7px",textShadow:'1px 1px 2px rgba(255, 255, 255, 0.2)'
                     }}>Quay lại
