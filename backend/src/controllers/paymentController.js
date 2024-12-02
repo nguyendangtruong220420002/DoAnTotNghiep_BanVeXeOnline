@@ -2,6 +2,7 @@ const Booking = require('../models/Booking');
 const Trips = require('../../src/models/Trips');
 const axios = require('axios');
 const PayOS = require('@payos/node');
+const moment = require('moment-timezone');
 
 // const CLIENT_ID = process.env.CLIENT_ID;
 // const API_KEY = process.env.API_KEY;
@@ -86,7 +87,7 @@ const PaymetSuccess = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy booking.' });
     }
 
-    const { tripId, seatId } = booking;
+    const { tripId, seatId, bookingDate } = booking;
 
     booking.paymentStatus = 'Đã thanh toán';
     await booking.save();
@@ -95,20 +96,33 @@ const PaymetSuccess = async (req, res) => {
     if (!trip) {
       return res.status(404).json({ message: 'Không tìm thấy chuyến đi.' });
     }
+    const tripDate = trip.tripDates.find((td) =>
+      moment(td.date).tz('Asia/Ho_Chi_Minh').isSame(moment(bookingDate), 'day')
+    );
 
-    trip.tripDates.forEach((date) => {
-      date.bookedSeats.booked = date.bookedSeats.booked.map((seat) => {
-        if (seatId.includes(seat.seatId)) {
-          seat.status = 'Đã thanh toán';
-        }
-        return seat;
-      });
+    if (!tripDate) {
+      return res.status(404).json({ message: 'Ngày chuyến đi không hợp lệ.' });
+    }
+    tripDate.bookedSeats.booked = tripDate.bookedSeats.booked.map((seat) => {
+      if (seatId.includes(seat.seatId)) {
+        seat.status = 'Đã thanh toán';
+      }
+      return seat;
     });
+    const paidSeats = tripDate.bookedSeats.booked.filter(
+      (seat) => seat.status === 'Đã thanh toán'
+    );
+    const newSeatsBooked = paidSeats.length;
+
+    const ticketPrice = trip.totalFareAndPrice || 0;
+    tripDate.sales.totalTicketsSold = newSeatsBooked;
+    tripDate.sales.totalRevenue = tripDate.sales.totalTicketsSold * ticketPrice;
 
     await trip.save();
-    res.json({ status: 'success', message: ' Thanh toán thành công.' });
+
+    res.json({ status: 'success', message: 'Thanh toán thành công.' });
   } catch (error) {
-    console.error('Error processing cancellation:', error);
+    console.error('Error processing payment:', error);
     res.status(500).json({ error: error.message });
   }
 };

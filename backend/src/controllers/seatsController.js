@@ -18,22 +18,16 @@ const bookSeats = async (req, res) => {
     if (!formattedBookingDate.isValid()) {
       return res.status(400).json({ message: "Ngày đặt vé không hợp lệ" });
     }
-
-    // Tìm chuyến đi theo tripId
     const trip = await Trips.findById(tripId);
     if (!trip) {
       return res.status(404).json({ message: "Chuyến đi không tồn tại" });
     }
-
-    // Kiểm tra ngày chuyến đi
     const tripDate = trip.tripDates.find((td) =>
       moment(td.date).tz('Asia/Ho_Chi_Minh').isSame(formattedBookingDate, "day")
     );
     if (!tripDate) {
       return res.status(404).json({ message: "Ngày này không có sẵn cho chuyến xe" });
     }
-
-    // Kiểm tra ghế đã được đặt chưa
     if (!tripDate.bookedSeats) {
       tripDate.bookedSeats = { booked: [] };
     }
@@ -46,8 +40,6 @@ const bookSeats = async (req, res) => {
         conflictingSeats 
       });
     }
-
-    // Thêm ghế vào danh sách đã đặt
     seats.forEach((seat) => {
       if (!seat || !userId) {
         return res.status(400).json({ message: "Ghế hoặc userId không hợp lệ" });
@@ -65,14 +57,6 @@ const bookSeats = async (req, res) => {
         status: 'Đã đặt',
       });
     });
-
-    // Cập nhật thông tin vé đã bán
-    const newSeatsBooked = seats.length;
-    const ticketPrice = trip.totalFareAndPrice || 0;
-    tripDate.sales.totalTicketsSold += newSeatsBooked;
-    tripDate.sales.totalRevenue = tripDate.sales.totalTicketsSold * ticketPrice;
-
-    // Lưu lại thông tin chuyến đi sau khi đặt ghế
     await trip.save();
 
     res.status(200).json({ 
@@ -108,15 +92,15 @@ const getBookedSeats = async (req, res) => {
       return res.status(404).json({ message: "Ngày này không có sẵn cho chuyến xe" });
     }
     const bookedSeats = tripDate.bookedSeats ? tripDate.bookedSeats.booked : [];
+    const filteredSeats = bookedSeats.filter(seat => seat.status !== 'Đã Hủy'); 
     res.status(200).json({
       message: "Danh sách ghế đã đặt",
-    //   bookedSeats: bookedSeats
-    // });
-    bookedSeats: bookedSeats.map(seat => ({
+  
+    bookedSeats: filteredSeats .map(seat => ({
       seatId: seat.seatId,
       userId: seat.userId,
       bookingDate: seat.bookingDate,
-      status: seat.status, // Thêm trạng thái ghế
+      status: seat.status, 
     }))
   });
 
@@ -143,7 +127,7 @@ const updateSeatStatus = async (tripId, seatIds, newStatus) => {
   seatIds.forEach((seatId) => {
     const seat = tripDate.bookedSeats.booked.find(s => s.seatId === seatId);
     if (seat) {
-      seat.status = newStatus; // Cập nhật trạng thái ghế
+      seat.status = newStatus; 
     }
   });
 

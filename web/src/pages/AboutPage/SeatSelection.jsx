@@ -125,7 +125,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
   const totalAmountAll  =   (selectedSeats.length * totalAmount);
   
   const handleSeatClick = (seatId) => {
-
     if (!userInfo || !userInfo._id) {
       showAlert('error', 'Bạn cần đăng nhập để đặt vé.');
       return; // Dừng quá trình đặt vé nếu chưa đăng nhập
@@ -142,6 +141,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
         return { ...seat, status: newStatus };
       }
       return seat;
+      
     });
   
     setSeats(updatedSeats);
@@ -152,8 +152,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       setSelectedSeats((prev) => prev.filter((id) => id !== seatId));
     }
   };
-
- 
 
   const renderSeats = (seats) => {
     return seats.map((seat) => (
@@ -197,7 +195,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       </Box>
     ));
   };
-
   return (
     <Box sx={{ textAlign: "center" }}>
       <Box sx={{ marginTop: "20px", display: "flex", justifyContent: "center", marginLeft: "70px" }}>
@@ -231,7 +228,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
               {renderSeats(seats.slice(15, 20), 15)}
             </Box>
           </Box>
-
           <Box sx={{ marginLeft: '50px' }}>
             <Typography sx={{ fontSize: '14px' }}>Tầng trên</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -266,7 +262,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
           </Alert>
         ))}
       </Stack>
-
      <Box sx={{display:'flex' , justifyContent:'space-between', marginLeft:'20px', width:'700px', alignItems:'center' }}>
       <Box sx={{display:'flex' , flexDirection:'column', textAlign:'left'}}>
       <Typography className='button32' sx={{ }}>
@@ -285,7 +280,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
                   <Typography  className='button33'>
                     {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""}
                   </Typography>
-              
           </Box>
               {selectedSeats.length > 0 && (
                 <Button 
@@ -309,7 +303,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
     </Box>
   );
 };
-
 SeatSelection.propTypes = {
   userInfo: PropTypes.object.isRequired,
   tripId: PropTypes.string.isRequired,
@@ -332,5 +325,4 @@ SeatSelection.propTypes = {
   }),
  
 };
-
 export default SeatSelection;

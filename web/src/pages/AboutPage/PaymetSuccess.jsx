@@ -35,8 +35,6 @@ const queryParams = new URLSearchParams(location.search);
     console.log("InforCusto (raw):", customer);
   
     setBookingId(id);
-  
-    // Giải mã và log dữ liệu sau khi parse
     try {
       const parsedTrips = trips ? JSON.parse(decodeURIComponent(trips)) : null;
       const parsedCustomer = customer

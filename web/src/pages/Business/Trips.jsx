@@ -375,8 +375,7 @@ const Trips = ({ userInfo, }) => {
           }}
         >
           <MenuItem value="Đang hoạt động">Đang hoạt động</MenuItem>
-          <MenuItem value="Hoạt động thành công">Hoạt động thành công</MenuItem>
-          <MenuItem value="Hủy">Hủy</MenuItem>
+          <MenuItem value="Hủy">Đang bảo trì</MenuItem>
         </Select>
       </FormControl>
           </Box>

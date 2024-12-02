@@ -56,13 +56,14 @@ const tripSchema = new mongoose.Schema({
               userId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
-                required: true, 
+                // required: true, 
               },bookingDate: { type: Date, default: Date.now },
               status: { 
                 type: String, 
-                enum: ['Đã đặt', 'Đã thanh toán'], 
+                enum: ['Đã đặt', 'Đã thanh toán','Đã đặt trước','Đã Hủy'], 
                 default: 'Đã đặt' 
-              }
+              },
+              note: { type: String, required: false }
             }
           ]
         }  

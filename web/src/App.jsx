@@ -23,13 +23,13 @@ function App() {
   }, []);
   // useEffect(() => {
   //   if (userInfo) {
-  //     if (userInfo.role === 'User') {
-  //       navigate('/'); 
-  //     } else if (userInfo.role === 'Business') {
+  //     if (userInfo.role === 'Business') {
   //       navigate('/business'); 
   //     } else if (userInfo.role === 'Admin') {
   //       navigate('/admin'); 
-  //     }
+  //     } else if (userInfo.role === 'User') {
+  //       navigate('/') ; 
+  //     } 
   //   }
   // }, [userInfo, navigate]);
   

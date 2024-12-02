@@ -63,7 +63,7 @@ const TicketOfMy = ({ userInfo }) => {
           {filterBookingsByPaymentStatus('Đang chờ thanh toán').length === 0 ? (
             <Typography className="button39-1">Không có vé nào đang chờ thanh toán.</Typography>
           ) : (
-            filterBookingsByPaymentStatus('Đang chờ thanh toán').map((booking) => (
+            filterBookingsByPaymentStatus('Đang chờ thanh toán').sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)).map((booking) => (
                 <Box key={booking.BookingID} sx={{ marginBottom: 2, width: "98%" , borderRadius: '15px', border: '2px solid #e5e7eb', boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)'}}>
                 <Typography sx={{borderRadius: '5px', border: '1px solid #c1c1c1', margin:'12px'}}>
                     <Box sx={{display:'flex', justifyContent:'space-between', marginTop:'10px'}}>
@@ -91,7 +91,7 @@ const TicketOfMy = ({ userInfo }) => {
           {filterBookingsByPaymentStatus('Đã thanh toán').length === 0 ? (
             <Typography className="button39-1">Không có vé đã thanh toán.</Typography>
           ) : (
-            filterBookingsByPaymentStatus('Đã thanh toán').map((booking) => (
+            filterBookingsByPaymentStatus('Đã thanh toán').sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)).map((booking) => (
                 <Box key={booking.BookingID} sx={{ marginBottom: 2, width: "98%" , borderRadius: '15px', border: '2px solid #e5e7eb', boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)'}}>
                         <Typography sx={{borderRadius: '5px', border: '1px solid #c1c1c1', margin:'12px'}}>
                             <Box sx={{display:'flex', justifyContent:'space-between', marginTop:'10px'}}>
@@ -118,7 +118,7 @@ const TicketOfMy = ({ userInfo }) => {
           {filterBookingsByPaymentStatus('Thanh toán không thành công').length === 0 ? (
             <Typography className="button39-1">Không có vé nào thanh toán không thành công.</Typography>
           ) : (
-            filterBookingsByPaymentStatus('Thanh toán không thành công').map((booking) => (
+            filterBookingsByPaymentStatus('Thanh toán không thành công').sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate)).map((booking) => (
                 <Box key={booking.BookingID} sx={{ marginBottom: 2, width: "98%" , borderRadius: '15px', border: '2px solid #e5e7eb', boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)'}}>
                 <Typography sx={{borderRadius: '5px', border: '1px solid #c1c1c1', margin:'12px'}}>
                     <Box sx={{display:'flex', justifyContent:'space-between', marginTop:'10px'}}>

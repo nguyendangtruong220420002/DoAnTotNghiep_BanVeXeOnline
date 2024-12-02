@@ -216,4 +216,17 @@ const forgotPassword = async (req, res) => {
   }
 };
 
-module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, forgotPassword, changePassword };
+const getAllUser = async (req, res) => {
+  try {
+    const users = await User.find();
+    if (!users || users.length === 0) {
+      return res.status(404).json({ message: 'Không có người dùng nào.' });
+    }
+    res.status(200).json({ message: 'Danh sách người dùng', users });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách người dùng:', error);
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách người dùng.' });
+  }
+};
+
+module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, forgotPassword, changePassword,getAllUser };

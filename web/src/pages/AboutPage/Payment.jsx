@@ -35,7 +35,7 @@ const Payment = () => {
   const bookingId = location.state?.bookingId;
   const bookingID = location.state?.bookingID;
   const business = location.state?.business;  
-console.log("dataOfShowTrips",dataOfShowTrips);
+// console.log("dataOfShowTrips",dataOfShowTrips);
   
 
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -66,7 +66,6 @@ console.log("dataOfShowTrips",dataOfShowTrips);
     }
 
     try {
-      // Gửi yêu cầu thanh toán tới server
       const response = await axios.post(`${API_URL}/api/addPaymentRoute/add`, {
         bookingId,
         bookingID,
@@ -78,9 +77,7 @@ console.log("dataOfShowTrips",dataOfShowTrips);
         InforCusto,
       });
 
-      // Kiểm tra kết quả trả về từ server
       if (response.data.checkoutUrl) {
-        // Chuyển hướng người dùng đến URL thanh toán của PayOS
         window.location.href = response.data.checkoutUrl;
       } else {
         setPaymentStatus('Thanh toán thất bại');
@@ -156,7 +153,7 @@ console.log("dataOfShowTrips",dataOfShowTrips);
                         </Box>
                         <Box sx={{display:'flex', marginRight:'20px',justifyContent:'space-between', marginBottom:'20px'}}> 
                           <Typography className='button38' sx={{marginLeft:'20px', }}>Giá vé</Typography>  
-                          <Box sx={{display:'flex',flexDirection:'column', justifyContent:'space-between',alignItems:'center'}}>
+                          <Box sx={{display:'flex',flexDirection:'column', justifyContent:'space-between',alignItems:'flex-end'}}>
                               <Box sx={{display:'flex', justifyContent:'flex-end' }}>
                                 <Typography className='button38-1'> {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""}   </Typography> 
                                 <Typography className='button38-1'> &nbsp;x {selectedSeats.length === 0 ? "" : `${selectedSeats.length}`}</Typography> 

@@ -28,7 +28,10 @@ import AddBus from '../../../src/pages/Business/addBus';
 import BusRoute from '../../../src/pages/Business/busRoute';
 import Trips from '../../../src/pages/Business/Trips';
 import Schedule from '../../../src/pages/Business/schedule';
+import TicketManagement from '../../../src/pages/Business/TicketManagement';
 import { useNavigate } from 'react-router-dom';
+import ConfirmationNumberRoundedIcon from '@mui/icons-material/ConfirmationNumberRounded';
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
 
 
 
@@ -41,6 +44,8 @@ const Business = () => {
   const [showMenuTuyenXe, setShowMenuTuyenXe] = useState(false);
   const [showMenuChuyenXe, setShowMenuChuyenXe] = useState(false);
   const [showMenuXe, setShowMenuXe] = useState(false);
+  const [showMenuVeXe, setShowMenuVeXe] = useState(false);
+  const [showMenuDoanhThu, setShowMenuDoanhThu] = useState(false);
   const [selectedTab, setSelectedTab] = useState('');
   const [selectedSubMenu, setSelectedSubMenu] = useState(null);
   const navigate = useNavigate();
@@ -80,6 +85,12 @@ const Business = () => {
       setShowMenuChuyenXe((prev) => !prev);
     } else if (tabName === 'xe') {
       setShowMenuXe((prev) => !prev);
+
+    } else if (tabName === 'veXe') {
+      setShowMenuVeXe((prev) => !prev);
+    } else if (tabName === 'doanhThu') {
+      setShowMenuDoanhThu((prev) => !prev);
+      
     } else if (tabName === 'home') {
       setShowMenuTuyenXe(false);
       setShowMenuChuyenXe(false);
@@ -109,11 +120,21 @@ const handleMenuItemClick = (menuItem) => {
     setValue("9");
     setSelectedTab('loaixe'); 
   }
+  else if (menuItem === 'veXe') {
+    setValue("10");
+    setSelectedTab('veXe'); 
+  }
+  else if (menuItem === 'doanhThu') {
+    setValue("11");
+    setSelectedTab('doanhThu'); 
+  }
   setSelectedSubMenu(menuItem);
 };
 const isTuyenXeActive = selectedTab === 'tuyenXe' || value === '3' || value === '4';
 const isChuyenXeActive = selectedTab === 'chuyenXe' || value === '6' || value === '7';
 const isXeActive = selectedTab === 'xe' || value === '8' || value === '9';
+const isVeXeActive = selectedTab === 'veXe' || value === '10' ;
+const isDoanhThuActive = selectedTab === 'doanhThu' || value === '11' ;
   const handleInfoClick = () => {
     setValue("5"); 
     handleCloseMenu(); 
@@ -267,14 +288,7 @@ const handleCloseModal = () => {
               />
               {showMenuTuyenXe && (
                 <>
-                  {/* <Tab
-                    label="Danh sách tuyến xe"
-                    className={`button12 ${selectedSubMenu === 'danhSachTuyenXe' ? 'active' : ''}`}
-                    onClick={() => handleMenuItemClick('danhSachTuyenXe')}
-                    sx={{ minHeight: 0,marginLeft:'20px'}}
-                    iconPosition="start"
-                    icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px'}}></FormatListBulletedOutlinedIcon>}
-                  /> */}
+                 
                   <Tab
                     label="Thông tin Tuyến xe"
                     className={`button12 ${selectedSubMenu === 'themTuyenXe' ? 'active' : ''}`}
@@ -310,7 +324,7 @@ const handleCloseModal = () => {
                       label="Thông tin chuyến xe"
                       className={`button12 ${selectedSubMenu === 'themChuyenXe' ? 'active' : ''}`}
                       onClick={() => handleMenuItemClick('themChuyenXe')}
-                      sx={{ minHeight: 0 }}
+                      sx={{ minHeight: 0, }}
                       iconPosition="start"
                       icon={<PlaylistAddOutlinedIcon sx={{ width: '20px' }} />}
                     />
@@ -318,7 +332,7 @@ const handleCloseModal = () => {
                       label="Lịch trình cho chuyến xe"
                       className={`button12 ${selectedSubMenu === 'danhSachChuyenXe' ? 'active' : ''}`}
                       onClick={() => handleMenuItemClick('danhSachChuyenXe')}
-                      sx={{ minHeight: 0, marginLeft: '20px' }}
+                      sx={{ minHeight: 0, marginLeft: '25px' }}
                       iconPosition="start"
                       icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
                     />
@@ -347,27 +361,65 @@ const handleCloseModal = () => {
               {showMenuXe && (
                 <>
                 <Tab
-                  label="Thông tin xe"
+                  label="Thông tin xe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                   className={`button12 ${selectedSubMenu === 'xe' ? 'active' : ''}`}
                   onClick={() => handleMenuItemClick('xe')}
-                  sx={{ minHeight: 0,marginLeft: '30px' }}
+                  sx={{ minHeight: 0,marginLeft: '20px' }}
                   iconPosition="start"
                   icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
-                />
-              
-                 
+                />   
               </>
               )}
-      
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '3px',marginLeft:'3px'}}>Quản lý Vé xe</Box>}  value="" className='button11'  iconPosition="start"  
-            sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
-            icon={<ConfirmationNumberOutlinedIcon></ConfirmationNumberOutlinedIcon>}>  
-            </Tab>
-
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '3px',marginLeft:'3px'}}>Báo cáo doanh thu</Box>}  value="" className='button11'  iconPosition="start"  
-            sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
-            icon={<AssessmentOutlinedIcon></AssessmentOutlinedIcon>}>  
-            </Tab> 
+            <Tab
+                label={
+                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Vé xe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {showMenuVeXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isVeXeActive ? "button11 active" : "button11"} 
+                iconPosition="start"
+                onClick={() => handleTabClick('veXe')}
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+                icon={<TuneRoundedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuVeXe && (
+                <>
+                  <Tab
+                    label="Thông tin Vé xe&nbsp;"
+                    className={`button12 ${selectedSubMenu === 'veXe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('veXe')}
+                    sx={{ minHeight: 0, marginRight:'5px'}}
+                    iconPosition="start"
+                    icon={<ConfirmationNumberRoundedIcon sx={{ width: '20px'}}></ConfirmationNumberRoundedIcon>}
+                  />
+                </>
+              )}
+               <Tab
+                label={
+                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Doan Thu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {setShowMenuDoanhThu ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isDoanhThuActive ? "button11 active" : "button11"} 
+                iconPosition="start"
+                onClick={() => handleTabClick('doanhThu')}
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+                icon={<TuneRoundedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuDoanhThu && (
+                <>
+                  <Tab
+                    label="Thông tin Tuyến xe&nbsp;"
+                    className={`button12 ${selectedSubMenu === 'doanhThu' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('doanhThu')}
+                    sx={{ minHeight: 0, marginRight:'5px'}}
+                    iconPosition="start"
+                    icon={<AssessmentOutlinedIcon sx={{ width: '20px'}}></AssessmentOutlinedIcon>}
+                  />
+                </>
+              )} 
           </TabList>
        
         </TabContext>
@@ -402,15 +454,22 @@ const handleCloseModal = () => {
             <TabPanel value="8"> 
             <AddBus userInfo={userInfo} setUserInfo={setUserInfo} ></AddBus>
             </TabPanel>
+            <TabPanel value="9"> 
+            <Typography>Quản lý </Typography>
+            </TabPanel>
+            <TabPanel value="10"> 
+             <TicketManagement userInfo={userInfo} setUserInfo={setUserInfo} ></TicketManagement> 
+            </TabPanel>
+            <TabPanel value="11"> 
+              <Typography>Danh Thu</Typography>
+            {/* <AddBus userInfo={userInfo} setUserInfo={setUserInfo} ></AddBus> */}
+            </TabPanel>
             
           </TabContext>
         </Box>
-        
       </Box>
       </Box>
-      
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
-
     </Box>
   );
 };
