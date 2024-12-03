@@ -259,7 +259,7 @@ const SearchTrips = ({userInfo}) => {
       userId: userInfo ? userInfo._id : undefined 
       
     };
-    console.log("dataOfShowTripshow",dataOfShowTrips);
+    //console.log("dataOfShowTíp gửi qua ShowTrips",dataOfShowTrips);
    
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);

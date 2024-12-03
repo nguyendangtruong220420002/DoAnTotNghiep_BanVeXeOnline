@@ -12,10 +12,9 @@ import Stack from '@mui/material/Stack';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips}) => {
+const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips}) => {
   const navigate = useNavigate();
   console.log("Giá trị dataOfShowTrips nhập từ SeatSelection:", dataOfShowTrips);
-  const { tripType } = dataOfShowTrips; 
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const showAlert = (severity, message) => {
@@ -154,7 +153,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
     }
   };
 
-
   const renderSeats = (seats) => {
     return seats.map((seat) => (
       <Box
@@ -284,59 +282,28 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
                   </Typography>
           </Box>
               {selectedSeats.length > 0 && (
-                // <Button 
-                // onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
-                //   totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
-                // sx={{backgroundColor:  'rgb(220,99,91)' ,
-                //   color:  'white' ,
-                //   borderRadius:"50px",
-                //   width:'150px',
-                //   height:'32px',
-                //   textTransform:'none', 
-                //   textAlign:'center',
-                //   textShadow:"1px 1px 2px rgba(0, 0, 0, 0.2)",
-                //   fontSize:'13.5px',
-                //     }}>
-                //   Tiếp Tục
-                // </Button>
-                <Button
-  onClick={() =>
-    tripType === "Khứ hồi"
-      ? navigate('/showTrips', { state: { SeatCode , tabIndex1: 1 ,dataOfShowTrips } }) 
-      : navigate('/inforCustoOfTrips', {
-          state: {
-            userInfo, from,schedule,to,endTime,selectedSeats,totalAmount,SeatCode,departure,destination,
-            tripId,
-            totalAmountAll,
-            departureDate,
-            departureTime,
-            SeatCodeSelect,
-            business,
-            dataOfShowTrips,
-          },
-        })
-  }
-  sx={{
-    backgroundColor: 'rgb(220,99,91)',
-    color: 'white',
-    borderRadius: '50px',
-    width: '150px',
-    height: '32px',
-    textTransform: 'none',
-    textAlign: 'center',
-    textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
-    fontSize: '13.5px',
-  }}
->
-  Tiếp Tục
-</Button>
+                <Button 
+                onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
+                  totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
+                sx={{backgroundColor:  'rgb(220,99,91)' ,
+                  color:  'white' ,
+                  borderRadius:"50px",
+                  width:'150px',
+                  height:'32px',
+                  textTransform:'none', 
+                  textAlign:'center',
+                  textShadow:"1px 1px 2px rgba(0, 0, 0, 0.2)",
+                  fontSize:'13.5px',
+                    }}>
+                  Tiếp Tục
+                </Button>
               )}
         </Box>
      </Box>
     </Box>
   );
 };
-SeatSelection.propTypes = {
+RoundTrip.propTypes = {
   userInfo: PropTypes.object.isRequired,
   tripId: PropTypes.string.isRequired,
   departureDate: PropTypes.string.isRequired,
@@ -358,4 +325,4 @@ SeatSelection.propTypes = {
   }),
  
 };
-export default SeatSelection;
+export default RoundTrip;

@@ -41,31 +41,57 @@ import information from '../../../public/images/information.png'
 import profile from '../../../public/images/profile.png'
 import Nosearchrch from '../../../public/images/Nosearchrch.png'
 import { useNavigate } from 'react-router-dom';
+import RoundTrip from '../AboutPage/RoundTrip';
+
 const ShowTrips = () => {
   const navigate = useNavigate();
+  
+
   const [value, setValue] = useState("1");
   const [openLogin, setOpenLogin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
-  const { dataOfShowTrips } = location.state || {}
+  const { dataOfShowTrips ,SeatCode:SeatCodeTrips ,tabIndex1: initialTabIndex1 } = location.state || {}   //Seact của khứ hồi  tabIndex1: initialTabIndex1 
   const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
   const [trips, setTrips] = useState([]);
-  const [tabIndex1, setTabIndex1] = useState(0);
+  const [tabIndex1, setTabIndex1] = useState(initialTabIndex1 !== undefined ? initialTabIndex1 : 0);
   const [selectedBox, setSelectedBox] = useState(null);
-  // const [tripType, setTripType] = useState(dataOfShowTrips.tripType);
   const [tripType, setTripType] = useState(dataOfShowTrips ? dataOfShowTrips.tripType : '');
   const [openTabs, setOpenTabs] = useState({});
   const [tabSeatch, settabSeatch] = useState(0);
-
-  console.log("Giá trị dataOfShowTrips trước khi truyền vào SeatSelection:", dataOfShowTrips);
+  
+  console.log(" bên tìm chuyến gửi dataOfShowTrips:", dataOfShowTrips);
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
     }
   }, []);
+  // gọu lại khi khứ hồi
+  useEffect(() => {
+    if (!dataOfShowTrips) {
+     // console.warn("dataOfShowTrips không tồn tại. Điều hướng về trang chính.");
+      navigate('/');
+    }
+  }, [dataOfShowTrips, navigate]);
+  
+ // console.log("Giá trị dataOfShowTrips:", dataOfShowTrips);
+  useEffect(() => {
+    if (initialTabIndex1 !== undefined) {
+      setTabIndex1(initialTabIndex1);
+    }
+  }, [initialTabIndex1]);
+
+  //console.log("Giá trị tabIndex1:", tabIndex1);
+///////////////////////////////
+  
+  useEffect(() => {
+    if (location.state?.nextTabIndex !== undefined) {
+      setTabIndex1(location.state.nextTabIndex);
+    }
+  }, [location.state]);
  
   const handleLogout = () => {
     localStorage.clear();
@@ -125,30 +151,38 @@ const ShowTrips = () => {
   const departureDateLabel = formatDate(dataOfShowTrips.departureDate);
   const returnDateLabel = formatDate(dataOfShowTrips.returnDate);
   useEffect(() => {
-    console.log("dataOfShowTrips gọi lại:", dataOfShowTrips);
     if (dataOfShowTrips) {
-      fetchTrips();
-      setTimeout(() => {setLoading(false)}, 8000);
-    }
-  }, [dataOfShowTrips, tripType]);
-
-  const fetchTrips = async () => {
-    try {
-      setTrips([]); 
-      setLoading(true); 
-      const response = await axios.get(`${API_URL}/api/tripsRoutes/search`, {
-        params: {
-          departure: dataOfShowTrips.departure,
-          destination: dataOfShowTrips.destination,
-          departureDate: dataOfShowTrips.departureDate,
-          returnDate: tripType === "Khứ hồi" ? dataOfShowTrips.returnDate : undefined,
-          tripType: tripType,
-          userId: userInfo ? userInfo._id : undefined,
-        },
-      });
-      //console.log(" từ API:", response.data);
-      setTrips(response.data);
+      const params = {
+        departure: dataOfShowTrips.departure || '',
+        destination: dataOfShowTrips.destination || '',
+        departureDate: dataOfShowTrips.departureDate || '',
+        returnDate: tripType === "Khứ hồi" ? dataOfShowTrips.returnDate : undefined,
+        tripType:dataOfShowTrips.tripType || '',  
+        userId: userInfo ? userInfo._id : undefined,
+      };
   
+      console.log("Request Params:", params); 
+  
+      fetchTrips(params);  
+      setTimeout(() => setLoading(false), 8000);
+    }
+  }, [dataOfShowTrips, tripType, userInfo]); 
+
+  const fetchTrips = async (params) => {
+    try {
+      setTrips([]);
+      setLoading(true);  
+
+      const response = await axios.get(`${API_URL}/api/tripsRoutes/search`, { params });
+
+     
+      // setTrips(response.data); 
+      setTrips({
+        fromTrips: response.data.fromTrips || [],
+        toTrips: response.data.toTrips || [],
+        TripsOne: response.data.TripsOne || []  ,
+      });
+      console.log("Trips from API:", response.data);  
     } catch (error) {
       if (error.response) {
         console.error("Lỗi tìm chuyến:", error.response.data);
@@ -159,12 +193,10 @@ const ShowTrips = () => {
         console.error("Error:", error.message);
       }
     } finally {
-      setLoading(false);
+      setLoading(false);  // Tắt loading
     }
   };
-  const handleTabChange1 = (event, newValue) => {
-    setTabIndex1(newValue);
-  };
+  
   const handleBoxClick = (tripId) => {
     const selected = trips.find((trip) => trip._id === tripId);
     setSelectedBox((prevSelectedBox) => {
@@ -180,9 +212,7 @@ const ShowTrips = () => {
       [tripId]: prevState[tripId] === tab ? null : tab,
     }));
   };
-  const handleTabSeactch = (event, newValue) => {
-    settabSeatch(newValue);
-  };
+
 
   const handleSearchHome = () => {
     navigate('/showTrips',{ state: { dataOfShowTrips, userInfo } });
@@ -437,25 +467,830 @@ const ShowTrips = () => {
               sx={{width: "100%",maxHeight: "800px",overflowY: "auto",scrollbarWidth: "none","&::-webkit-scrollbar": { display: "none" }}}>
               {dataOfShowTrips.tripType === "Khứ hồi" ? (
                 <Box>
-                  <Tabs value={tabIndex1} onChange={handleTabChange1} centered>
-                    <Tab label={`Chuyến đi (${departureDateLabel})`}/>
-                    <Tab label={`Chuyến về (${returnDateLabel})`} />
+                  <Tabs value={tabIndex1} 
+                  centered
+                  sx={{ width: "788px", borderBottom: 4,marginBottom:'15px',borderRadius: '10px', border: '2px solid #e5e7eb', boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)' ,marginLeft:'20px',}}
+                  onChange={(e, newValue) => setTabIndex1(newValue)}
+                  >
+                      <Tab className="button30-1" label={`Chuyến đi (${departureDateLabel})`} style={{ textAlign: 'center' }} />
+                      <Tab  className="button30-1" label={`Chuyến về (${returnDateLabel})`} style={{ textAlign: 'center' }} />
                   </Tabs>
-                  {tabIndex1 === 0 && (
+                  {tabIndex1 === 0 && ( 
+                    // chuyến đi
                     <Box>
-                    {/* Render list of trips for departure */}
-                  </Box>
+                    {trips.toTrips.map((trip) => (
+                      <Box
+                        key={trip._id}
+                        onClick={() => handleBoxClick(trip._id)}
+                        sx={{
+                          width: "780px",
+                          backgroundColor: "#ffffff",
+                          marginLeft: "25px",
+                          marginTop: "20px",
+                          height: "auto",
+                          borderRadius: "10px",
+                          boxShadow:
+                            selectedBox?._id === trip._id
+                              ? "0 4px 4px rgba(239, 82, 34, .3), 0 -3px 8px rgba(239, 82, 34, .3), inset 0 0 0 1px rgb(240, 82, 34)"
+                              : "0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .2)",
+                          transition: "all 0.3s ease",
+                        }}>
+                        <Box sx={{ display: "flex" }}>
+                          <Box sx={{ margin: "20px", width: "250px" }}>
+                            <Typography className="button17">
+                              {trip.userId.fullName}
+                            </Typography>
+                            <Typography className="button19">
+                              {trip.busId.busType}
+                            
+                            </Typography>
+                            <Box sx={{ display: "flex", marginLeft: "10px" }}>
+                              <AddCircleRoundedIcon
+                                sx={{color: "#202020",fontSize: "16px",marginTop: "3px",marginLeft: "4px",}}>
+                              </AddCircleRoundedIcon>
+                              <Typography
+                                className="button22"
+                                sx={{ marginLeft: "20px" }}>chỗ trống
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: "flex", marginTop: "20px" }}>
+                            <Box>
+                              {trip.departureTime && (
+                                <Typography className="button18">
+                                  
+                                  {moment(trip.departureTime, "DD/MM/YYYY, HH:mm")
+                                    .tz("Asia/Ho_Chi_Minh",)
+                                    .format("HH:mm")}
+                                </Typography>
+                              )}
+                              <Typography
+                                className="button21"
+                                sx={{ width: "auto" }}>
+                                {trip.routeId.from}
+                              </Typography>
+                            </Box>
+                            <MyLocationRoundedIcon
+                              sx={{
+                                color: "#00613d",
+                                fontSize: "21px",
+                                marginTop: "10px",
+                                marginLeft: "4px",
+                              }}
+                            />
+                            {trip.departureTime && trip.endTime && (
+                              <Box
+                                sx={{ display: "flex", marginTop: "12px" }}
+                                className="button19">
+                                --------------------
+                                <Typography className="button20">
+                                  {(() => {
+                                    const departure = moment(
+                                      trip.departureTime,
+                                      "DD/MM/YYYY, HH:mm"
+                                    );
+                                    const end = moment(
+                                      trip.endTime,
+                                      "DD/MM/YYYY, HH:mm"
+                                    );
+                                    if (departure.isValid() && end.isValid()) {
+                                      const duration = moment.duration(
+                                        end.diff(departure)
+                                      );
+                                      const hours = duration.hours();
+                                      const minutes = duration.minutes();
+                                      return ` ${hours}h${minutes}'`;
+                                    }
+                                  })()}
+                                </Typography>
+                                --------------------
+                              </Box>
+                            )}
+                            <PinDropRoundedIcon
+                              sx={{
+                                color: "#f2754e",
+                                fontSize: "25px",
+                                marginTop: "10px",
+                                marginRight: "4px",
+                              }}
+                            />
+                            <Box>
+                              {trip.endTime && (
+                                <Typography className="button23">
+                                  {moment(trip.endTime, "DD/MM/YYYY, HH:mm")
+                                    .tz("Asia/Ho_Chi_Minh")
+                                    .format("HH:mm")}
+                                </Typography>
+                              )}
+                              <Typography
+                                className="button21"
+                                sx={{ width: "auto" }}
+                              >
+                                {trip.routeId.to}{" "}
+                              </Typography>
+                              <Typography
+                                sx={{ marginTop: "15px ", marginLeft: "5px" }}
+                                className="button24"
+                              >
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(trip.totalFareAndPrice)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Box sx={{ marginLeft: "20px", marginRight: "20px" }}>
+                          <Divider></Divider>
+                          <Box sx={{ display: "flex" }}>
+                            <Box sx={{ width: "100%", display: "flex" }}>
+                              <Box sx={{ width: "100%" }}>
+                                <Box>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "1")}
+                                    sx={{textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "1"
+                                          ? "#dc635b"
+                                          : "#0c0c0c",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>Chọn ghế
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "2")}
+                                    sx={{
+                                      textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "2"
+                                          ? "#dc635b"
+                                          : "#0a0a0a",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>
+                                    {" "}
+                                    Lịch trình
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "3")}
+                                    sx={{
+                                      textTransform: "none",
+                                      fontSize: "15px",
+                                      width: "100px",
+                                      textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "3"
+                                          ? "#dc635b"
+                                          : "#070707",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>
+                                    Chính sách
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "4")}
+                                    sx={{
+                                      textTransform: "none",
+                                      fontSize: "15px",
+                                      width: "130px",
+                                      textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "4"
+                                          ? "#dc635b"
+                                          : "#000000",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>
+                                    Trung chuyển
+                                  </Button>
+                                  <Button
+                                    sx={{
+                                      backgroundColor:
+                                        selectedBox?._id === trip._id
+                                          ? "rgb(220,99,91)"
+                                          : "rgb(180, 155, 153)",
+                                      color:
+                                        selectedBox?._id === trip._id
+                                          ? "white"
+                                          : "rgb(106, 44, 44)",
+                                      borderRadius: "50px",
+                                      width: "125px",
+                                      height: "35px",
+                                      textTransform: "none",
+                                      textAlign: "center",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.1)",
+                                      fontSize: "13.5px",
+                                      marginTop: "5px",
+                                      marginLeft: "170px",
+                                    }}
+                                    onClick={() => handleToggleTab(trip._id, "1")}
+                                  >
+                                    Chọn chuyến
+                                  </Button>
+                                </Box>
+  
+                                {openTabs[trip._id] === "1" && (
+                                  <Box>
+                                    
+                                    <SeatSelection
+                                      tripId={trip._id}
+                                      userInfo={userInfo}
+                                      totalAmount={trip.totalFareAndPrice}
+                                      departureDate={departureDateLabel}
+                                      departureTime={trip.departureTime}
+                                      endTime={trip.endTime}
+                                      from={trip.routeId.from}
+                                      to={trip.routeId.to}
+                                      schedule={trip.schedule}
+                                      departure={trip.routeId.departure}
+                                      destination={trip.routeId.destination}
+                                      business={trip.userId.fullName}
+                                      dataOfShowTrips={dataOfShowTrips}
+                                    ></SeatSelection>
+                                  </Box>
+                                )}
+                                {openTabs[trip._id] === "2" && (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      marginLeft: "30px",
+                                      marginTop: "10px",
+                                      flexDirection: "column",
+                                    }}
+                                  >
+                                    <Box>
+                                      <Box
+                                        sx={{display: "flex",alignItems: "center",}}>
+                                         
+                                        <Typography className="button28">
+                                          {moment(
+                                            trip.departureTime,
+                                            "DD/MM/YYYY, HH:mm"
+                                          )
+                                            .tz("Asia/Ho_Chi_Minh")
+                                            .format("HH:mm")}{" "}
+                                        </Typography>
+                                        <RadioButtonCheckedTwoToneIcon
+                                          sx={{
+                                            marginLeft: "30px",
+                                            width: "20px",
+                                            color: "#00613d",
+                                          }}
+                                        ></RadioButtonCheckedTwoToneIcon>
+                                        <Typography
+                                          className="button26"
+                                          sx={{
+                                            marginLeft: "30px",
+                                            width: "200px",
+                                          }}
+                                        >
+                                          {trip.routeId.from}
+                                        </Typography>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          height: "25px",
+                                          width: "1.5px",
+                                          marginLeft: "76px",
+                                          borderLeft: "1px dotted #b0aeae",
+                                        }}
+                                      ></Box>
+                                      {trip.schedule.map((stop, index) => (
+                                        <Box
+                                          key={stop._id}
+                                          sx={{
+                                            display: "flex",
+                                          
+                                          }}
+                                        >
+                                          <Typography className="button28" sx={{marginTop:'2px'}} >
+                                            {stop.time}{" "}
+                                          </Typography>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "column",
+                                            }}
+                                          >
+                                            <Box>
+                                              <RadioButtonCheckedTwoToneIcon
+                                                sx={{
+                                                  marginLeft: "30px",
+                                                  width: "20px",
+                                                  color: "#7e7f7f",
+                                                }}
+                                              ></RadioButtonCheckedTwoToneIcon>
+                                            </Box>
+                                            <Box
+                                              sx={{
+                                                height: "25px",
+                                                width: "1.5px",
+                                                marginLeft: "40px",
+                                                borderLeft: "1px dotted #b0aeae",
+                                              }}
+                                            ></Box>
+                                          </Box>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "column",
+                                              marginLeft: "30px",
+                                            }}
+                                          >
+                                            <Typography className="button26">
+                                              {stop.name}
+                                            </Typography>
+                                            <Typography className="button27">
+                                              {stop.address}
+                                            </Typography>
+                                          </Box>
+                                        </Box>
+                                      ))}
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <Typography className="button28">
+                                          {moment(
+                                            trip.endTime,
+                                            "DD/MM/YYYY, HH:mm"
+                                          )
+                                            .tz("Asia/Ho_Chi_Minh")
+                                            .format("HH:mm")}{" "}
+                                        </Typography>
+                                        <WhereToVoteTwoToneIcon
+                                          sx={{
+                                            marginLeft: "30px",
+                                            color: "#f2754e",
+                                            width: "20px",
+                                          }}
+                                        ></WhereToVoteTwoToneIcon>
+                                        <Typography
+                                          className="button26"
+                                          sx={{
+                                            marginLeft: "30px",
+                                            width: "200px",
+                                          }}
+                                        >
+                                          {trip.routeId.to}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                )}
+                                {openTabs[trip._id] === "3" && (
+                                  <Box>
+  
+                                    <Typography>
+                                    <h4>Chính sách huỷ vé</h4>
+                                    <Typography style={{marginLeft:'20px', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize:'16px', lineHeight:'21px', color:'#1D1C1D'}}>
+                                    - Chỉ được chuyển đổi vé 1 lần duy nhất<br></br>
+                                    - Chi phí hủy vé từ 10% – 30% giá vé tùy thuộc thời gian hủy vé so với 
+                                    - giờ khởi hành ghi trên vé và số lượng vé cá nhân/tập thể áp dụng theo các quy định hiện hành.<br></br>
+                                    - Quý khách khi có nhu cầu muốn thay đổi hoặc hủy vé đã thanh toán, 
+                                      cần liên hệ với Trung tâm tổng đài 0326923816 hoặc quầy vé chậm nhất trước 24h so với giờ xe khởi hành được ghi trên vé, trên email hoặc tin nhắn để được hướng dẫn thêm.
+                              </Typography>
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {openTabs[trip._id] === "4" && (
+                                  <Box>
+                                  <Typography>
+                                   <h4> &nbsp;&nbsp;&nbsp;Đón/ trả tận nơi:</h4> 
+                                   <Typography style={{marginLeft:'20px', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize:'16px', lineHeight:'21px', color:'#1D1C1D'}}>  
+                                    - Thời gian nhận khách : <i>Trước 4 tiếng.</i>  <br></br>
+                                  - Thời gian xe đón : <i>Chuẩn bị trước 2 -3 tiếng, do mật độ giao thông trong thành phố và sẽ kết hợp đón nhiều điểm khác nhau nên thời gian đón cụ thể tài xế sẽ liên hệ hẹn giờ.</i><br></br>
+                                  - Hẻm nhỏ xe không quay đầu được : <i>Xe trung chuyển sẽ đón Khách đầu hẻm/ đầu đường.</i><br></br>
+                                  - Khu vực có biển cấm dừng đỗ xe không đón được : <i>Xe trung chuyển sẽ đón tại vị trí gần nhất có thể.</i><br></br>
+                                  - Hành lý :<i> Hành lý nhỏ gọn dưới 20 kg, không vận chuyển kèm động vật , thú cưng, không mang đồ có mùi, đồ chảy nước trên xe.</i></Typography>
+                                  
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+                            </Box>
+                          </Box>
+                          <Box sx={{ height: "10px" }}></Box>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box> 
+                   //hết chuyến đi
                   )}
-                  {tabIndex1 === 1 && (
+                  
+                   {tabIndex1 === 1 && (
+                    //chuyến về
                     <Box>
-                    {/* Render list of trips for return */}
-                  </Box>
+                    {trips.fromTrips.map((trip) => (
+                      <Box
+                        key={trip._id}
+                        onClick={() => handleBoxClick(trip._id)}
+                        sx={{
+                          width: "780px",
+                          backgroundColor: "#ffffff",
+                          marginLeft: "25px",
+                          marginTop: "20px",
+                          height: "auto",
+                          borderRadius: "10px",
+                          boxShadow:
+                            selectedBox?._id === trip._id
+                              ? "0 4px 4px rgba(239, 82, 34, .3), 0 -3px 8px rgba(239, 82, 34, .3), inset 0 0 0 1px rgb(240, 82, 34)"
+                              : "0 3px 6px rgba(0, 0, 0, .16), 0 3px 6px rgba(0, 0, 0, .2)",
+                          transition: "all 0.3s ease",
+                        }}>
+                        <Box sx={{ display: "flex" }}>
+                          <Box sx={{ margin: "20px", width: "250px" }}>
+                            <Typography className="button17">
+                              {trip.userId.fullName}
+                            </Typography>
+                            <Typography className="button19">
+                              {trip.busId.busType}
+                            
+                            </Typography>
+                            <Box sx={{ display: "flex", marginLeft: "10px" }}>
+                              <AddCircleRoundedIcon
+                                sx={{color: "#202020",fontSize: "16px",marginTop: "3px",marginLeft: "4px",}}>
+                              </AddCircleRoundedIcon>
+                              <Typography
+                                className="button22"
+                                sx={{ marginLeft: "20px" }}>chỗ trống
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: "flex", marginTop: "20px" }}>
+                            <Box>
+                              {trip.departureTime && (
+                                <Typography className="button18">
+                                  
+                                  {moment(trip.departureTime, "DD/MM/YYYY, HH:mm")
+                                    .tz("Asia/Ho_Chi_Minh",)
+                                    .format("HH:mm")}
+                                </Typography>
+                              )}
+                              <Typography
+                                className="button21"
+                                sx={{ width: "auto" }}>
+                                {trip.routeId.from}
+                              </Typography>
+                            </Box>
+                            <MyLocationRoundedIcon
+                              sx={{
+                                color: "#00613d",
+                                fontSize: "21px",
+                                marginTop: "10px",
+                                marginLeft: "4px",
+                              }}
+                            />
+                            {trip.departureTime && trip.endTime && (
+                              <Box
+                                sx={{ display: "flex", marginTop: "12px" }}
+                                className="button19">
+                                --------------------
+                                <Typography className="button20">
+                                  {(() => {
+                                    const departure = moment(
+                                      trip.departureTime,
+                                      "DD/MM/YYYY, HH:mm"
+                                    );
+                                    const end = moment(
+                                      trip.endTime,
+                                      "DD/MM/YYYY, HH:mm"
+                                    );
+                                    if (departure.isValid() && end.isValid()) {
+                                      const duration = moment.duration(
+                                        end.diff(departure)
+                                      );
+                                      const hours = duration.hours();
+                                      const minutes = duration.minutes();
+                                      return ` ${hours}h${minutes}'`;
+                                    }
+                                  })()}
+                                </Typography>
+                                --------------------
+                              </Box>
+                            )}
+                            <PinDropRoundedIcon
+                              sx={{
+                                color: "#f2754e",
+                                fontSize: "25px",
+                                marginTop: "10px",
+                                marginRight: "4px",
+                              }}
+                            />
+                            <Box>
+                              {trip.endTime && (
+                                <Typography className="button23">
+                                  {moment(trip.endTime, "DD/MM/YYYY, HH:mm")
+                                    .tz("Asia/Ho_Chi_Minh")
+                                    .format("HH:mm")}
+                                </Typography>
+                              )}
+                              <Typography
+                                className="button21"
+                                sx={{ width: "auto" }}
+                              >
+                                {trip.routeId.to}{" "}
+                              </Typography>
+                              <Typography
+                                sx={{ marginTop: "15px ", marginLeft: "5px" }}
+                                className="button24"
+                              >
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                }).format(trip.totalFareAndPrice)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Box sx={{ marginLeft: "20px", marginRight: "20px" }}>
+                          <Divider></Divider>
+                          <Box sx={{ display: "flex" }}>
+                            <Box sx={{ width: "100%", display: "flex" }}>
+                              <Box sx={{ width: "100%" }}>
+                                <Box>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "1")}
+                                    sx={{textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "1"
+                                          ? "#dc635b"
+                                          : "#0c0c0c",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>Chọn ghế
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "2")}
+                                    sx={{
+                                      textTransform: "none",fontSize: "15px",width: "100px",textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "2"
+                                          ? "#dc635b"
+                                          : "#0a0a0a",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>
+                                    {" "}
+                                    Lịch trình
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "3")}
+                                    sx={{
+                                      textTransform: "none",
+                                      fontSize: "15px",
+                                      width: "100px",
+                                      textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "3"
+                                          ? "#dc635b"
+                                          : "#070707",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>
+                                    Chính sách
+                                  </Button>
+                                  <Button
+                                    onClick={() => handleToggleTab(trip._id, "4")}
+                                    sx={{
+                                      textTransform: "none",
+                                      fontSize: "15px",
+                                      width: "130px",
+                                      textAlign: "center",
+                                      color:
+                                        openTabs[trip._id] === "4"
+                                          ? "#dc635b"
+                                          : "#000000",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.2)",
+                                    }}>
+                                    Trung chuyển
+                                  </Button>
+                                  <Button
+                                    sx={{
+                                      backgroundColor:
+                                        selectedBox?._id === trip._id
+                                          ? "rgb(220,99,91)"
+                                          : "rgb(180, 155, 153)",
+                                      color:
+                                        selectedBox?._id === trip._id
+                                          ? "white"
+                                          : "rgb(106, 44, 44)",
+                                      borderRadius: "50px",
+                                      width: "125px",
+                                      height: "35px",
+                                      textTransform: "none",
+                                      textAlign: "center",
+                                      textShadow:
+                                        "1px 1px 2px rgba(0, 0, 0, 0.1)",
+                                      fontSize: "13.5px",
+                                      marginTop: "5px",
+                                      marginLeft: "170px",
+                                    }}
+                                    onClick={() => handleToggleTab(trip._id, "1")}
+                                  >
+                                    Chọn chuyến
+                                  </Button>
+                                </Box>
+  
+                                {openTabs[trip._id] === "1" && (
+                                  <Box>
+                                    
+                                    <SeatSelection
+                                      tripId={trip._id}
+                                      userInfo={userInfo}
+                                      totalAmount={trip.totalFareAndPrice}
+                                      departureDate={departureDateLabel}
+                                      departureTime={trip.departureTime}
+                                      endTime={trip.endTime}
+                                      from={trip.routeId.from}
+                                      to={trip.routeId.to}
+                                      schedule={trip.schedule}
+                                      departure={trip.routeId.departure}
+                                      destination={trip.routeId.destination}
+                                      business={trip.userId.fullName}
+                                      dataOfShowTrips={dataOfShowTrips}
+                                    ></SeatSelection>
+                                  </Box>
+                                )}
+                                {openTabs[trip._id] === "2" && (
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      marginLeft: "30px",
+                                      marginTop: "10px",
+                                      flexDirection: "column",
+                                    }}
+                                  >
+                                    <Box>
+                                      <Box
+                                        sx={{display: "flex",alignItems: "center",}}>
+                                         
+                                        <Typography className="button28">
+                                          {moment(
+                                            trip.departureTime,
+                                            "DD/MM/YYYY, HH:mm"
+                                          )
+                                            .tz("Asia/Ho_Chi_Minh")
+                                            .format("HH:mm")}{" "}
+                                        </Typography>
+                                        <RadioButtonCheckedTwoToneIcon
+                                          sx={{
+                                            marginLeft: "30px",
+                                            width: "20px",
+                                            color: "#00613d",
+                                          }}
+                                        ></RadioButtonCheckedTwoToneIcon>
+                                        <Typography
+                                          className="button26"
+                                          sx={{
+                                            marginLeft: "30px",
+                                            width: "200px",
+                                          }}
+                                        >
+                                          {trip.routeId.from}
+                                        </Typography>
+                                      </Box>
+                                      <Box
+                                        sx={{
+                                          height: "25px",
+                                          width: "1.5px",
+                                          marginLeft: "76px",
+                                          borderLeft: "1px dotted #b0aeae",
+                                        }}
+                                      ></Box>
+                                      {trip.schedule.map((stop, index) => (
+                                        <Box
+                                          key={stop._id}
+                                          sx={{
+                                            display: "flex",
+                                          
+                                          }}
+                                        >
+                                          <Typography className="button28" sx={{marginTop:'2px'}} >
+                                            {stop.time}{" "}
+                                          </Typography>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "column",
+                                            }}
+                                          >
+                                            <Box>
+                                              <RadioButtonCheckedTwoToneIcon
+                                                sx={{
+                                                  marginLeft: "30px",
+                                                  width: "20px",
+                                                  color: "#7e7f7f",
+                                                }}
+                                              ></RadioButtonCheckedTwoToneIcon>
+                                            </Box>
+                                            <Box
+                                              sx={{
+                                                height: "25px",
+                                                width: "1.5px",
+                                                marginLeft: "40px",
+                                                borderLeft: "1px dotted #b0aeae",
+                                              }}
+                                            ></Box>
+                                          </Box>
+                                          <Box
+                                            sx={{
+                                              display: "flex",
+                                              flexDirection: "column",
+                                              marginLeft: "30px",
+                                            }}
+                                          >
+                                            <Typography className="button26">
+                                              {stop.name}
+                                            </Typography>
+                                            <Typography className="button27">
+                                              {stop.address}
+                                            </Typography>
+                                          </Box>
+                                        </Box>
+                                      ))}
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        <Typography className="button28">
+                                          {moment(
+                                            trip.endTime,
+                                            "DD/MM/YYYY, HH:mm"
+                                          )
+                                            .tz("Asia/Ho_Chi_Minh")
+                                            .format("HH:mm")}{" "}
+                                        </Typography>
+                                        <WhereToVoteTwoToneIcon
+                                          sx={{
+                                            marginLeft: "30px",
+                                            color: "#f2754e",
+                                            width: "20px",
+                                          }}
+                                        ></WhereToVoteTwoToneIcon>
+                                        <Typography
+                                          className="button26"
+                                          sx={{
+                                            marginLeft: "30px",
+                                            width: "200px",
+                                          }}
+                                        >
+                                          {trip.routeId.to}
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                )}
+                                {openTabs[trip._id] === "3" && (
+                                  <Box>
+  
+                                    <Typography>
+                                    <h4>Chính sách huỷ vé</h4>
+                                    <Typography style={{marginLeft:'20px', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize:'16px', lineHeight:'21px', color:'#1D1C1D'}}>
+                                    - Chỉ được chuyển đổi vé 1 lần duy nhất<br></br>
+                                    - Chi phí hủy vé từ 10% – 30% giá vé tùy thuộc thời gian hủy vé so với 
+                                    - giờ khởi hành ghi trên vé và số lượng vé cá nhân/tập thể áp dụng theo các quy định hiện hành.<br></br>
+                                    - Quý khách khi có nhu cầu muốn thay đổi hoặc hủy vé đã thanh toán, 
+                                      cần liên hệ với Trung tâm tổng đài 0326923816 hoặc quầy vé chậm nhất trước 24h so với giờ xe khởi hành được ghi trên vé, trên email hoặc tin nhắn để được hướng dẫn thêm.
+                              </Typography>
+                                    </Typography>
+                                  </Box>
+                                )}
+                                {openTabs[trip._id] === "4" && (
+                                  <Box>
+                                  <Typography>
+                                   <h4> &nbsp;&nbsp;&nbsp;Đón/ trả tận nơi:</h4> 
+                                   <Typography style={{marginLeft:'20px', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize:'16px', lineHeight:'21px', color:'#1D1C1D'}}>  
+                                    - Thời gian nhận khách : <i>Trước 4 tiếng.</i>  <br></br>
+                                  - Thời gian xe đón : <i>Chuẩn bị trước 2 -3 tiếng, do mật độ giao thông trong thành phố và sẽ kết hợp đón nhiều điểm khác nhau nên thời gian đón cụ thể tài xế sẽ liên hệ hẹn giờ.</i><br></br>
+                                  - Hẻm nhỏ xe không quay đầu được : <i>Xe trung chuyển sẽ đón Khách đầu hẻm/ đầu đường.</i><br></br>
+                                  - Khu vực có biển cấm dừng đỗ xe không đón được : <i>Xe trung chuyển sẽ đón tại vị trí gần nhất có thể.</i><br></br>
+                                  - Hành lý :<i> Hành lý nhỏ gọn dưới 20 kg, không vận chuyển kèm động vật , thú cưng, không mang đồ có mùi, đồ chảy nước trên xe.</i></Typography>
+                                  
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Box>
+                            </Box>
+                          </Box>
+                          <Box sx={{ height: "10px" }}></Box>
+                        </Box>
+                      </Box>
+                    ))}
+                  </Box> 
+                   // hết khứ hồi
                   )}
                 </Box>
               ) : (
                 <Box>
-              <Box>
-                  {trips.map((trip) => (
+                  <Box>
+                  {trips.TripsOne.map((trip) => (
                     <Box
                       key={trip._id}
                       onClick={() => handleBoxClick(trip._id)}
@@ -495,8 +1330,9 @@ const ShowTrips = () => {
                           <Box>
                             {trip.departureTime && (
                               <Typography className="button18">
+                                
                                 {moment(trip.departureTime, "DD/MM/YYYY, HH:mm")
-                                  .tz("Asia/Ho_Chi_Minh")
+                                  .tz("Asia/Ho_Chi_Minh",)
                                   .format("HH:mm")}
                               </Typography>
                             )}
@@ -819,15 +1655,30 @@ const ShowTrips = () => {
                               )}
                               {openTabs[trip._id] === "3" && (
                                 <Box>
+
                                   <Typography>
-                                    Nội dung cho tab Chính Sách
+                                  <h4>Chính sách huỷ vé</h4>
+                                  <Typography style={{marginLeft:'20px', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize:'16px', lineHeight:'21px', color:'#1D1C1D'}}>
+                                  - Chỉ được chuyển đổi vé 1 lần duy nhất<br></br>
+                                  - Chi phí hủy vé từ 10% – 30% giá vé tùy thuộc thời gian hủy vé so với 
+                                  - giờ khởi hành ghi trên vé và số lượng vé cá nhân/tập thể áp dụng theo các quy định hiện hành.<br></br>
+                                  - Quý khách khi có nhu cầu muốn thay đổi hoặc hủy vé đã thanh toán, 
+                                    cần liên hệ với Trung tâm tổng đài 0326923816 hoặc quầy vé chậm nhất trước 24h so với giờ xe khởi hành được ghi trên vé, trên email hoặc tin nhắn để được hướng dẫn thêm.
+                            </Typography>
                                   </Typography>
                                 </Box>
                               )}
                               {openTabs[trip._id] === "4" && (
                                 <Box>
-                                  <Typography>
-                                    Nội dung cho tab Trung Chuyển
+                                <Typography>
+                                 <h4> &nbsp;&nbsp;&nbsp;Đón/ trả tận nơi:</h4> 
+                                 <Typography style={{marginLeft:'20px', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize:'16px', lineHeight:'21px', color:'#1D1C1D'}}>  
+                                  - Thời gian nhận khách : <i>Trước 4 tiếng.</i>  <br></br>
+                                - Thời gian xe đón : <i>Chuẩn bị trước 2 -3 tiếng, do mật độ giao thông trong thành phố và sẽ kết hợp đón nhiều điểm khác nhau nên thời gian đón cụ thể tài xế sẽ liên hệ hẹn giờ.</i><br></br>
+                                - Hẻm nhỏ xe không quay đầu được : <i>Xe trung chuyển sẽ đón Khách đầu hẻm/ đầu đường.</i><br></br>
+                                - Khu vực có biển cấm dừng đỗ xe không đón được : <i>Xe trung chuyển sẽ đón tại vị trí gần nhất có thể.</i><br></br>
+                                - Hành lý :<i> Hành lý nhỏ gọn dưới 20 kg, không vận chuyển kèm động vật , thú cưng, không mang đồ có mùi, đồ chảy nước trên xe.</i></Typography>
+                                
                                   </Typography>
                                 </Box>
                               )}
