@@ -429,281 +429,32 @@ const updateTripSchedule = async (req, res) => {
   }
 };
 
-// const getTripsSeach = async (req, res) => {
-//   const { departure, destination, departureDate, returnDate, tripType } = req.query;
-
-//   // Kiểm tra các tham số cần thiết
-//   if (!departure || !destination || !departureDate || !tripType) {
-//       return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin tìm kiếm' });
-//   }
-
-//   try {
-//       const route = await BusRoute.findOne({ departure, destination });
-
-//       if (!route) {
-//           return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
-//       }
-//       //console.log("departureDate", departureDate);
-//       const formattedTime = moment(departureDate).format('HH:mm');
-//      // console.log("Formatted Time:", formattedTime);
-
-//       const queryConditions = {
-//           routeId: route._id,
-//           'tripDates.date': {
-//               $gte: moment(departureDate).startOf('day').toDate(),
-//               $lte: moment(departureDate).endOf('day').toDate(),
-//           },
-//            status: "Đang hoạt động"
-//       };
-//       //console.log("queryConditions", queryConditions);
-
-//       if (tripType === "Khứ hồi" && returnDate) {
-//           queryConditions.returnDate = {
-//               $gte: moment(returnDate).startOf('day').toDate(),
-//               $lte: moment(returnDate).endOf('day').toDate(),
-//           };
-//       }
-//       const trips = await Trips.find(queryConditions)
-//           .populate('routeId')
-//           .populate('userId')
-//           .populate('busId');
-//       const tripsWithLocalTime = trips.map(trip => {
-//           const tripDatesWithLocalTime = trip.tripDates.map(tripDate => ({
-//               ...tripDate.toObject(),
-//               date: moment(tripDate.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//           }));
-//           const departureTime = moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm');
-//           //console.log("Departure Time:", departureTime);
-
-//           if (departureTime >= formattedTime) {
-//               return {
-//                   ...trip.toObject(),
-//                   departureTime: moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//                   endTime: moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//                   tripDates: tripDatesWithLocalTime, 
-//                   user: trip.userId,
-//                   bus: trip.busId,
-//               };
-//           }
-//           return null;
-//       }).filter(trip => trip !== null); 
-
-//       res.status(200).json(tripsWithLocalTime);
-//   } catch (error) {
-//       console.error("Error fetching trips:", error);
-//       res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
-//   }
-// };
-
-
-// const getTripsSeach = async (req, res) => {
-//   const { departure, destination, departureDate, returnDate, tripType } = req.query;
-//   console.log("departureDate", departureDate);
-//   console.log("returnDate", returnDate);
-
-//   if (!departure || !destination || !departureDate || !tripType) {
-//     return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin tìm kiếm' });
-//   }
-
-//   try {
-//     const actualDeparture = tripType === "Khứ hồi" ? destination : departure;
-//     const actualDestination = tripType === "Khứ hồi" ? departure : destination;
-
-//     console.log(`Tìm kiếm chuyến đi ${tripType}:`);
-//     console.log(`Departure: ${actualDeparture}, Destination: ${actualDestination}`);
-//     console.log(`Departure Date: ${departureDate}, Return Date: ${returnDate ? returnDate : "Không có"}`);
-
-//     const route = await BusRoute.findOne({ departure: actualDeparture, destination: actualDestination });
-
-//     if (!route) {
-//       return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
-//     }
-
-//     // Định dạng thời gian cho chuyến đi đi
-//     const formattedTime = moment(departureDate).format('HH:mm');
-
-//     const queryConditions = {
-//       routeId: route._id,
-//       'tripDates.date': {
-//         $gte: moment(departureDate).startOf('day').toDate(),
-//         $lte: moment(departureDate).endOf('day').toDate(),
-//       },
-//       status: "Đang hoạt động"
-//     };
-
-//     let trips = [];
-
-//     if (tripType === "Khứ hồi" && returnDate) {
-//       console.log(`Chuyến đi khứ hồi với ngày về: ${returnDate}`);
-
-//       const departureTrips = await Trips.find(queryConditions)
-//         .populate('routeId')
-//         .populate('userId')
-//         .populate('busId');
-
-//       // Hoán đổi departure và destination để tìm tuyến đường khứ hồi
-//       const returnRoute = await BusRoute.findOne({ departure: actualDestination, destination: actualDeparture });
-
-//       if (returnRoute) {
-//         const returnTrips = await Trips.find({
-//           routeId: returnRoute._id,
-//           'tripDates.date': {
-//             $gte: moment(returnDate).startOf('day').toDate(),
-//             $lte: moment(returnDate).endOf('day').toDate(),
-//           },
-//           status: "Đang hoạt động"
-//         })
-//           .populate('routeId')
-//           .populate('userId')
-//           .populate('busId');
-
-//         // Lấy chuyến đi đi và chuyến về để ghép đôi
-//         departureTrips.forEach(departureTrip => {
-//           departureTrip.returnTrips = returnTrips.filter(returnTrip =>
-//             returnTrip.routeId._id.toString() === departureTrip.routeId._id.toString());
-//         });
-
-//         trips = [...departureTrips];
-//       } else {
-//         return res.status(404).json({ message: 'Tuyến đường khứ hồi không tồn tại' });
-//       }
-//     } else {
-//       trips = await Trips.find(queryConditions)
-//         .populate('routeId')
-//         .populate('userId')
-//         .populate('busId');
-//     }
-
-//     console.log("Danh sách chuyến xe tìm thấy:", trips.length);
-
-//     const tripsWithLocalTime = trips.map(trip => {
-//       const tripDatesWithLocalTime = trip.tripDates.map(tripDate => ({
-//         ...tripDate.toObject(),
-//         date: moment(tripDate.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//       }));
-
-//       const departureTime = trip.departureTime ? moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm') : null;
-//       const returnTime = trip.returnTrips && trip.returnTrips[0] ? moment(trip.returnTrips[0].departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm') : null;
-
-      
-//       if (departureTime && departureTime >= formattedTime) {
-//         return {
-//           ...trip.toObject(),
-//           departureTime: departureTime ? moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
-//           endTime: trip.endTime ? moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
-//           returnTime: returnTime,  
-//           tripDates: tripDatesWithLocalTime,
-//           user: trip.userId,
-//           bus: trip.busId,
-//           returnTrips: trip.returnTrips || []
-//         };
-//       }
-//       return null;
-//     }).filter(trip => trip !== null);
-
-//     console.log("Danh sách chuyến xe sau khi lọc:", tripsWithLocalTime.length);
-
-//     res.status(200).json(tripsWithLocalTime);
-//   } catch (error) {
-//     console.error("Error fetching trips:", error);
-//     res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
-//   }
-// };
-// const getTripsSeach = async (req, res) => {
-//   const { departure, destination, departureDate, returnDate, tripType } = req.query;
-//   // console.log("departureDate", departureDate);
-//   // console.log("returnDate", returnDate);
-
-//   if (!departure || !destination || !departureDate || !tripType) {
-//     return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin tìm kiếm' });
-//   }
-
-//   try {
-//     const actualDeparture = departure;
-//     const actualDestination = destination;
-
-//     // console.log(`Tìm kiếm chuyến đi ${tripType}:`);
-//     // console.log(`Departure: ${actualDeparture}, Destination: ${actualDestination}`);
-//     // console.log(`Departure Date: ${departureDate}, Return Date: ${returnDate ? returnDate : "Không có"}`);
-
-//     const route = await BusRoute.findOne({ departure: actualDeparture, destination: actualDestination });
-
-//     if (!route) {
-//       return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
-//     }
-
-//     const queryConditions = (date) => ({
-//       routeId: route._id,
-//       'tripDates.date': {
-//         $gte: moment(date).startOf('day').toDate(),
-//         $lte: moment(date).endOf('day').toDate(),
-//       },
-//       status: "Đang hoạt động"
-//     });
-
-//     if (tripType === "Khứ hồi" && returnDate) {
-//       console.log(`Chuyến đi khứ hồi với ngày về: ${returnDate}`);
-//       const fromTrips = await Trips.find(queryConditions(departureDate))
-//         .populate('routeId')
-//         .populate('userId')
-//         .populate('busId');
-
-//       const returnRoute = await BusRoute.findOne({ departure: actualDestination, destination: actualDeparture });
-
-//       let toTrips = [];
-//       if (returnRoute) {
-//         toTrips = await Trips.find({
-//           routeId: returnRoute._id,
-//           'tripDates.date': {
-//             $gte: moment(returnDate).startOf('day').toDate(),
-//             $lte: moment(returnDate).endOf('day').toDate(),
-//           },
-//           status: "Đang hoạt động"
-//         })
-//           .populate('routeId')
-//           .populate('userId')
-//           .populate('busId');
-//       } else {
-//         return res.status(404).json({ message: 'Tuyến đường khứ hồi không tồn tại' });
-//       }
-
-//       return res.status(200).json({ fromTrips, toTrips });
-//     } else {
-//       const TripsOne = await Trips.find(queryConditions(departureDate))
-//         .populate('routeId')
-//         .populate('userId')
-//         .populate('busId');
-
-//      // console.log(`Tổng số chuyến đi một chiều tìm thấy: ${TripsOne.length}`);
-//       return res.status(200).json({ TripsOne });
-//     }
-//   } catch (error) {
-//     console.error("Error fetching trips:", error);
-//     res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
-//   }
-// };
-
 const getTripsSeach = async (req, res) => {
   const { departure, destination, departureDate, returnDate, tripType } = req.query;
-
   if (!departure || !destination || !departureDate || !tripType) {
+    console.log("Thiếu thông tin tìm kiếm:", { departure, destination, departureDate, returnDate, tripType });
     return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin tìm kiếm' });
   }
-
   try {
-    const actualDeparture = tripType === "Khứ hồi" ? destination : departure;
-    const actualDestination = tripType === "Khứ hồi" ? departure : destination;
+    // const actualDeparture = tripType === "Khứ hồi" ? destination : departure;
+    // const actualDestination = tripType === "Khứ hồi" ? departure : destination;
+    console.log("Thông tin tìm kiếm:");
+    console.log("Loại chuyến:", tripType);
+    console.log("Điểm đi:", departure);
+    console.log("Điểm đến:", destination);
+    console.log("Ngày đi:", departureDate);
+    console.log("Ngày về:", returnDate || "Không có");
 
-    console.log(`Tìm kiếm chuyến đi ${tripType}:`);
-    console.log(`Departure: ${actualDeparture}, Destination: ${actualDestination}`);
-    console.log(`Departure Date: ${departureDate}, Return Date: ${returnDate ? returnDate : "Không có"}`);
-    const route = await BusRoute.findOne({ departure: actualDeparture, destination: actualDestination });
+    const route = await BusRoute.findOne({ departure: departure, destination: destination });
 
     if (!route) {
+      console.log("Không tìm thấy tuyến đường:", { departure, destination });
       return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
     }
+    console.log("Tuyến đường tìm thấy:", route);
 
     const formattedTime = moment(departureDate).format('HH:mm');
+    console.log("Thời gian định dạng HH:mm:", formattedTime);
 
     const queryConditions = {
       routeId: route._id,
@@ -714,18 +465,25 @@ const getTripsSeach = async (req, res) => {
       status: "Đang hoạt động"
     };
 
+    console.log("Điều kiện tìm kiếm chuyến xe:", queryConditions);
+
     let trips = [];
 
     if (tripType === "Khứ hồi" && returnDate) {
-      console.log(`Chuyến đi khứ hồi với ngày về: ${returnDate}`);
+      console.log("Chuyến khứ hồi với ngày về:", returnDate);
 
       const departureTrips = await Trips.find(queryConditions)
         .populate('routeId')
         .populate('userId')
         .populate('busId');
-      const returnRoute = await BusRoute.findOne({ departure: actualDestination, destination: actualDeparture });
+
+      console.log("Danh sách chuyến đi (departureTrips):", departureTrips.length);
+
+      const returnRoute = await BusRoute.findOne({ departure: destination, destination: departure });
 
       if (returnRoute) {
+        console.log("Tuyến đường khứ hồi tìm thấy:", returnRoute);
+
         const returnTrips = await Trips.find({
           routeId: returnRoute._id,
           'tripDates.date': {
@@ -737,14 +495,16 @@ const getTripsSeach = async (req, res) => {
           .populate('routeId')
           .populate('userId')
           .populate('busId');
+        console.log("Danh sách chuyến về (returnTrips):", returnTrips.length);
 
         departureTrips.forEach(departureTrip => {
           departureTrip.returnTrips = returnTrips.filter(returnTrip =>
             returnTrip.routeId._id.toString() === departureTrip.routeId._id.toString());
         });
-
         trips = [...departureTrips];
+        // console.log("trips", trips)
       } else {
+        console.log("Không tìm thấy tuyến đường khứ hồi:", { actualDestination, actualDeparture });
         return res.status(404).json({ message: 'Tuyến đường khứ hồi không tồn tại' });
       }
     } else {
@@ -752,6 +512,7 @@ const getTripsSeach = async (req, res) => {
         .populate('routeId')
         .populate('userId')
         .populate('busId');
+      console.log("Danh sách chuyến một chiều:", trips.length);
     }
     const tripsWithLocalTime = trips.map(trip => {
       const tripDatesWithLocalTime = trip.tripDates.map(tripDate => ({
@@ -777,38 +538,36 @@ const getTripsSeach = async (req, res) => {
         };
       }
       return null;
-    }).filter(trip => trip !== null);  // Lọc bỏ các chuyến đi không thỏa mãn điều kiện
+    }).filter(trip => trip !== null);
 
-    // Phân loại chuyến đi theo loại tripType
+    console.log("Danh sách chuyến xe đã xử lý (tripsWithLocalTime):", tripsWithLocalTime.length);
+
     let fromTrips = [];
     let toTrips = [];
     let TripsOne = [];
 
     if (tripType === "Khứ hồi") {
-      // Lấy chuyến đi đi (departure)
       fromTrips = tripsWithLocalTime.filter(trip => trip.departureTime);
-      // Lấy chuyến đi về (return)
       toTrips = tripsWithLocalTime.filter(trip => trip.returnTime);
     } else {
-      // Lấy chuyến đi đơn (one way)
       TripsOne = tripsWithLocalTime;
     }
 
-    console.log("Danh sách chuyến xe từ phía đi (fromTrips):", fromTrips.length);
-    console.log("Danh sách chuyến xe từ phía về (toTrips):", toTrips.length);
-    console.log("Danh sách chuyến xe một chiều (TripsOne):", TripsOne.length);
+    console.log("Chuyến đi (fromTrips):", fromTrips.length);
+    console.log("Chuyến về (toTrips):", toTrips.length);
+    console.log("Chuyến một chiều (TripsOne):", TripsOne.length);
 
-    // Trả về các mảng chuyến đi
     res.status(200).json({
       fromTrips: fromTrips,
       toTrips: toTrips,
       TripsOne: TripsOne
     });
   } catch (error) {
-    console.error("Error fetching trips:", error);
+    console.error("Lỗi khi lấy danh sách chuyến xe:", error.message);
     res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
   }
 };
+
 
 const deleteTripSchedule = async (req, res) => {
   const { tripId } = req.params;

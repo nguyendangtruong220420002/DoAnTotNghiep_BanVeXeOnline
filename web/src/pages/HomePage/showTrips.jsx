@@ -172,10 +172,7 @@ const ShowTrips = () => {
     try {
       setTrips([]);
       setLoading(true);  
-
       const response = await axios.get(`${API_URL}/api/tripsRoutes/search`, { params });
-
-     
       // setTrips(response.data); 
       setTrips({
         fromTrips: response.data.fromTrips || [],
