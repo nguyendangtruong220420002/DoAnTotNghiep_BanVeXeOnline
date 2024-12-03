@@ -4,11 +4,13 @@ const axios = require('axios');
 const PayOS = require('@payos/node');
 const moment = require('moment-timezone');
 
-// const CLIENT_ID = process.env.CLIENT_ID;
-// const API_KEY = process.env.API_KEY;
-// const CHECKSUM_KEY = process.env.CHECKSUM_KEY;
+const CLIENT_ID = process.env.CLIENT_ID;
+const API_KEY = process.env.API_KEY;
+const CHECKSUM_KEY = process.env.CHECKSUM_KEY;
+
 const API_URL = 'http://127.0.0.1:5173';
-const payos = new PayOS('3e15d73c-23ac-4888-950e-21c830060668', 'dc5be5a7-8c48-4376-9a9d-57640516cbdc', 'eeb3ba38a4c869f20ddbcd7e7108201ec7eb7913bd6569c9f95040b6617ed2f5');
+
+const payos = new PayOS(CLIENT_ID, API_KEY, CHECKSUM_KEY);
 
 const processPayment = async (req, res) => {
   try {
