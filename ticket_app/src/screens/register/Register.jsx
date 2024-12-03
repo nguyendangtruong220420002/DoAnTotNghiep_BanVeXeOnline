@@ -6,6 +6,8 @@ import { Icon } from 'react-native-elements';
 import { styles } from './styles';
 import axios from 'axios';
 import { postData } from '../../utils/fetching';
+import { setAsyncStorage } from '../../utils/cookie';
+import { showErrorToast } from '../../utils/toast';
 
 
 const Register = () => {
@@ -20,21 +22,30 @@ const Register = () => {
 
     const handleRegister = async () => {
 
+        const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+        if (!regexEmail.test(email)) {
+            showErrorToast("Đăng ký thất bại", 'Vui lòng nhập Email đúng định dạng!')
+
+        }
         const userInfo = { fullName, email, password, phoneNumber };
 
         console.log("Thông tin:", userInfo);
 
         try {
             const response = await postData("users", userInfo); // Sử dụng userInfo
-            console.log(response.data); // Xử lý phản hồi từ server
-            console.log(response.status);
+
+            const { user } = response?.data;
+
+            await setAsyncStorage("user", user)
+
             nav.navigate("Home");
+
             alert('Đăng ký thành công');// Gọi onSubmit chỉ sau khi lưu thành công
         } catch (error) {
             console.error('Đã xảy ra lỗi:', error);
             alert('Đã xảy ra lỗi khi tạo tài khoản.'); // Hiển thị lỗi cho người dùng
         }
-
 
     }
 

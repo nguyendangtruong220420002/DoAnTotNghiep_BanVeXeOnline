@@ -43,9 +43,12 @@ const InfoPayment = () => {
         .tz('Asia/Ho_Chi_Minh')
         .format('HH:mm')
 
-    const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
-        .tz('Asia/Ho_Chi_Minh')
-        .format("YYYY-MM-DDTHH:mm:ss.SSSZ")
+    const formattedDepartureTime = moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+        .isValid()
+        ? moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+            .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+        : 'Ngày không hợp lệ'
+
 
     const gia = route.params?.price
     const price = gia?.toLocaleString("vi-VN");

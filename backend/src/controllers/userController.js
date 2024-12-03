@@ -93,7 +93,7 @@ const updateUser = async (req, res) => {
 
     // Kiểm tra userId
     const userId = req.params.id; // Đảm bảo bạn có userId
-   // console.log('User ID:', userId);
+    // console.log('User ID:', userId);
 
     // Cập nhật thông tin người dùng
     const updatedUser = await User.findByIdAndUpdate(userId, {
@@ -196,7 +196,7 @@ const forgotPassword = async (req, res) => {
 
   try {
     // Tìm người dùng theo số điện thoại
-    const user = await User.findOne({ phoneNumber }); 
+    const user = await User.findOne({ phoneNumber });
     if (!user) {
       return res.status(404).json({ message: 'Số điện thoại không tồn tại.' });
     }
@@ -229,4 +229,43 @@ const getAllUser = async (req, res) => {
   }
 };
 
-module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, forgotPassword, changePassword,getAllUser };
+const getAllUserByAdmin = async (req, res) => {
+  try {
+    // Find all users with role not equal to 'Admin'
+    const users = await User.find({ role: { $ne: 'Admin' } });
+
+    // Send the result as response
+    res.status(200).json({ users });
+
+  } catch (error) {
+    // Handle error
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+}
+const creatUserByAdmin = async (req, res) => {
+  const { fullName, email, password, phoneNumber, role } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ phoneNumber });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Số điện thoại đã được sủ dụng.' });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      fullName,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+      role
+    });
+    await newUser.save();
+
+    res.status(200).json({ message: 'Người dùng đã được tạo thành công!', user: newUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi tạo tài khoản.' });
+  }
+}
+
+module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, forgotPassword, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin };

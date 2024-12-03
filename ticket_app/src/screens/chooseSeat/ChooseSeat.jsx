@@ -8,6 +8,7 @@ import { styles } from './styles'
 import Loading from '../loading/Loading'
 import moment from 'moment-timezone';
 import { getData } from '../../utils/fetching'
+import { useSocket } from '../../context/useSocket'
 
 
 
@@ -16,6 +17,7 @@ const ChooseSeat = () => {
     const nav = useNavigation();
     const route = useRoute();
 
+    const socket = useSocket();
     const trip = route.params?.trip;
     const tripId = route.params?.trip?._id;
     const ngaydi = route.params?.ngaydi
@@ -41,13 +43,18 @@ const ChooseSeat = () => {
             status: 'Còn trống',
         }))
     );
-
+    // const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
+    //     .tz("Asia/Ho_Chi_Minh")
+    //     .format("YYYY-MM-DD");
     const fetchBookedSeats = async () => {
         setSelectedSeats([]);
         try {
-            const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
-                .tz("Asia/Ho_Chi_Minh")
-                .format("YYYY-MM-DD");
+            const formattedDepartureTime = moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+                .isValid()
+                ? moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+                    .format('YYYY-MM-DD')
+                : 'Ngày không hợp lệ'
+
             console.log(formattedDepartureTime);
 
             const response = await getData(`tripsRoutes/getBooked-seats`,
@@ -71,10 +78,37 @@ const ChooseSeat = () => {
         }
     };
 
+    // useEffect(() => {
+
+    //     socket?.emit('getData-sv', { tripId, bookingDate: formattedDepartureTime });
+
+    //     setSelectedSeats([]);
+    //     // Lắng nghe sự kiện khi có ghế mới được cập nhật
+    //     socket?.on('getData-cl', (data) => {
+
+    //         const bookedSeats = data.bookedSeats;
+    //         //console.log('Nhaanj data ', bookedSeats);
+    //         setSeats((prevSeats) =>
+    //             prevSeats.map((seat) => ({
+    //                 ...seat,
+    //                 status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+    //                     ? "Đã mua"
+    //                     : "Còn trống",
+    //             }))
+    //         );
+    //     });
+
+    //     // Cleanup khi component unmount
+    //     return () => {
+    //         socket?.off('seatsUpdated');
+    //     };
+    // }, [tripId, departureDate]);
+
+
     useFocusEffect(
         useCallback(() => {
             fetchBookedSeats();
-        }, []) // If deps go wrong update.
+        }, [])
     );
 
     const getSeatCode = (id) => {

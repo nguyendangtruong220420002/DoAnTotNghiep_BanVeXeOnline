@@ -8,7 +8,7 @@ import {
   Tab,
   Divider,
   LinearProgress,
-  AppBar, Toolbar ,Menu,MenuItem
+  AppBar, Toolbar, Menu, MenuItem
 } from "@mui/material";
 import WhereToVoteTwoToneIcon from "@mui/icons-material/WhereToVoteTwoTone";
 import DirectionsBusTwoToneIcon from "@mui/icons-material/DirectionsBusTwoTone";
@@ -34,7 +34,7 @@ import '../HomePage/css/HomePage.css';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login';
 import Information from '../../../src/pages/AboutPage/Information';
-import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
+import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo';
 import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
 import information from '../../../public/images/information.png'
@@ -69,12 +69,12 @@ const ShowTrips = () => {
  
   const handleLogout = () => {
     localStorage.clear();
-    console.log(localStorage.getItem('userInfo')); 
+    console.log(localStorage.getItem('userInfo'));
     setUserInfo(null);
-    setValue("1");   
+    setValue("1");
     handleCloseMenu();
     navigate('/');
-    window.location.reload(); 
+    window.location.reload();
   };
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -84,11 +84,11 @@ const ShowTrips = () => {
   };
   const openMenu = Boolean(anchorEl);
   const handleInfoClick = () => {
-    setValue("5"); 
-    handleCloseMenu(); 
+    setValue("5");
+    handleCloseMenu();
   };
   const handleHistoryClick = () => {
-    setValue("5"); 
+    setValue("5");
     handleCloseMenu();
   };
   const handleSubmitInfo = (userInfo) => {
@@ -105,10 +105,10 @@ const ShowTrips = () => {
   };
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => {
-  setOpenModal(true);
+    setOpenModal(true);
   };
   const handleCloseModal = () => {
-  setOpenModal(false);
+    setOpenModal(false);
   };
  
   
@@ -144,6 +144,7 @@ const ShowTrips = () => {
           returnDate: tripType === "Khứ hồi" ? dataOfShowTrips.returnDate : undefined,
           tripType: tripType,
           userId: userInfo ? userInfo._id : undefined,
+          userId: userInfo ? userInfo._id : undefined,
         },
       });
       //console.log(" từ API:", response.data);
@@ -159,6 +160,7 @@ const ShowTrips = () => {
         console.error("Error:", error.message);
       }
     } finally {
+      setLoading(false);
       setLoading(false);
     }
   };
@@ -231,18 +233,18 @@ const ShowTrips = () => {
            
             </Tab>
 
-          <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Vé Của Tôi</Box>}  value="3" className='button2'  iconPosition="start"  
-            icon={<Box component='img'  src={ticket} sx={{ width:'23px', height:'23px', }}></Box>}>  
-            </Tab>
+                    <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Vé Của Tôi</Box>} value="3" className='button2' iconPosition="start"
+                      icon={<Box component='img' src={ticket} sx={{ width: '23px', height: '23px', }}></Box>}>
+                    </Tab>
 
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Cần Trợ Giúp</Box>}  value="4" className='button2'  iconPosition="start"  
-            icon={<Box component='img'  src={helpdesk} sx={{width:'23px', height:'23px', }}></Box>}>  
-            
-            </Tab>
+                    <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Cần Trợ Giúp</Box>} value="4" className='button2' iconPosition="start"
+                      icon={<Box component='img' src={helpdesk} sx={{ width: '23px', height: '23px', }}></Box>}>
+
+                    </Tab>
                     {userInfo ? (
-                     <Box sx={{ display: 'flex', alignItems: 'center', width: '200px' }}>
-                       
-                       <Box
+                      <Box sx={{ display: 'flex', alignItems: 'center', width: '200px' }}>
+
+                        <Box
                           component="img"
                           src={userInfo.img||profile}
                           sx={{ width: 30, height: 30 ,borderRadius:'50%'}}
@@ -425,20 +427,20 @@ const ShowTrips = () => {
             </Box>
           </Box>
           <Box
-            sx={{width: "1200px", height: "auto", display: "flex", margin: "auto", marginTop: "15px",}}>
-            <Box sx={{ display: "flex", flexDirection:"column" }}>
+            sx={{ width: "1200px", height: "auto", display: "flex", margin: "auto", marginTop: "15px", }}>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Box
-                sx={{width: "320px",height: "500px",alignItems: "",border: "1px solid #ececec",backgroundColor: "#ffffff",borderRadius: "8px",marginLeft: "23px",boxShadow: "",}}>
+                sx={{ width: "320px", height: "500px", alignItems: "", border: "1px solid #ececec", backgroundColor: "#ffffff", borderRadius: "8px", marginLeft: "23px", boxShadow: "", }}>
                 <Typography> Bộ Lọc</Typography>
               </Box>
             </Box>
 
             <Box
-              sx={{width: "100%",maxHeight: "800px",overflowY: "auto",scrollbarWidth: "none","&::-webkit-scrollbar": { display: "none" }}}>
+              sx={{ width: "100%", maxHeight: "800px", overflowY: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
               {dataOfShowTrips.tripType === "Khứ hồi" ? (
                 <Box>
                   <Tabs value={tabIndex1} onChange={handleTabChange1} centered>
-                    <Tab label={`Chuyến đi (${departureDateLabel})`}/>
+                    <Tab label={`Chuyến đi (${departureDateLabel})`} />
                     <Tab label={`Chuyến về (${returnDateLabel})`} />
                   </Tabs>
                   {tabIndex1 === 0 && (

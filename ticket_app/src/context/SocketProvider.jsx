@@ -22,7 +22,6 @@ export const SocketProvider = ({ children }) => {
             console.log('Server says:', msg);
         });
 
-        socket.emit('message', 'Hello from client!');
         // Return clean
         return () => {
             // Disconnect Socket
