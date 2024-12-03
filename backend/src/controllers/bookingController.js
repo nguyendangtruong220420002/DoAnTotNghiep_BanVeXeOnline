@@ -11,7 +11,7 @@ const paymentQueue = new Bull('paymentQueue', {
     port: process.env.REDIS_PORT,
     //password: process.env.REDIS_PASSWORD
   }
-
+  
 });
 redis.ping().then(() => {
   console.log('Connected to Redis successfully!');
@@ -38,8 +38,6 @@ paymentQueue.process(async (job) => {
     await trip.save();
   }
 });
-
-
 
 const createBooking = async (req, res) => {
 
