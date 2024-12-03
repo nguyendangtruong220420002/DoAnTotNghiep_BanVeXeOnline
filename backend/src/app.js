@@ -5,15 +5,6 @@ const cors = require('cors');
 const app = express();
 const indexRoutes = require('../src/routes/index');
 
-const path = require('path');
-const distPath = path.resolve(__dirname, '../dist');
-
-app.use(express.static(distPath));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(distPath, 'index.html'));
-});
-
 
 // Middleware
 app.use(cors());
