@@ -20,6 +20,13 @@ import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
 import information from '../../../public/images/information.png'
 import profile from '../../../public/images/profile.png'
+import credit_card from '../../../public/images/credit-card.png'
+import tickets from '../../../public/images/tickets.png'
+import money from '../../../public/images/money.png'
+import customer_service from '../../../public/images/customer-service.png'
+import pass from '../../../public/images/pass.png'
+import payment_method from '../../../public/images/payment-method.png'
+
 import { useNavigate } from 'react-router-dom';
 
 
@@ -32,7 +39,6 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
@@ -48,12 +54,9 @@ const HomePage = () => {
     navigate('/');
     window.location.reload(); 
   };
-  // Mở menu
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
-  // Đóng menu
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
@@ -82,18 +85,12 @@ const HomePage = () => {
     setOpenLogin(false);
   };
   const [openModal, setOpenModal] = useState(false);
- // Hàm để mở modal
  const handleOpenModal = () => {
   setOpenModal(true);
 };
-
-// Hàm để đóng modal
 const handleCloseModal = () => {
   setOpenModal(false);
 };
-
-
-
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -252,17 +249,58 @@ const handleCloseModal = () => {
             </TabPanel>
           </TabContext>
         </Box>
-        
+         <Box sx={{display:'flex' ,flexDirection:'column',width:'60%',justifyContent:'space-between', margin:'auto', mt:8}}>
+              <Box sx={{display:'flex', marginBottom:'45px'}}>
+                  <Box sx={{display:'flex',}}><Box component="img" src={tickets} alt="" sx={{width:'55px', height:'55px', marginTop:'10px' , marginRight:'15px'}} ></Box>
+                         <Box sx={{display:'flex',flexDirection:'column' ,width:'400px',}}>
+                            <Typography className='button50'> Nhận vé xe</Typography>
+                            <Typography className='button51'>Với tính năng dự đoán và lựa chọn chuyến xe thay thế, bạn sẽ tăng cơ hội nhận được vé xe xác nhận.</Typography>
+                          </Box>
+                    </Box>
+                    <Box sx={{display:'flex',marginLeft:'50px'}}><Box component="img" src={credit_card} alt="" sx={{width:'55px', height:'55px', marginTop:'10px' , marginRight:'15px'}} ></Box>
+                         <Box sx={{display:'flex',flexDirection:'column' ,width:'400px'}}>
+                            <Typography className='button50'> Hủy miễn phí vé xe</Typography>
+                            <Typography className='button51'>Nhận lại toàn bộ tiền hoàn lại khi mua vé tàu bằng cách chọn tính năng hủy miễn phí của chúng tôi.</Typography>
+                          </Box>
+                    </Box>
+                    
+              </Box>
+              <Box sx={{display:'flex', marginBottom:'45px'}}>
+                  <Box sx={{display:'flex'}}><Box component="img" src={money} alt="" sx={{width:'50px', height:'50px', marginTop:'10px' , marginRight:'15px'}} ></Box>
+                         <Box sx={{display:'flex',flexDirection:'column' ,width:'400px',}}>
+                            <Typography className='button50'> Hoàn tiền và hủy ngay lập tức</Typography>
+                            <Typography className='button51'>Nhận tiền hoàn lại ngay lập tức và đặt vé xe tiếp theo một cách dễ dàng..</Typography>
+                          </Box>
+                    </Box>
+                    <Box sx={{display:'flex',marginLeft:'50px'}}><Box component="img" src={payment_method} alt="" sx={{width:'55px', height:'55px', marginTop:'10px' , marginRight:'15px'}} ></Box>
+                         <Box sx={{display:'flex',flexDirection:'column' ,width:'400px'}}>
+                            <Typography className='button50'>Thanh toán an toàn được kích hoạt</Typography>
+                            <Typography className='button51'>Thanh toán trên Ví Điện tử được bảo mật cao. Dễ dàng và nhiều phương thức thanh toán khác có sẵn..</Typography>
+                          </Box>
+                    </Box>
+                    
+              </Box>
+              <Box sx={{display:'flex', marginBottom:'45px'}}>
+                  <Box sx={{display:'flex'}}><Box component="img" src={customer_service} alt="" sx={{width:'55px', height:'55px', marginTop:'10px' , marginRight:'15px'}} ></Box>
+                         <Box sx={{display:'flex',flexDirection:'column' ,width:'400px',}}>
+                            <Typography className='button50'> Hỗ trợ đặt vé xe và yêu cầu</Typography>
+                            <Typography className='button51'>Hỗ trợ khách hàng 24/7, mọi thắc mắc liên quan đến xe và đặt vé, vui lòng gọi số 0326923816.</Typography>
+                          </Box>
+                    </Box>
+                    <Box sx={{display:'flex',marginLeft:'50px', }}><Box component="img" src={pass} alt="" sx={{width:'55px', height:'55px', marginTop:'10px' , marginRight:'15px'}} ></Box>
+                         <Box sx={{display:'flex',flexDirection:'column' ,width:'400px', mt:1}}>
+                            <Typography className='button50'> Theo dõi tình trạng tàu trực tiếp</Typography>
+                            <Typography className='button51'>Trạng thái vé xe và thông báo về vé xe của bạn.</Typography>
+                          </Box>
+                    </Box>
+                    
+              </Box>
+              
+         </Box>
       </Box>
       
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
-      <ConfirmInfo
-  open={openModal} 
-  handleClose={handleCloseModal}
-  onSubmit={handleSubmitInfo}
-  phoneNumber="0123456789" 
- // Thêm thông tin số điện thoại hoặc bất kỳ dữ liệu nào khác
-/>
+      
     </Box>
   );
 };
