@@ -18,16 +18,6 @@ const Welcome = () => {
 
     const nav = useNavigation();
 
-    const socket = useSocket()
-
-    // Listen for messages from the server
-    socket.on('message', (data) => {
-        console.log('Message from server:', data);
-    });
-
-    // Send a message to the server
-    socket.emit('message', 'Hello, Tao la thai gui toi be ne!');
-
 
     const [isPhoneInput, setIsPhoneInput] = useState(true)
     const [showOTP, setshowOTP] = useState(false)
@@ -69,8 +59,7 @@ const Welcome = () => {
         setIsPhoneInput(true);
     }
     const handleBackName = () => {
-        setshowOTP(false);
-        handleContinue();
+        setConfirm(false);  
     }
 
     const handleSendOTP = async () => {
@@ -79,7 +68,6 @@ const Welcome = () => {
 
         try {
             const confirmation = await auth().signInWithPhoneNumber(internationalPhoneNumber);
-            console.log(confirmation.confirm());
 
             setConfirm(confirmation);
         } catch (error) {

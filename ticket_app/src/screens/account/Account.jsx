@@ -60,25 +60,24 @@ const Account = () => {
           </TouchableOpacity>
 
           <View style={styles.ListItem}>
-            <ListItem onPress={() => nav.navigate("Setting")}>
-              <Icon name="settings-outline" type="ionicon" color="#FE9B4B" />
-              <ListItem.Content>
-                <ListItem.Title>Cài đặt</ListItem.Title>
-                <ListItem.Subtitle style={{ fontSize: 12 }}>Đổi mật khẩu,...</ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Chevron />
-            </ListItem>
-            <ListItem >
-              <Icon name="ban-outline" type="ionicon" color="#FE9B4B" />
+            <ListItem onPress={handleDetailAccount}>
+              <Icon name='edit' type='ionicons' color="#FE9B4B" />
               <ListItem.Content >
-                <ListItem.Title>Xoá tài khoản</ListItem.Title>
+                <ListItem.Title> <Text>Cập nhật thông tin</Text></ListItem.Title>
 
               </ListItem.Content>
+            </ListItem>
+            <ListItem onPress={() => nav.navigate("Setting")}>
+              <Icon name="lock-open-outline" type="ionicon" color="#FE9B4B" />
+              <ListItem.Content>
+                <ListItem.Title><Text>Đổi mật khẩu</Text></ListItem.Title>
+              </ListItem.Content>
+              <ListItem.Chevron />
             </ListItem>
             <ListItem onPress={handleSingOut}>
               <Icon name="log-out-outline" type="ionicon" color="#FE9B4B" />
               <ListItem.Content >
-                <ListItem.Title>Đăng xuất </ListItem.Title>
+                <ListItem.Title><Text>Đăng xuất</Text></ListItem.Title>
               </ListItem.Content>
             </ListItem>
           </View>

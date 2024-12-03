@@ -11,14 +11,14 @@ socketApp.use(cors());
 // Http Server
 const socketServer = http.createServer(socketApp);
 
-const io = new Server(socketServer, {
-  cors: {
-    origin: "*", // Allow connections from any origin
-  }
-});
+let io;
 
-// Function to set up the socket connections
 const setupSocket = () => {
+  io = require('socket.io')(socketServer, {
+    cors: {
+      origin: "*",
+    },
+  });
   io.on("connection", (client) => {
     console.log('New client connected:', client.id);
 
@@ -26,7 +26,7 @@ const setupSocket = () => {
     client.emit('message', 'Kết nối thành công với server');
 
     // Listen for 'message' events from the client
-    client.on('message', (data) => {
+    client.on('messageqq', (data) => {
       console.log('Tin nhắn từ client:', data);
       io.emit('message', data); // Broadcast message to all clients
     });
@@ -45,13 +45,22 @@ const setupSocket = () => {
       }
       io.emit("users", users);
     });
+
   });
+
 };
 
 socketServer.listen(SOCKET_PORT, () => {
   console.log(`Socket server running on port ${SOCKET_PORT}`);
 });
-// Start the server and set up the socket
-module.exports = setupSocket;
+
+const getIO = () => {
+  if (!io) {
+    throw new Error('Socket.io is not initialized!');
+  }
+  return io;
+};
+
+module.exports = setupSocket, { getIO };
 
 

@@ -224,14 +224,6 @@ const DetailAccount = () => {
                             {isUpdateform && <ListItem.Chevron iconProps={{ name: 'edit', type: 'ionicon', color: 'gray', size: 24 }} />}
                         </ListItem>
 
-                        <ListItem onPress={() => isUpdateform && openEditModal('gender')}>
-                            <ListItem.Content>
-                                <ListItem.Title>Giới tính</ListItem.Title>
-                            </ListItem.Content>
-                            <ListItem.Title>{user?.gender || "Chưa cập nhật"}</ListItem.Title>
-                            {isUpdateform && <ListItem.Chevron iconProps={{ name: 'edit', type: 'ionicon', color: 'gray', size: 24 }} />}
-                        </ListItem>
-
                         <ListItem onPress={() => isUpdateform && openEditModal('address')}>
                             <ListItem.Content>
                                 <ListItem.Title>Địa chỉ</ListItem.Title>

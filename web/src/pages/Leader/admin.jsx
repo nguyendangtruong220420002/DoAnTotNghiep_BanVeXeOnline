@@ -1,33 +1,57 @@
 /* eslint-disable no-unused-vars */
-import React ,  { useState, useEffect } from 'react';
-import {Box, AppBar, Toolbar ,Typography, Tab , Button, Menu, MenuItem, Avatar} from '@mui/material'
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Tab, Tabs, Button, Menu, MenuItem, } from '@mui/material'
 import logo from '../../../public/images/logohome (2).png';
-import ticket from '../../../public/images/ticket.png';
 import shed from '../../../public/images/bus(3).png';
-import sale from '../../../public/images/sale.png';
 import user from '../../../public/images/user.png';
-import helpdesk from '../../../public/images/setting.png';
 import '../HomePage/css/HomePage.css';
-import Content from '../HomePage/content';
-import {TabContext,TabList, TabPanel} from '@mui/lab';
+import PropTypes from 'prop-types';
+import { TabContext, TabList, TabPanel } from '@mui/lab';
 import Login from '../AboutPage/Login'
-import Information from '../../../src/pages/AboutPage/Information';
-import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
+import Information from '../AboutPage/Information';
 import Divider from '@mui/material/Divider';
 import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
 import information from '../../../public/images/information.png'
 import profile from '../../../public/images/profile.png'
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
+import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import { useNavigate } from 'react-router-dom';
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
+import Revenue from '../Business/Revenue';
+import UserManagement from './UserManagement';
+import RvHookupOutlinedIcon from '@mui/icons-material/RvHookupOutlined';
+import EditRoadOutlinedIcon from '@mui/icons-material/EditRoadOutlined';
+import DirectionsBusFilledOutlinedIcon from '@mui/icons-material/DirectionsBusFilledOutlined';
+import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined';
+import PlaylistAddOutlinedIcon from '@mui/icons-material/PlaylistAddOutlined';
+import ConfirmationNumberRoundedIcon from '@mui/icons-material/ConfirmationNumberRounded';
+import AddBus from '../Business/addBus';
+import BusRoute from '../Business/busRoute';
+import Trips from '../Business/Trips';
+import Schedule from '../Business/schedule';
+import TicketManagement from '../Business/TicketManagement';
+import Revenue_Admin from './Revenue_Admin';
 
+const Admin = () => {
 
-
-
-const HomePage = () => {
   const [value, setValue] = useState("1");
   const [openLogin, setOpenLogin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  
+  const openMenu = Boolean(anchorEl);
+  const [showMenuTuyenXe, setShowMenuTuyenXe] = useState(false);
+  const [showMenuChuyenXe, setShowMenuChuyenXe] = useState(false);
+  const [showMenuXe, setShowMenuXe] = useState(false);
+  const [showMenuVeXe, setShowMenuVeXe] = useState(false);
+  const [showMenuDoanhThu, setShowMenuDoanhThu] = useState(false);
+
+  const [showMenuQLyUser, setShowMenuQLyUser] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('');
+  const [selectedSubMenu, setSelectedSubMenu] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
@@ -35,223 +59,461 @@ const HomePage = () => {
       setUserInfo(JSON.parse(storedUserInfo));
     }
   }, []);
- 
-  // Xử lý đăng xuất
+
+
   const handleLogout = () => {
-    localStorage.removeItem('userInfo');
+    localStorage.clear();
+    console.log(localStorage.getItem('userInfo'));
     setUserInfo(null);
     setValue("1");
-    handleCloseMenu(); 
+    navigate('/');
+    handleCloseMenu();
+    window.location.reload();
   };
-  // Mở menu
+
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  // Đóng menu
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
-  const openMenu = Boolean(anchorEl);
-  const handleInfoClick = () => {
-    setValue("5"); 
-    handleCloseMenu(); 
+
+  const handleTabClick = (tabName) => {
+    setSelectedTab(tabName);
+
+    if (tabName === 'tuyenXe') {
+      setShowMenuTuyenXe((prev) => !prev);
+    } else if (tabName === 'chuyenXe') {
+      setShowMenuChuyenXe((prev) => !prev);
+    } else if (tabName === 'xe') {
+      setShowMenuXe((prev) => !prev);
+
+    } else if (tabName === 'veXe') {
+      setShowMenuVeXe((prev) => !prev);
+    } else if (tabName === 'doanhThu') {
+      setShowMenuDoanhThu((prev) => !prev);
+
+    } else if (tabName === 'QLyUser') {
+      setShowMenuQLyUser((prev) => !prev);
+    } else if (tabName === 'home') {
+      setShowMenuTuyenXe(false);
+      setShowMenuChuyenXe(false);
+      setShowMenuXe(false);
+    }
   };
-  const handleHistoryClick = () => {
-    setValue("5"); 
+
+  const handleMenuItemClick = (menuItem) => {
+    if (menuItem === 'themTuyenXe') {
+      setValue("3");
+      setSelectedTab('tuyenXe');
+    } else if (menuItem === 'danhSachTuyenXe') {
+      setValue("4");
+      setSelectedTab('tuyenXe');
+    } else if (menuItem === 'danhSachChuyenXe') {
+      setValue("6");
+      setSelectedTab('chuyenXe');
+    } else if (menuItem === 'themChuyenXe') {
+      setValue("7");
+      setSelectedTab('chuyenXe');
+    }
+    else if (menuItem === 'xe') {
+      setValue("8");
+      setSelectedTab('xe');
+    }
+    else if (menuItem === 'loaixe') {
+      setValue("9");
+      setSelectedTab('loaixe');
+    }
+    else if (menuItem === 'veXe') {
+      setValue("10");
+      setSelectedTab('veXe');
+    }
+    else if (menuItem === 'doanhThu') {
+      setValue("11");
+      setSelectedTab('doanhThu');
+    } else if (menuItem === 'QLyUser') {
+      setValue('12')
+      setSelectedTab('QLyUser');
+
+    }
+    setSelectedSubMenu(menuItem);
+  };
+  const isTuyenXeActive = selectedTab === 'tuyenXe' || value === '3' || value === '4';
+  const isChuyenXeActive = selectedTab === 'chuyenXe' || value === '6' || value === '7';
+  const isXeActive = selectedTab === 'xe' || value === '8' || value === '9';
+  const isVeXeActive = selectedTab === 'veXe' || value === '10';
+  const isDoanhThuActive = selectedTab === 'doanhThu' || value === '11';
+  const isQLyUserActive = selectedTab === 'QLyUser' || value === '12';
+  const handleInfoClick = () => {
+    setValue("5");
     handleCloseMenu();
   };
-  
-  const handleSubmitInfo = (userInfo) => {
-    console.log('Submitted Info:', userInfo);
+  const handleHistoryClick = () => {
+    setValue("5");
+    handleCloseMenu();
   };
+
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
-   
+
   };
   const handleCloseLogin = () => {
     setOpenLogin(false);
   };
   const [openModal, setOpenModal] = useState(false);
- // Hàm để mở modal
- const handleOpenModal = () => {
-  setOpenModal(true);
-};
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
 
-// Hàm để đóng modal
-const handleCloseModal = () => {
-  setOpenModal(false);
-};
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
   return (
-    <Box sx={{ position: 'relative' }}>
-      <AppBar  sx={{ backgroundColor: '#e7e7e7',
-          position: 'unset',  }} >
-      <Toolbar sx={{height:'70px',boxShadow: '2px 2px 6px rgba(47, 46, 46, 0.5)', zIndex:1 }} >
-        <Box sx={{ flexGrow: 1, display: 'flex',justifyContent:'space-between' }} className='menu1'>
-          <Box>
-          <Typography >
-              <Box component="img" src={logo} alt="" sx={{width:'300px', height:'70px', marginTop:'3px'}} ></Box>
-              </Typography>
-          
+    <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', width: '100%', }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '82%', position: 'absolute', left: '10px', zIndex: 1, marginTop: '5px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', height: '50px', marginLeft: '260px', }}>
+        {userInfo ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', }}>
+            <Box
+              component="img"
+              src={userInfo.img || profile}
+              sx={{ width: 40, height: 40, borderRadius: '50%' }}
+            />
+            <Button onClick={handleClickMenu}>
+              <Typography className="button8" sx={{ position: 'relative', marginTop: '2px', }}>Nhà xe :</Typography>
+              <Typography className="button10" sx={{ position: 'relative', marginTop: '3px' }}>{userInfo ? userInfo.fullName : 'Chưa có thông tin'}</Typography>
+            </Button>
+
+            <Menu
+              anchorEl={anchorEl}
+              open={openMenu}
+              onClose={handleCloseMenu}
+              id="account-menu"
+              slotProps={{
+                paper: {
+                  elevation: 0,
+                  sx: {
+                    overflow: 'visible',
+                    filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                    mt: 1.5,
+                    '& .MuiAvatar-root': {
+                      width: 32,
+                      height: 32,
+                      ml: -0.5,
+                      mr: 1,
+                    },
+                    '&::before': {
+                      content: '""',
+                      display: 'block',
+                      position: 'absolute',
+                      top: 0,
+                      right: 14,
+                      width: 10,
+                      height: 10,
+                      bgcolor: 'background.paper',
+                      transform: 'translateY(-50%) rotate(45deg)',
+                      zIndex: 0,
+                    },
+                  },
+                },
+              }}
+              transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+              anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            >
+              <MenuItem onClick={handleInfoClick} >
+                <Box
+                  component="img"
+                  src={information}
+                  sx={{ width: '32px', height: '32px' }}
+                />
+                <Typography className='button4' sx={{ marginLeft: '8px' }}> Thông tin cá nhân</Typography>
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={handleHistoryClick} >
+                <Box
+                  component="img"
+                  src={history}
+                  sx={{ width: '30px', height: '30px' }}
+                />
+                <Typography className='button2' sx={{ marginLeft: '11px' }}> Lịnh sử mua vé</Typography>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <Box
+                  component="img"
+                  src={loguot}
+                  sx={{ width: '30px', height: '30px' }}
+                />
+                <Typography className='button2' sx={{ marginLeft: '11px' }}> Đăng xuất </Typography>
+              </MenuItem>
+
+            </Menu>
           </Box>
-          <Box>
+        ) : (
+          <Button
+
+            onClick={() => setOpenLogin(true)}
+            sx={{ display: 'flex', alignItems: 'center', width: '200px' }}
+          >
+            <Box component="img" src={user} sx={{ width: '20px', height: '20px' }} />
+            <Typography className="button3" sx={{ position: 'relative', marginTop: '3px' }}>
+              Đăng Nhập/Đăng Ký
+            </Typography>
+          </Button>
+        )}
+      </Box>
+
+      <Box sx={{ display: 'flex' }}>
+        <Box sx={{ width: '300px', borderLeft: '1px solid #737373', padding: '10px', borderRadius: '1px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}>
           <TabContext value={value} >
-          <TabList onChange={handleChange} centered className='menu2'>
-        
-          <Tab  label={<Box  sx={{ position: 'relative', marginTop: '5px',  }}>Trang Chủ</Box>}  value="1" className='button'  iconPosition="start"  sx={{width:'320px', display:'flex', justifyContent:'left'}}
-            icon={<Box component='img'  src={shed} sx={{ width:'30px', height:'30px',  }}></Box> }>  
-            </Tab>
+            <TabList onChange={handleChange} orientation="vertical" className='tab2' sx={{ marginTop: '10px' }} >
+              <Typography sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                <Box component="img" src={logo} alt="" sx={{ width: '100px', height: '50px', marginTop: '12px', }} ></Box>
+                <Box component='img' src={shed} sx={{ width: '70px', height: '70px' }}></Box>
+              </Typography>
 
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Admin</Box>}  value="2" className='button2'  iconPosition="start"  
-            icon={<Box component='img'  src={sale} sx={{ width:'23px', height:'23px', }}></Box>}>  
-           
-            </Tab>
+              <Tab label={<Box sx={{ position: 'relative', marginTop: '5px', marginLeft: '3px' }}>Trang Chủ</Box>}
+                value="1"
+                className='button9'
+                iconPosition="start"
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0, borderBottom: '1px solid #f0eded', paddingBottom: '20px' }}
+                icon={<HomeOutlinedIcon></HomeOutlinedIcon>}
+                onClick={() => handleTabClick('home')}>
+              </Tab>
 
-          <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Admin</Box>}  value="3" className='button2'  iconPosition="start"  
-            icon={<Box component='img'  src={ticket} sx={{ width:'23px', height:'23px', }}></Box>}>  
-            </Tab>
+              <Typography sx={{ marginLeft: "20px", fontWeight: 'bold', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', fontSize: '14px', marginTop: '20px' }}>CHUNG </Typography>
+              <Tab
+                label={
+                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Tuyến xe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {showMenuTuyenXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isTuyenXeActive ? "button11 active" : "button11"}
+                iconPosition="start"
+                onClick={() => handleTabClick('tuyenXe')}
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+                icon={<RvHookupOutlinedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuTuyenXe && (
+                <>
 
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Admin</Box>}  value="4" className='button2'  iconPosition="start"  
-            icon={<Box component='img'  src={helpdesk} sx={{width:'23px', height:'23px', }}></Box>}>  
-            
-            </Tab>
-                    {userInfo ? (
-                     <Box sx={{ display: 'flex', alignItems: 'center', width: '200px' }}>
-                       
-                       <Box
-                          component="img"
-                          src={profile}
-                          sx={{ width: 30, height: 30 }}
-                        /> 
-                     <Button onClick={handleClickMenu}>
-                       <Typography className="button5" sx={{ position: 'relative', marginTop: '3px',}}>{userInfo ? userInfo.fullName : 'Chưa có thông tin'}</Typography>
-                     </Button>
-                    
-                     <Menu
-                       anchorEl={anchorEl}
-                       open={openMenu}
-                       onClose={handleCloseMenu}
-                       id="account-menu"
-                       slotProps={{
-                        paper: {
-                          elevation: 0,
-                          sx: {
-                            overflow: 'visible',
-                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                            mt: 1.5,
-                            '& .MuiAvatar-root': {
-                              width: 32,
-                              height: 32,
-                              ml: -0.5,
-                              mr: 1,
-                            },
-                            '&::before': {
-                              content: '""',
-                              display: 'block',
-                              position: 'absolute',
-                              top: 0,
-                              right: 14,
-                              width: 10,
-                              height: 10,
-                              bgcolor: 'background.paper',
-                              transform: 'translateY(-50%) rotate(45deg)',
-                              zIndex: 0,
-                            },
-                          },
-                        },
-                      }}
-                      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                     >
-                      <MenuItem onClick={handleInfoClick} >
-                      <Box
-                          component="img"
-                          src={information}
-                          sx={{ width: '32px', height: '32px' }} 
-                        /> 
-                          <Typography className='button4' sx={{marginLeft:'8px'}}> Thông tin cá nhân</Typography>
-                      </MenuItem>
-                      <Divider />
-                      <MenuItem onClick={handleHistoryClick} >
-                      <Box
-                          component="img"
-                          src={history}
-                          sx={{ width: '30px', height: '30px' }} 
-                        /> 
-                            <Typography className='button2' sx={{marginLeft:'11px'}}> Lịnh sử mua vé</Typography>
-                      </MenuItem>
-                       <MenuItem onClick={handleLogout}>
-                       <Box
-                          component="img"
-                          src={loguot}
-                          sx={{ width: '30px', height: '30px' }} 
-                        /> 
-                        <Typography className='button2' sx={{marginLeft:'11px'}}> Đăng xuất </Typography>
-                      </MenuItem>
-                      
-                     </Menu>
-                   </Box>
-                  ) : (
-                    <Button
-                    
-                      onClick={() => setOpenLogin(true)}
-                      sx={{ display: 'flex', alignItems: 'center', width: '200px' }}
-                    >
-                      <Box component="img" src={user} sx={{ width: '20px', height: '20px' }} />
-                      <Typography className="button3" sx={{ position: 'relative', marginTop: '3px' }}>
-                        Đăng Nhập/Đăng Ký
-                      </Typography>
-                    </Button>
-                  )}
-          </TabList>
-        </TabContext>
-         
-          </Box>
-        </Box>
-      </Toolbar>
-    
-      </AppBar>
-      <Box sx={{ position: 'relative', height: 'auto' }}> 
-        <Box
-        >
-          <TabContext value={value}>
-            <TabPanel value="1" sx={{
-               padding:0,
-               margin:0,
-               boxSizing:'border-box',
-            }}>
-              <Content />
-            </TabPanel>
-            <TabPanel value="2">
-              <Typography>Mã Giảm giá</Typography>
-              <Button onClick={handleOpenModal}>Mở modal</Button>
-            </TabPanel>
-            <TabPanel value="3">
-              <Typography>Vé Của Tôi</Typography>
-            </TabPanel>
-            <TabPanel value="4">
-              <Typography>Cần Trợ Giúp</Typography>
-            </TabPanel>
-            <TabPanel value="5"> 
-              <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
-            </TabPanel>
+                  <Tab
+                    label="Thông tin Tuyến xe"
+                    className={`button12 ${selectedSubMenu === 'themTuyenXe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('themTuyenXe')}
+                    sx={{ minHeight: 0, marginRight: '5px' }}
+                    iconPosition="start"
+                    icon={<PlaylistAddOutlinedIcon sx={{ width: '20px' }}></PlaylistAddOutlinedIcon>}
+                  />
+                </>
+              )}
+
+              <Tab
+                label={
+                  <Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '3px', display: 'flex' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Chuyến xe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {showMenuChuyenXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isChuyenXeActive ? "button11 active" : "button11"}
+                iconPosition="start"
+                onClick={() => handleTabClick('chuyenXe')}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'left',
+                  minHeight: 0,
+                }}
+                icon={<EditRoadOutlinedIcon sx={{ marginLeft: '10px' }} />}
+              />
+
+              {showMenuChuyenXe && (
+                <>
+                  <Tab
+                    label="Thông tin chuyến xe"
+                    className={`button12 ${selectedSubMenu === 'themChuyenXe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('themChuyenXe')}
+                    sx={{ minHeight: 0, }}
+                    iconPosition="start"
+                    icon={<PlaylistAddOutlinedIcon sx={{ width: '20px' }} />}
+                  />
+                  <Tab
+                    label="Lịch trình cho chuyến xe"
+                    className={`button12 ${selectedSubMenu === 'danhSachChuyenXe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('danhSachChuyenXe')}
+                    sx={{ minHeight: 0, marginLeft: '25px' }}
+                    iconPosition="start"
+                    icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
+                  />
+                </>
+              )}
+
+              <Tab
+                label={
+                  <Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '3px', display: 'flex' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Xe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {showMenuXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isXeActive ? "button11 active" : "button11"}
+                iconPosition="start"
+                onClick={() => handleTabClick('xe')}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'left',
+                  minHeight: 0,
+                  marginTop: '5px',
+                  backgroundColor: selectedTab === 'xe' ? 'red' : 'transparent',
+                }}
+                icon={<DirectionsBusFilledOutlinedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuXe && (
+                <>
+                  <Tab
+                    label="Thông tin xe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                    className={`button12 ${selectedSubMenu === 'xe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('xe')}
+                    sx={{ minHeight: 0, marginLeft: '20px' }}
+                    iconPosition="start"
+                    icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
+                  />
+                </>
+              )}
+              <Tab
+                label={
+                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Vé xe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {showMenuVeXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isVeXeActive ? "button11 active" : "button11"}
+                iconPosition="start"
+                onClick={() => handleTabClick('veXe')}
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+                icon={<TuneRoundedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuVeXe && (
+                <>
+                  <Tab
+                    label="Thông tin Vé xe&nbsp;"
+                    className={`button12 ${selectedSubMenu === 'veXe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('veXe')}
+                    sx={{ minHeight: 0, marginRight: '5px' }}
+                    iconPosition="start"
+                    icon={<ConfirmationNumberRoundedIcon sx={{ width: '20px' }}></ConfirmationNumberRoundedIcon>}
+                  />
+                </>
+              )}
+              <Tab
+                label={
+                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Doan Thu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {setShowMenuDoanhThu ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isDoanhThuActive ? "button11 active" : "button11"}
+                iconPosition="start"
+                onClick={() => handleTabClick('doanhThu')}
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+                icon={<TuneRoundedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuDoanhThu && (
+                <>
+                  <Tab
+                    label="Báo cáo doanh thu&nbsp;"
+                    className={`button12 ${selectedSubMenu === 'doanhThu' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('doanhThu')}
+                    sx={{ minHeight: 0, marginRight: '5px' }}
+                    iconPosition="start"
+                    icon={<AssessmentOutlinedIcon sx={{ width: '20px' }}></AssessmentOutlinedIcon>}
+                  />
+                </>
+              )}
+
+              <Tab
+                label={
+                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
+                    <div style={{ marginTop: '4px' }}>Quản lý Người dùng&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    {setShowMenuQLyUser ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                  </Box>
+                }
+                className={isQLyUserActive ? "button12 active" : "button12"}
+                iconPosition="start"
+                onClick={() => handleTabClick('QLyUser')}
+                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+                icon={<TuneRoundedIcon sx={{ marginLeft: '10px' }} />}
+              />
+              {showMenuQLyUser && (
+                <>
+                  <Tab
+                    label="Thông tin người dùng&nbsp;"
+                    className={`button12 ${selectedSubMenu === 'QLyUser' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('QLyUser')}
+                    sx={{ minHeight: 0, marginRight: '5px' }}
+                    iconPosition="start"
+                    icon={<AssessmentOutlinedIcon sx={{ width: '20px' }}></AssessmentOutlinedIcon>}
+                  />
+                </>
+              )}
+
+            </TabList>
+
           </TabContext>
         </Box>
-        
+        <Box sx={{ position: 'relative', height: 'auto', width: '100%', marginTop: '60px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)' }}>
+          <Box >
+            <TabContext value={value} >
+              <TabPanel value="1" sx={{
+                padding: 0,
+                margin: 0,
+                boxSizing: 'border-box',
+              }}>
+              </TabPanel >
+              <TabPanel value="2">
+                <Typography></Typography>
+                <Button onClick={handleOpenModal}>Mở modal</Button>
+              </TabPanel>
+              <TabPanel value="3">
+                <BusRoute userInfo={userInfo} setUserInfo={setUserInfo}></BusRoute>
+              </TabPanel>
+              <TabPanel value="4">
+              </TabPanel>
+              <TabPanel value="5">
+                <Information onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} />
+              </TabPanel>
+              <TabPanel value="6">
+                <Schedule userInfo={userInfo} setUserInfo={setUserInfo}></Schedule>
+              </TabPanel>
+              <TabPanel value="7">
+                <Trips userInfo={userInfo} setUserInfo={setUserInfo}></Trips>
+              </TabPanel>
+              <TabPanel value="8">
+                <AddBus userInfo={userInfo} setUserInfo={setUserInfo} ></AddBus>
+              </TabPanel>
+              <TabPanel value="9">
+                <Typography>Quản lý </Typography>
+              </TabPanel>
+              <TabPanel value="10">
+                <TicketManagement userInfo={userInfo} setUserInfo={setUserInfo} ></TicketManagement>
+              </TabPanel>
+              <TabPanel value="11">
+                <Revenue_Admin userInfo={userInfo} setUserInfo={setUserInfo} > </Revenue_Admin>
+              </TabPanel>
+              <TabPanel value="12">
+                <UserManagement userInfo={userInfo} setUserInfo={setUserInfo} > </UserManagement>
+              </TabPanel>
+            </TabContext>
+          </Box>
+        </Box>
       </Box>
-      
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
-      <ConfirmInfo
-  open={openModal} 
-  handleClose={handleCloseModal}
-  onSubmit={handleSubmitInfo}
-  phoneNumber="0123456789" 
- // Thêm thông tin số điện thoại hoặc bất kỳ dữ liệu nào khác
-/>
     </Box>
   );
 };
-
-export default HomePage;
+Information.propTypes = {
+  onLogout: PropTypes.func.isRequired,
+  userInfo: PropTypes.func.isRequired,
+  setUserInfo: PropTypes.func.isRequired,
+};
+export default Admin;

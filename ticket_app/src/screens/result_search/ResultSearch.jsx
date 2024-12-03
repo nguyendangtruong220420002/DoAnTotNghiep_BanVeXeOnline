@@ -144,46 +144,62 @@ const ResultSearch = () => {
         { length: 60, offset: 90 * index, index } // Adjust the length based on your item height
     );
 
-    // Function to handle date selection
     const handleSelectDate = async (item, index) => {
+        let selectedFullDate = new Date(dateArray[index].fullDate);
 
-        const selectedFullDate = dateArray[index].fullDate;
+        if (selectedFullDate) {
+            // Lấy ngày hôm nay
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Đặt giờ của hôm nay về 00:00
 
-        setDate(item.date)
-        setMonth(item.month)
-        setDay(item.day)
+            // Đặt giờ của selectedFullDate về 00:00 để so sánh ngày
+            const compareDate = new Date(selectedFullDate);
+            compareDate.setHours(0, 0, 0, 0);
 
-        setSelectedDate(index); // Update the selected date
+            // So sánh nếu selectedFullDate khác hôm nay
+            if (compareDate.getTime() !== today.getTime()) {
+                selectedFullDate.setUTCHours(0, 0, 0, 0); // Đặt giờ về 00:00 UTC
+            }
 
-        // Update the date array to include the selected date range
-        setDateArray(generateDateRange(selectedFullDate));
+        }
+        console.log(selectedFullDate);
 
-        setNewngaydi(selectedFullDate);
-        setTimeout(() => {
-            setLoading(false); // Set loading to false after data is processed/fetched
-        }, 200);
+        setDate(item.date);
+        setMonth(item.month);
+        setDay(item.day);
+        setSelectedDate(index); // Cập nhật chỉ mục ngày được chọn
 
+        setDateArray(generateDateRange(selectedFullDate)); // Cập nhật mảng ngày hiển thị
+        setNewngaydi(selectedFullDate); // Cập nhật ngày đi mới
+
+        await fetchingTrip(selectedFullDate);
+    };
+    const fetchingTrip = async (date) => {
+       
         try {
-            // Assuming 'getData' is a function to make API requests
+            // Gửi yêu cầu API để tìm kiếm chuyến đi mới dựa trên ngày đã chọn
             const response = await getData("tripsRoutes/search", {
                 departure: diemdi,
                 destination: diemden,
-                departureDate: selectedFullDate, // Pass the selected date here
+                departureDate: date, // Ngày khởi hành mới được chọn
                 returnDate: ngayve,
                 tripType: show,
             });
 
             if (response && response.data) {
-                // Update the trips with the new response data (you may need to store this in state)
-                // For example, assuming trips is stored in state:
-                setTrips(response.data); // Assuming 'trips' is the state variable storing the list of trips
+                setTrips(response.data); // Cập nhật danh sách trips trong state
             } else {
                 console.warn("No trips found for the selected date.");
+                setTrips([]); // Nếu không có chuyến nào, làm rỗng danh sách trips
             }
         } catch (error) {
             console.error("Error fetching trips:", error);
+            setTrips([]); // Làm rỗng danh sách trips khi gặp lỗi
+        } finally {
+            setLoading(false); // Tắt loading sau khi hoàn thành
         }
-    };
+    }
+
     const handleChooseSeat = (trip) => {
 
         nav.navigate("ChooseSeat", {

@@ -1,6 +1,7 @@
 const Trips = require('../../src/models/Trips');
 const moment = require('moment-timezone');
 
+
 const bookSeats = async (req, res) => {
   try {
     const { tripId, bookingDate, seats, userId } = req.body;
@@ -35,9 +36,9 @@ const bookSeats = async (req, res) => {
     const conflictingSeats = seats.filter((seat) => bookedSeatIds.has(seat));
 
     if (conflictingSeats.length > 0) {
-      return res.status(400).json({ 
-        message: "Chỗ đã được đặt trước !!! Vui lòng chọn chỗ khác", 
-        conflictingSeats 
+      return res.status(400).json({
+        message: "Chỗ đã được đặt trước !!! Vui lòng chọn chỗ khác",
+        conflictingSeats
       });
     }
     seats.forEach((seat) => {
@@ -45,8 +46,8 @@ const bookSeats = async (req, res) => {
         return res.status(400).json({ message: "Ghế hoặc userId không hợp lệ" });
       }
       if (bookedSeatIds.has(seat)) {
-        return res.status(400).json({ 
-          message: `Ghế ${seat} đã được đặt trước, vui lòng chọn ghế khác.` 
+        return res.status(400).json({
+          message: `Ghế ${seat} đã được đặt trước, vui lòng chọn ghế khác.`
         });
       }
 
@@ -58,10 +59,10 @@ const bookSeats = async (req, res) => {
       });
     });
     await trip.save();
-
-    res.status(200).json({ 
-      message: "Đặt ghế thành công!", 
-      bookedSeats: tripDate.bookedSeats 
+    // Emit event to notify clients about the booked seats
+    res.status(200).json({
+      message: "Đặt ghế thành công!",
+      bookedSeats: tripDate.bookedSeats
     });
 
   } catch (error) {
@@ -116,7 +117,7 @@ const updateSeatStatus = async (tripId, seatIds, newStatus) => {
     throw new Error('Chuyến đi không tồn tại');
   }
 
-  const tripDate = trip.tripDates.find((td) => 
+  const tripDate = trip.tripDates.find((td) =>
     moment(td.date).tz('Asia/Ho_Chi_Minh').isSame(new Date(), 'day')
   );
 
@@ -135,7 +136,7 @@ const updateSeatStatus = async (tripId, seatIds, newStatus) => {
 };
 
 
-  
- 
 
-  module.exports = { bookSeats ,getBookedSeats,updateSeatStatus };
+
+
+module.exports = { bookSeats, getBookedSeats, updateSeatStatus };

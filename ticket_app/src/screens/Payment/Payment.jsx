@@ -21,6 +21,17 @@ const Payment = () => {
     if (timeLeft > 0 && !orderInfo) {
       const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
       return () => clearInterval(timer);
+    } else if (timeLeft === 0) {
+      Alert.alert(
+        'Thời gian đã hết',
+        'Thời gian giữ vé đã hết. Vui lòng đặt lại vé.',
+        [
+          {
+            text: 'OK',
+            onPress: () => nav.goBack(), // Điều hướng về màn hình trước đó
+          },
+        ]
+      );
     }
   }, [timeLeft, orderInfo]);
 

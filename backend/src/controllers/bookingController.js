@@ -1,48 +1,5 @@
 const Booking = require('../models/Booking');
 const Trips = require('../models/Trips');
-const Bull = require('bull');
-const Redis = require('ioredis');
-const redis = new Redis();
-require('dotenv').config();
-
-const paymentQueue = new Bull('paymentQueue', {
-  // redis: { host: 'localhost', port: 6379 } 
-  redis: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    //password: process.env.REDIS_PASSWORD
-  }
-  
-});
-redis.ping().then(() => {
-  console.log('Connected to Redis successfully!');
-}).catch(err => {
-  console.error('Error connecting to Redis:', err);
-});
-// console.log("process.env.REDIS_HOST",process.env.REDIS_HOST);
-//   console.log(" process.env.REDIS_PORT",process.env.REDIS_PORT);
-
-paymentQueue.process(async (job) => {
-  const { bookingId, tripId, seatId } = job.data;
-
-  const booking = await Booking.findById(bookingId);
-  if (booking.paymentStatus === 'Đang chờ thanh toán') {
-    booking.paymentStatus = 'Thanh toán không thành công';
-    console.log("Updated paymentStatus:", booking.paymentStatus);
-    await booking.save();
-
-    const trip = await Trips.findById(tripId);
-    trip.tripDates.forEach(date => {
-      const initialBookedSeatsLength = date.bookedSeats.booked.length;
-      date.bookedSeats.booked = date.bookedSeats.booked.filter(seat => seat.seatId !== seatId);
-
-      if (date.bookedSeats.booked.length < initialBookedSeatsLength) {
-        console.log(`Ghế với seatId: ${seatId} đã được xóa thành công.`);
-      }
-    });
-    await trip.save();
-  }
-});
 
 const createBooking = async (req, res) => {
   
@@ -153,17 +110,19 @@ const getBookingByUser = async (req, res) => {
   if (!userId) {
     return res.status(201).json('Thiếu userId.');;
   }
-
   try {
+
+
+    // Tìm tất cả các booking theo userId
     const bookings = await Booking.find({
       userId,
       paymentStatus: { $ne: 'Đang chờ thanh toán' }
     }).sort({ createdAt: -1 }).populate({
-      path: 'tripId',               
-      select: 'busId',              
+      path: 'tripId',               // Dẫn đến trường tripId trong Booking
+      select: 'busId',               // Chọn chỉ busId từ Trip
       populate: {
-        path: 'busId',              
-        select: 'busName licensePlate busType cartSeat Price' 
+        path: 'busId',              // Dẫn đến trường busId trong Trip
+        select: 'busName licensePlate busType cartSeat Price' // Chọn các trường bạn muốn lấy từ Bus
       }
     });
 

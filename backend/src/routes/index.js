@@ -6,6 +6,7 @@ const addBusRoute = require('../../src/routes/busRouteRoutes');
 const addTripsRoute = require('../../src/routes/tripsRoutes');
 const addBookingRoute = require('../../src/routes/bookingRoute');
 const addPaymentRoute = require('../../src/routes/paymentRoute');
+const revenueRoute = require('../../src/routes/revenueRoute');
 
 // Định nghĩa routes ở đây
 router.get('/', (req, res) => {
@@ -29,6 +30,8 @@ router.use('/bookingRoutes', addBookingRoute);
 
 // Routes quản lý Thanh toán khcacsh hàng
 router.use('/addPaymentRoute', addPaymentRoute);
+
+router.use('/revenue', revenueRoute)
 
 
 module.exports = router;
