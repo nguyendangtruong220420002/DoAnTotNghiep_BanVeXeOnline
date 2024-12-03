@@ -19,7 +19,7 @@
     "bull": "^4.16.4",
     "config": "^3.3.12",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.6",
     "express": "^4.19.2",
     "firebase-admin": "^12.5.0",
     "ioredis": "^5.4.1",
