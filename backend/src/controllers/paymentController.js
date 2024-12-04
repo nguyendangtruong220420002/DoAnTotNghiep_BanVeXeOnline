@@ -8,7 +8,7 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const API_KEY = process.env.API_KEY;
 const CHECKSUM_KEY = process.env.CHECKSUM_KEY;
 
-const API_URL = 'http://127.0.0.1:5173';
+const API_URL = process.env.API_URL;
 
 const payos = new PayOS(CLIENT_ID, API_KEY, CHECKSUM_KEY);
 
