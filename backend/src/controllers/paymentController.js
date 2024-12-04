@@ -14,12 +14,12 @@ const payos = new PayOS(CLIENT_ID, API_KEY, CHECKSUM_KEY);
 
 const processPayment = async (req, res) => {
   try {
-    const { bookingId,bookingID, totalAmountAll,SeatCode ,business , dataOfShowTrips,InforCusto,} = req.body;
+    const { bookingId, bookingID, totalAmountAll, SeatCode, business, dataOfShowTrips, InforCusto, tripId, departureDate } = req.body;
     const amount = totalAmountAll; 
     const orderCode = bookingID;
     const returnUrl = `${API_URL}/paymentSuccess?bookingId=${bookingId}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;  
     // const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}`;
-    const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;
+    const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}&tripId=${tripId}&departureDate=${departureDate}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;
     const description = `Mhd${bookingID} Vé${SeatCode} Xe${business} `.slice(0, 25); 
 
     const order = {

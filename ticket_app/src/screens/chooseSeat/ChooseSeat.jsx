@@ -43,9 +43,6 @@ const ChooseSeat = () => {
             status: 'Còn trống',
         }))
     );
-    // const formattedDepartureTime = moment(departureDate, 'ww,DD/MM/YYYY')
-    //     .tz("Asia/Ho_Chi_Minh")
-    //     .format("YYYY-MM-DD");
     const fetchBookedSeats = async () => {
         setSelectedSeats([]);
         try {
@@ -78,38 +75,55 @@ const ChooseSeat = () => {
         }
     };
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     socket?.emit('getData-sv', { tripId, bookingDate: formattedDepartureTime });
+        setSelectedSeats([]);
 
-    //     setSelectedSeats([]);
-    //     // Lắng nghe sự kiện khi có ghế mới được cập nhật
-    //     socket?.on('getData-cl', (data) => {
+        socket?.on('update-data-seat', async (data) => {
+            // Dữ liệu ghế mới
+            const bookedSeats = data?.res?.bookedSeats || [];
 
-    //         const bookedSeats = data.bookedSeats;
-    //         //console.log('Nhaanj data ', bookedSeats);
-    //         setSeats((prevSeats) =>
-    //             prevSeats.map((seat) => ({
-    //                 ...seat,
-    //                 status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
-    //                     ? "Đã mua"
-    //                     : "Còn trống",
-    //             }))
-    //         );
-    //     });
+            console.log("Booked Seats Data:", bookedSeats);
+            console.log(data?.message);
 
-    //     // Cleanup khi component unmount
-    //     return () => {
-    //         socket?.off('seatsUpdated');
-    //     };
-    // }, [tripId, departureDate]);
+            setSeats((prevSeats) =>
+                prevSeats.map((seat) => ({
+                    ...seat,
+                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+                        ? "Đã mua"
+                        : "Còn trống",
+                }))
+            );
+        });
+
+        socket?.on('delete-get-seat', async (data) => {
+            // Dữ liệu ghế mới
+            const bookedSeats = data?.bookedSeats || [];
+
+            console.log("Booked Seats Data:", bookedSeats);
+
+            setSeats((prevSeats) =>
+                prevSeats.map((seat) => ({
+                    ...seat,
+                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+                        ? "Đã mua"
+                        : "Còn trống",
+                }))
+            );
+        });
 
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchBookedSeats();
-        }, [])
-    );
+
+        // Cleanup listener khi component unmount
+        return () => {
+            socket?.off('update-data-seat');
+            socket?.off('delete-get-seat');
+        };
+    }, [tripId]);
+
+    useEffect(() => {
+        fetchBookedSeats();
+    }, [tripId, departureDate]);
 
     const getSeatCode = (id) => {
         return id <= 20 ? `A${id}` : `B${id - 20}`;

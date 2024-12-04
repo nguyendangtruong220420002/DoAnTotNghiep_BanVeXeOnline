@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Button, Grid, Typography, Box ,Divider} from '@mui/material';
+import { Button, Grid, Typography, Box, Divider } from '@mui/material';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import moment from 'moment-timezone';
@@ -12,10 +12,10 @@ import Stack from '@mui/material/Stack';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips}) => {
+const SeatSelection = ({ userInfo, tripId, departureDate, totalAmount, from, schedule, to, endTime, departure, destination, departureTime, business, dataOfShowTrips, socket }) => {
   const navigate = useNavigate();
   console.log("Giá trị dataOfShowTrips nhập từ SeatSelection:", dataOfShowTrips);
-  const { tripType } = dataOfShowTrips; 
+  const { tripType } = dataOfShowTrips;
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const showAlert = (severity, message) => {
@@ -34,15 +34,15 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
   };
   useEffect(() => {
     if (alerts.length > 0) {
-      const lastAlert = alerts[alerts.length - 1]; 
+      const lastAlert = alerts[alerts.length - 1];
       const timer = setTimeout(() => {
         setAlerts((prevAlerts) => prevAlerts.filter((alert) => alert.id !== lastAlert.id));
       }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [alerts]); 
-  
+  }, [alerts]);
+
   const [seats, setSeats] = useState(
     Array.from({ length: 40 }, (_, index) => ({
       id: index + 1,
@@ -82,10 +82,10 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       }
     }
   };
-  
+
   const fetchBookedSeats = async () => {
     console.log(departureDate);
-    
+
     try {
       const formattedDepartureDate = departureDate.replace("Th ", "").trim();
       const parts = formattedDepartureDate.split(", ");
@@ -112,8 +112,50 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       console.error("Lỗi khi lấy ghế đã đặt:", error);
     }
   };
+  useEffect(() => {
 
-  
+    setSelectedSeats([]);
+
+    socket.socket?.on('update-data-seat', async (data) => {
+      // Dữ liệu ghế mới
+      const bookedSeats = data?.bookedSeats || [];
+
+      console.log("Booked Seats Data:", data);
+      console.log(data?.message);
+
+      setSeats((prevSeats) =>
+        prevSeats.map((seat) => ({
+          ...seat,
+          status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+            ? "Đã mua"
+            : "Còn trống",
+        }))
+      );
+    });
+    socket.socket?.on('delete-get-seat', async (data) => {
+      // Dữ liệu ghế mới
+      const bookedSeats = data?.bookedSeats || [];
+
+      console.log("Booked Seats Data:", bookedSeats);
+
+      setSeats((prevSeats) =>
+        prevSeats.map((seat) => ({
+          ...seat,
+          status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+            ? "Đã mua"
+            : "Còn trống",
+        }))
+      );
+    });
+
+
+    // Cleanup listener khi component unmount
+    return () => {
+      socket.socket?.off('update-data-seat');
+      socket.socket?.off('delete-get-seat');
+    };
+  }, [tripId]);
+
   useEffect(() => {
     fetchBookedSeats();
   }, [tripId, departureDate]);
@@ -121,32 +163,32 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
   const getSeatCode = (id) => {
     return id <= 20 ? `A${id}` : `B${id - 20}`;
   };
-  const SeatCodeSelect =  selectedSeats.map((id) => getSeatCode(id));
+  const SeatCodeSelect = selectedSeats.map((id) => getSeatCode(id));
   const SeatCode = selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
-  const totalAmountAll  =   (selectedSeats.length * totalAmount);
-  
+  const totalAmountAll = (selectedSeats.length * totalAmount);
+
   const handleSeatClick = (seatId) => {
     if (!userInfo || !userInfo._id) {
       showAlert('error', 'Bạn cần đăng nhập để đặt vé.');
       return; // Dừng quá trình đặt vé nếu chưa đăng nhập
     }
     const clickedSeat = seats.find((seat) => seat.id === seatId);
-  
+
     if (clickedSeat.status === "Đã mua") {
-      return; 
+      return;
     }
-  
+
     const updatedSeats = seats.map((seat) => {
       if (seat.id === seatId) {
         const newStatus = seat.status === "Còn trống" ? "Đã chọn" : "Còn trống";
         return { ...seat, status: newStatus };
       }
       return seat;
-      
+
     });
-  
+
     setSeats(updatedSeats);
-  
+
     if (clickedSeat.status === "Còn trống") {
       setSelectedSeats((prev) => [...prev, seatId]);
     } else {
@@ -159,7 +201,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
     return seats.map((seat) => (
       <Box
         key={seat.id}
-        onClick={() => handleSeatClick(seat.id)} 
+        onClick={() => handleSeatClick(seat.id)}
         sx={{ position: "relative", display: "inline-block", margin: "2px" }}
       >
         <ChairRoundedIcon
@@ -170,8 +212,8 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
               seat.status === "Đã mua"
                 ? "#ccc"
                 : seat.status === "Đã chọn"
-                ? "#ffc9b9"
-                : "#b1dffb",
+                  ? "#ffc9b9"
+                  : "#b1dffb",
           }}
         />
         <Typography
@@ -187,8 +229,8 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
               seat.status === "Đã mua"
                 ? "#888585"
                 : seat.status === "Đã chọn"
-                ? "#f06843"
-                : "#2b7ecc",
+                  ? "#f06843"
+                  : "#2b7ecc",
             textShadow: "1px 1px 2px rgba(0, 0, 0, 0.2)",
           }}
         >
@@ -219,7 +261,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
           </Typography>
         </Box>
       </Box>
-        <Box>
+      <Box>
         <Box sx={{ display: 'flex', marginTop: '20px', justifyContent: 'center' }}>
           <Box>
             <Typography sx={{ fontSize: '14px' }}>Tầng dưới</Typography>
@@ -264,75 +306,75 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
           </Alert>
         ))}
       </Stack>
-     <Box sx={{display:'flex' , justifyContent:'space-between', marginLeft:'20px', width:'700px', alignItems:'center' }}>
-      <Box sx={{display:'flex' , flexDirection:'column', textAlign:'left'}}>
-      <Typography className='button32' sx={{ }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', marginLeft: '20px', width: '700px', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+          <Typography className='button32' sx={{}}>
             {selectedSeats.length === 0 ? "" : `${selectedSeats.length} Vé`}
           </Typography>
-        <Typography className='button31' sx={{ }}>
-            {selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ") }
-          </Typography> 
-          
-      </Box>
-        <Box sx={{display:'flex' , justifyContent:'center', alignItems:'center' ,}}>  
-          <Box sx={{marginRight:'10px'}}> 
-          {selectedSeats.length > 0 && (
-                <Typography className='button32' sx={{ textAlign:'right' }} >Tổng tiền</Typography>
-              )}
-                  <Typography  className='button33'>
-                    {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""}
-                  </Typography>
-          </Box>
-              {selectedSeats.length > 0 && (
-                // <Button 
-                // onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
-                //   totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
-                // sx={{backgroundColor:  'rgb(220,99,91)' ,
-                //   color:  'white' ,
-                //   borderRadius:"50px",
-                //   width:'150px',
-                //   height:'32px',
-                //   textTransform:'none', 
-                //   textAlign:'center',
-                //   textShadow:"1px 1px 2px rgba(0, 0, 0, 0.2)",
-                //   fontSize:'13.5px',
-                //     }}>
-                //   Tiếp Tục
-                // </Button>
-                <Button
-  onClick={() =>
-    tripType === "Khứ hồi"
-      ? navigate('/showTrips', { state: { SeatCode , tabIndex1: 1 ,dataOfShowTrips } }) 
-      : navigate('/inforCustoOfTrips', {
-          state: {
-            userInfo, from,schedule,to,endTime,selectedSeats,totalAmount,SeatCode,departure,destination,
-            tripId,
-            totalAmountAll,
-            departureDate,
-            departureTime,
-            SeatCodeSelect,
-            business,
-            dataOfShowTrips,
-          },
-        })
-  }
-  sx={{
-    backgroundColor: 'rgb(220,99,91)',
-    color: 'white',
-    borderRadius: '50px',
-    width: '150px',
-    height: '32px',
-    textTransform: 'none',
-    textAlign: 'center',
-    textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
-    fontSize: '13.5px',
-  }}
->
-  Tiếp Tục
-</Button>
-              )}
+          <Typography className='button31' sx={{}}>
+            {selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ")}
+          </Typography>
+
         </Box>
-     </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', }}>
+          <Box sx={{ marginRight: '10px' }}>
+            {selectedSeats.length > 0 && (
+              <Typography className='button32' sx={{ textAlign: 'right' }} >Tổng tiền</Typography>
+            )}
+            <Typography className='button33'>
+              {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', }).format(selectedSeats.length * totalAmount) : ""}
+            </Typography>
+          </Box>
+          {selectedSeats.length > 0 && (
+            // <Button 
+            // onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
+            //   totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
+            // sx={{backgroundColor:  'rgb(220,99,91)' ,
+            //   color:  'white' ,
+            //   borderRadius:"50px",
+            //   width:'150px',
+            //   height:'32px',
+            //   textTransform:'none', 
+            //   textAlign:'center',
+            //   textShadow:"1px 1px 2px rgba(0, 0, 0, 0.2)",
+            //   fontSize:'13.5px',
+            //     }}>
+            //   Tiếp Tục
+            // </Button>
+            <Button
+              onClick={() =>
+                tripType === "Khứ hồi"
+                  ? navigate('/showTrips', { state: { SeatCode, tabIndex1: 1, dataOfShowTrips } })
+                  : navigate('/inforCustoOfTrips', {
+                    state: {
+                      userInfo, from, schedule, to, endTime, selectedSeats, totalAmount, SeatCode, departure, destination,
+                      tripId,
+                      totalAmountAll,
+                      departureDate,
+                      departureTime,
+                      SeatCodeSelect,
+                      business,
+                      dataOfShowTrips,
+                    },
+                  })
+              }
+              sx={{
+                backgroundColor: 'rgb(220,99,91)',
+                color: 'white',
+                borderRadius: '50px',
+                width: '150px',
+                height: '32px',
+                textTransform: 'none',
+                textAlign: 'center',
+                textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
+                fontSize: '13.5px',
+              }}
+            >
+              Tiếp Tục
+            </Button>
+          )}
+        </Box>
+      </Box>
     </Box>
   );
 };
@@ -340,15 +382,15 @@ SeatSelection.propTypes = {
   userInfo: PropTypes.object.isRequired,
   tripId: PropTypes.string.isRequired,
   departureDate: PropTypes.string.isRequired,
-  totalAmount:PropTypes.string.isRequired,
-  departureTime:PropTypes.string.isRequired,
-  from:PropTypes.string.isRequired,
-  schedule:PropTypes.string.isRequired,
-  to:PropTypes.string.isRequired,
-  endTime:PropTypes.string.isRequired,
-  departure:PropTypes.string.isRequired,
-  destination:PropTypes.string.isRequired,
-  business:PropTypes.string.isRequired,
+  totalAmount: PropTypes.string.isRequired,
+  departureTime: PropTypes.string.isRequired,
+  from: PropTypes.string.isRequired,
+  schedule: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+  endTime: PropTypes.string.isRequired,
+  departure: PropTypes.string.isRequired,
+  destination: PropTypes.string.isRequired,
+  business: PropTypes.string.isRequired,
   dataOfShowTrips: PropTypes.shape({
     departure: PropTypes.string,
     destination: PropTypes.string,
@@ -356,6 +398,6 @@ SeatSelection.propTypes = {
     returnDate: PropTypes.string,
     tripType: PropTypes.string,
   }),
- 
+  socket: PropTypes.object
 };
 export default SeatSelection;

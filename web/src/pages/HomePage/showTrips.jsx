@@ -43,7 +43,7 @@ import Nosearchrch from '../../../public/images/Nosearchrch.png'
 import { useNavigate } from 'react-router-dom';
 import RoundTrip from '../AboutPage/RoundTrip';
 
-const ShowTrips = () => {
+const ShowTrips = (socket) => {
   const navigate = useNavigate();
   
 
@@ -704,6 +704,7 @@ const ShowTrips = () => {
                                       destination={trip.routeId.destination}
                                       business={trip.userId.fullName}
                                       dataOfShowTrips={dataOfShowTrips}
+                                      socket={socket}
                                     ></SeatSelection>
                                   </Box>
                                 )}
@@ -1110,6 +1111,7 @@ const ShowTrips = () => {
                                       destination={trip.routeId.destination}
                                       business={trip.userId.fullName}
                                       dataOfShowTrips={dataOfShowTrips}
+                                      socket={socket}
                                     ></SeatSelection>
                                   </Box>
                                 )}
@@ -1516,6 +1518,7 @@ const ShowTrips = () => {
                                     destination={trip.routeId.destination}
                                     business={trip.userId.fullName}
                                     dataOfShowTrips={dataOfShowTrips}
+                                    socket={socket}
                                   ></SeatSelection>
                                 </Box>
                               )}
@@ -1732,5 +1735,6 @@ ShowTrips.propTypes = {
     tripType: PropTypes.string,
     userId: PropTypes,
   }),
+  socket: PropTypes.object
 };
 export default ShowTrips;

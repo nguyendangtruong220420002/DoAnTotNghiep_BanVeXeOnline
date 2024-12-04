@@ -31,6 +31,29 @@ const setupSocket = () => {
       io.emit('message', data); // Broadcast message to all clients
     });
 
+    client.on('update-get-seat', async (data) => {
+      console.log('Dữ liệu nhận từ client để cập nhật:', data);
+
+      // Lấy dữ liệu ghế mới nhất từ service
+      const res = await SeatServices.getBookingSeat(data);
+      console.log("In socket", res.data);
+
+      // Phát sự kiện 'data-seat' với dữ liệu mới cho tất cả client
+      io.emit('update-data-seat', { res: res.data, message: "Lần 2" });
+    });
+
+
+    client.on('delete-get-seat', async (data) => {
+   
+
+      // Lấy dữ liệu ghế mới nhất từ service
+      const res = await SeatServices.getBookingSeat(data);
+      console.log("In socket", res.data);
+
+      // Phát sự kiện 'data-seat' với dữ liệu mới cho tất cả client
+      io.emit('delete-get-seat', res.data);
+    });
+
     // Handle client disconnection
     client.on('disconnect', () => {
       console.log('Client disconnected:', client.id);
