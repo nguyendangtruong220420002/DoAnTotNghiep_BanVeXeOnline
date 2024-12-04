@@ -39,12 +39,12 @@ const setupSocket = () => {
       console.log("In socket", res.data);
 
       // Phát sự kiện 'data-seat' với dữ liệu mới cho tất cả client
-      io.emit('update-data-seat', { res: res.data, message: "Lần 2" });
+      io.emit('update-data-seat', res.data);
     });
 
 
     client.on('delete-get-seat', async (data) => {
-   
+
 
       // Lấy dữ liệu ghế mới nhất từ service
       const res = await SeatServices.getBookingSeat(data);

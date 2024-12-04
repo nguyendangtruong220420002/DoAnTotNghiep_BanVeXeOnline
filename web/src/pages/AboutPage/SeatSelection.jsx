@@ -121,31 +121,38 @@ const SeatSelection = ({ userInfo, tripId, departureDate, totalAmount, from, sch
       const bookedSeats = data?.bookedSeats || [];
 
       console.log("Booked Seats Data:", data);
-      console.log(data?.message);
 
-      setSeats((prevSeats) =>
-        prevSeats.map((seat) => ({
-          ...seat,
-          status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
-            ? "Đã mua"
-            : "Còn trống",
-        }))
-      );
+      if (data?.res.tripId === tripId) {
+        setSeats((prevSeats) =>
+          prevSeats.map((seat) => ({
+            ...seat,
+            status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+              ? "Đã mua"
+              : "Còn trống",
+          }))
+        );
+      } else {
+        await fetchBookedSeats();
+      }
     });
     socket.socket?.on('delete-get-seat', async (data) => {
       // Dữ liệu ghế mới
       const bookedSeats = data?.bookedSeats || [];
 
       console.log("Booked Seats Data:", bookedSeats);
-
-      setSeats((prevSeats) =>
-        prevSeats.map((seat) => ({
-          ...seat,
-          status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
-            ? "Đã mua"
-            : "Còn trống",
-        }))
-      );
+      if (data?.res.tripId === tripId) {
+        
+        setSeats((prevSeats) =>
+          prevSeats.map((seat) => ({
+            ...seat,
+            status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+              ? "Đã mua"
+              : "Còn trống",
+          }))
+        );
+      } else {
+        await fetchBookedSeats();
+      }
     });
 
 

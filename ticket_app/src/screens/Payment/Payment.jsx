@@ -146,6 +146,18 @@ const Payment = () => {
 
   const [refreshing, setRefreshing] = useState(false);
 
+  useEffect(() => {
+    socket.on('get-order', (data) => { // Lắng nghe dữ liệu từ server
+      console.log("Received order data:", data);
+
+      if (data) {
+        setOrderInfo(data);
+      } else {
+        setOrderInfo(null)
+      }
+    });
+  }, [])
+
   const fetchOrder = async () => {
     if (!bookingID) {
       setRefreshing(false);
@@ -194,6 +206,7 @@ const Payment = () => {
       // Kiểm tra kết quả trả về từ server
       if (response.data.checkoutUrl) {
         // Mở URL thanh toán trong trình duyệt
+        socket.emit('get-order', { bookingID });
         Linking.openURL(response.data.checkoutUrl).catch((err) => {
           console.error('Failed to open URL:', err);
           Alert.alert('Lỗi', 'Không thể mở trang thanh toán.');

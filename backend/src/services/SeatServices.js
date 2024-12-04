@@ -47,7 +47,8 @@ class SeatServices {
                         userId: seat.userId,
                         bookingDate: seat.bookingDate,
                         status: seat.status, // Include seat status
-                    }))
+                    })),
+                    tripId: trip._id
                 }
             };
 

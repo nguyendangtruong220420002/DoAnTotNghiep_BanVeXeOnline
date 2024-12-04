@@ -187,7 +187,7 @@ const Home = () => {
         destination: diemDen,
         departureDate: datefrom.toISOString(),
         returnDate: newDateTo,
-        tripType: show,
+        tripType: show && "Khứ hồi",
       });
       console.log(response?.data);
 

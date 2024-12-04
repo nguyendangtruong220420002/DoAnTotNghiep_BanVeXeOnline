@@ -86,14 +86,19 @@ const ChooseSeat = () => {
             console.log("Booked Seats Data:", bookedSeats);
             console.log(data?.message);
 
-            setSeats((prevSeats) =>
-                prevSeats.map((seat) => ({
-                    ...seat,
-                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
-                        ? "Đã mua"
-                        : "Còn trống",
-                }))
-            );
+
+            if (data?.tripId === tripId) {
+                setSeats((prevSeats) =>
+                    prevSeats.map((seat) => ({
+                        ...seat,
+                        status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+                            ? "Đã mua"
+                            : "Còn trống",
+                    }))
+                );
+            } else {
+                await fetchBookedSeats();
+            }
         });
 
         socket?.on('delete-get-seat', async (data) => {
@@ -102,14 +107,19 @@ const ChooseSeat = () => {
 
             console.log("Booked Seats Data:", bookedSeats);
 
-            setSeats((prevSeats) =>
-                prevSeats.map((seat) => ({
-                    ...seat,
-                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
-                        ? "Đã mua"
-                        : "Còn trống",
-                }))
-            );
+
+            if (data?.tripId === tripId) {
+                setSeats((prevSeats) =>
+                    prevSeats.map((seat) => ({
+                        ...seat,
+                        status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+                            ? "Đã mua"
+                            : "Còn trống",
+                    }))
+                );
+            } else {
+                await fetchBookedSeats();
+            }
         });
 
 
