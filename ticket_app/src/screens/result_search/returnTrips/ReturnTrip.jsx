@@ -4,12 +4,12 @@ import { Icon } from 'react-native-elements';
 import { styles } from './styles';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import darkColors from 'react-native-elements/dist/config/colorsDark';
-import { generateDateRange } from "../../config/DateConfig"
-import Loading from '../loading/Loading'; // Import the Loading component
+import { generateDateRange } from "../../../config/DateConfig"
+import Loading from '../../loading/Loading'; // Import the Loading component
 import moment from 'moment-timezone';
-import { getData } from '../../utils/fetching';
+import { getData } from '../../../utils/fetching';
 
-const ResultSearch = () => {
+const ReturnTrip = () => {
 
     const route = useRoute();
     const nav = useNavigation();
@@ -20,9 +20,12 @@ const ResultSearch = () => {
     const diemden = route.params?.diemden;
     const soVe = route.params?.soVe;
 
-    const [trips, setTrips] = useState(route.params?.trips?.TripsOne)
+    const [trips, setTrips] = useState(route.params?.trips);
+    console.log(route.params?.trips);
+
     const ngayve = route.params?.ngayve;
     const show = route.params?.show;
+
 
     // Generate initial dates starting from ngaydi
     const [dateArray, setDateArray] = useState(generateDateRange(ngaydi));
@@ -97,18 +100,18 @@ const ResultSearch = () => {
             headerTitle: () => (
                 <View style={styles.viewTitle}>
                     <View style={styles.viewHeader}>
-                        <Text style={styles.headerText}>{diemdi}</Text>
+                        <Text style={styles.headerText}>{diemden}</Text>
                         <Icon
                             type='ionicon'
                             name='bus-outline'
                             color="white"
                             iconStyle={{ paddingHorizontal: 10 }}
                         />
-                        <Text style={styles.headerText}>{diemden}</Text>
+                        <Text style={styles.headerText}>{diemdi}</Text>
                     </View>
 
                     <View>
-                        <Text style={{ color: "white" }}>{soVe} vé, {date}/{month} </Text>
+                        <Text style={{ color: "white" }}>Chiều về -- {date}/{month} </Text>
                     </View>
                 </View>
 
@@ -116,7 +119,7 @@ const ResultSearch = () => {
             headerBackground: () => (
                 <View style={styles.headerBackgroundContainer}>
                     <Image
-                        source={require('../../../img/imageheader.png')}
+                        source={require('../../../../img/imageheader.png')}
                         style={styles.headerImage}
                         resizeMode="cover"
                     />
@@ -185,8 +188,8 @@ const ResultSearch = () => {
                 tripType: show && "Khứ hồi",
             });
 
-            if (response && response?.data) {
-                setTrips(response?.data?.TripsOne); // Cập nhật danh sách trips trong state
+            if (response && response.data) {
+                setTrips(response.data); // Cập nhật danh sách trips trong state
             } else {
                 console.warn("No trips found for the selected date.");
                 setTrips([]); // Nếu không có chuyến nào, làm rỗng danh sách trips
@@ -199,27 +202,18 @@ const ResultSearch = () => {
         }
     }
 
-    const handleChooseSeat = (trip) => {
-
-        if (show) {
-            nav.navigate("ReturnTrip", {
-                diemden,
-                diemdi,
-                tripdi: trip,
-                trips: route.params?.trips.RouteTrips,
-                ngaydi: newngaydi ? newngaydi.toISOString() : ngaydi.toISOString(),
-                ngayve,
-                show: show,
-            })
-        } else {
-            nav.navigate("ChooseSeat", {
-                diemden,
-                diemdi,
-                trip: trip,
-                ngaydi: newngaydi ? newngaydi.toISOString() : ngaydi.toISOString(),
-                show
-            })
-        }
+    const handleChooseSeat = (tripve) => {
+        console.log(show);
+        
+        nav.navigate("ChooseSeat", {
+            diemden,
+            diemdi,
+            tripdi: route.params?.tripdi,
+            tripve: tripve,
+            ngaydi: newngaydi ? newngaydi.toISOString() : ngaydi.toISOString(),
+            ngayve: ngayve,
+            show:route.params?.show
+        })
     }
     // Update handleTripRoute to accept a trip parameter
     const handleTripRoute = (trip) => {
@@ -322,7 +316,7 @@ const ResultSearch = () => {
                     style={styles.listTicket}
                     contentContainerStyle={{ paddingBottom: 10 }}
                 >
-                    {trips.map((trip, index) => (
+                    {trips?.map((trip, index) => (
                         <TouchableWithoutFeedback
                             key={index}
                             onPress={() => handleChooseSeat(trip)}
@@ -415,4 +409,4 @@ const ResultSearch = () => {
     );
 };
 
-export default ResultSearch;
+export default ReturnTrip;

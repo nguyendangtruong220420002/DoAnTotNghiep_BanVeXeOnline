@@ -121,7 +121,7 @@ const Ticket = () => {
                 <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
               }
               data={upcomingBookings}
-              keyExtractor={(item) => item.BookingID.toString()}
+              keyExtractor={(item) => item._id.toString()}
               renderItem={({ item }) => (
                 <View style={styles.bookingCard}>
                   <View style={styles.headerCard}>
@@ -192,7 +192,7 @@ const Ticket = () => {
                 <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
               }
               data={historyBookings}
-              keyExtractor={(item) => item.BookingID.toString()}
+              keyExtractor={(item) => item._id.toString()}
               renderItem={({ item }) => (
                 <View style={styles.bookingCard}>
                   <View style={styles.headerCard}>

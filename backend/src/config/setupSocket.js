@@ -2,6 +2,8 @@ const { Server } = require('socket.io');
 const express = require('express');
 const http = require("http");
 const cors = require('cors');
+const SeatServices = require('../services/SeatServices');
+const PaymentServices = require('../services/PaymentServices');
 
 const SOCKET_PORT = process.env.SOCKET_PORT || 3000; // Default port if env not set
 
@@ -14,12 +16,14 @@ const socketServer = http.createServer(socketApp);
 let io;
 
 const setupSocket = () => {
+
   io = require('socket.io')(socketServer, {
     cors: {
       origin: "*",
     },
   });
   io.on("connection", (client) => {
+    const clientId = client.handshake.query.clientId;
     console.log('New client connected:', client.id);
 
     // Send success message to the newly connected client
@@ -39,7 +43,7 @@ const setupSocket = () => {
       console.log("In socket", res.data);
 
       // Phát sự kiện 'data-seat' với dữ liệu mới cho tất cả client
-      io.emit('update-data-seat', res.data);
+      io.emit('update-data-seat', { res: res.data });
     });
 
 
@@ -53,6 +57,13 @@ const setupSocket = () => {
       // Phát sự kiện 'data-seat' với dữ liệu mới cho tất cả client
       io.emit('delete-get-seat', res.data);
     });
+
+    client.on('get-order', async (data) => {
+      const res = await PaymentServices.getBookingSeat(data);
+
+      console.log("order", res.orderInfo);
+      io.emit('get-order', res.orderInfo);
+    })
 
     // Handle client disconnection
     client.on('disconnect', () => {

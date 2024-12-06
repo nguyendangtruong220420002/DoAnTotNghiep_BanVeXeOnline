@@ -64,19 +64,19 @@ const Setting = () => {
       return;
     }
 
-    try {
-      const response = await postData(`users/change-password/${user?._id}`, data)
-      if (response?.status === 200) {
-        setOldPassword("")
-        setNewPassword("");
-        setReTypePassword("");
-        
-        alert("Đổi mật khẩu thành công!");
+      try {
+        const response = await postData(`users/change-password/${user?._id}`, data)
+        if (response?.status === 200) {
+          setOldPassword("")
+          setNewPassword("");
+          setReTypePassword("");
+
+          alert("Đổi mật khẩu thành công!");
+
+        }
+      } catch (error) {
 
       }
-    } catch (error) {
-
-    }
 
   }
 
@@ -111,34 +111,10 @@ const Setting = () => {
               color={isFocused ? "#FE9B4B" : "#ced4da"} />
           </TouchableOpacity>
 
-          {/* 1 */}
-          <View style={{ marginBottom: 15 }}>
-            <Text style={styles.textlabel}>Mật khẩu mới</Text>
-            <TextInput
-              style={[styles.TextInput, { borderColor: isFocused1 ? "#FE9B4B" : "#ced4da" }]}
-              placeholder={'Nhập lại mật khẩu'}
-              value={retypePassword}
-              onChangeText={(text) => setReTypePassword(text)}
-              secureTextEntry={!isPasswordVisible1}
-              onFocus={() => setIsFocused1(true)}
-              onBlur={() => setIsFocused1(false)}
-            />
-          </View>
-
-          <TouchableOpacity
-            style={{ position: 'absolute', right: 45, top: 135 }}
-            onPress={() => setIsPasswordVisible1(!isPasswordVisible1)}
-          >
-            <Icon
-              name={isPasswordVisible1 ? 'eye-off-outline' : 'eye-outline'}
-              type='ionicon'
-              size={28}
-              color={isFocused1 ? "#FE9B4B" : "#ced4da"} />
-          </TouchableOpacity>
 
           {/* 2 */}
           <View style={{ marginBottom: 15 }}>
-            <Text style={styles.textlabel}>Nhập lại mật khẩu mới</Text>
+            <Text style={styles.textlabel}>Nhập mật khẩu mới</Text>
             <TextInput
               style={[styles.TextInput, { borderColor: isFocused2 ? "#FE9B4B" : "#ced4da" }]}
               placeholder={'Nhập lại mật khẩu mới'}
@@ -161,7 +137,31 @@ const Setting = () => {
               color={isFocused2 ? "#FE9B4B" : "#ced4da"} />
           </TouchableOpacity>
         </View>
+        {/* 1 */}
 
+        <View style={{ marginBottom: 15 }}>
+          <Text style={styles.textlabel}>Mật lại khẩu mới</Text>
+          <TextInput
+            style={[styles.TextInput, { borderColor: isFocused1 ? "#FE9B4B" : "#ced4da" }]}
+            placeholder={'Nhập lại mật khẩu'}
+            value={retypePassword}
+            onChangeText={(text) => setReTypePassword(text)}
+            secureTextEntry={!isPasswordVisible1}
+            onFocus={() => setIsFocused1(true)}
+            onBlur={() => setIsFocused1(false)}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={{ position: 'absolute', right: 45, top: 135 }}
+          onPress={() => setIsPasswordVisible1(!isPasswordVisible1)}
+        >
+          <Icon
+            name={isPasswordVisible1 ? 'eye-off-outline' : 'eye-outline'}
+            type='ionicon'
+            size={28}
+            color={isFocused1 ? "#FE9B4B" : "#ced4da"} />
+        </TouchableOpacity>
 
         <View style={{ justifyContent: 'flex-end' }}>
           <TouchableOpacity style={styles.btn_submit}

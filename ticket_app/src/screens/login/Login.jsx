@@ -7,6 +7,7 @@ import axios from 'axios';
 import CookieUtils, { getAsyncStorage, setAsyncStorage } from '../../utils/cookie';
 import { postData } from '../../utils/fetching'
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
+import auth from '@react-native-firebase/auth';
 
 const Login = () => {
 
@@ -53,6 +54,27 @@ const Login = () => {
       alert('Đã xảy ra lỗi khi đăng nhập.'); // Hiển thị lỗi cho người dùng
     }
 
+  }
+  const [confirm, setConfirm] = useState(null);
+
+  const handleSendOTP = async () => {
+
+  };
+
+  const handleForgotPassword = async () => {
+    const internationalPhoneNumber = `+84${phoneNumber.slice(1)}`;
+    console.log(internationalPhoneNumber);
+
+    try {
+      const confirmation = await auth().signInWithPhoneNumber(internationalPhoneNumber);
+
+      if (confirmation) {
+        nav.navigate("ForgotPassword", { confirm: confirmation, phoneNumber: phoneNumber });
+      }
+
+    } catch (error) {
+      console.log("Error send otp", error);
+    }
   }
 
 
@@ -120,7 +142,9 @@ const Login = () => {
               }}>
 
                 <View>
-                  <TouchableOpacity >
+                  <TouchableOpacity
+                    onPress={() => handleForgotPassword()}
+                  >
                     <Text style={{ textDecorationLine: 'underline' }}>Quên/Tạo mật khẩu ?</Text>
                   </TouchableOpacity>
                 </View>
@@ -146,7 +170,7 @@ const Login = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+    </TouchableWithoutFeedback >
 
   )
 }

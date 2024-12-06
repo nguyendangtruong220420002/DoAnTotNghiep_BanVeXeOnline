@@ -9,13 +9,36 @@ import { Icon } from 'react-native-elements';
 const PaymentScreen = (data) => {
     const nav = useNavigation()
     const bookingId = data?.bookingId;
-    const orderInfo = data?.data;
+    const [orderInfo, setOrderInfo] = useState(data?.data)
+    const bookingID = data?.bookingID;
+
     console.log("data payment", orderInfo);
 
+    const fetchOrder = async () => {
+        if (!bookingID) {
+            setRefreshing(false);
+            return;
 
+        }
+        try {
+            const response = await getData("addPaymentRoute/getOrder", { bookingID })
+            console.log("booking id:", bookingID);
+
+            console.log("orrder data:", response.data);
+
+            if (response.status === 200) {
+                setOrderInfo(response.data);
+            } else if (response.status === 201) {
+                return;
+            }
+        } catch (error) {
+            console.error("Error when get order:", error);
+        }
+
+    }
 
     useEffect(() => {
-        if (orderInfo?.status === 'CANCELLED' || orderInfo?.status === 'PENDING') {
+        if (orderInfo?.status === 'CANCELLED') {
             getData('addPaymentRoute/cancel', { bookingId })
                 .then((response) => {
                     console.log(response.data);
@@ -27,8 +50,8 @@ const PaymentScreen = (data) => {
                     console.log(response.data);
                     showSuccessToast("Thanh toán thành công")
                 })
-        }
-    }, [bookingId])
+        } 
+    }, [bookingId, orderInfo])
 
     return (
         <View style={styles.container}>

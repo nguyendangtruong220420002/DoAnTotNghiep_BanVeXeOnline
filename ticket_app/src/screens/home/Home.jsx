@@ -39,9 +39,10 @@ const Home = () => {
 
   const { user, token, setUser } = useAuthData();
 
-  const getProvinces = async () => {
 
+  const getProvinces = async () => {
     try {
+
       const diemDi = await getAsyncStorage("diemDi");
       const diemDen = await getAsyncStorage("diemDen");
       setDiemDi(diemDi || '');  // Đảm bảo không có giá trị thì đặt chuỗi rỗng
@@ -50,6 +51,7 @@ const Home = () => {
       console.error(error);
     }
   };
+
 
 
   useFocusEffect(

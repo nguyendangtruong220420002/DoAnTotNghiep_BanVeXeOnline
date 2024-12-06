@@ -5,6 +5,7 @@ import { styles } from './styles';
 import axios from 'axios';
 import { setAsyncStorage } from '../../../utils/cookie';
 import { Icon, Input, SearchBar } from 'react-native-elements';
+import provincesData from '../../../../assets/provinces.json';
 
 const ListProvinces = () => {
 
@@ -59,33 +60,60 @@ const ListProvinces = () => {
         }
         nav.goBack();
     };
-
-    const getProvinces = async () => {
-        try {
-            const response = await axios.get("https://open.oapi.vn/location/provinces?size=63");
-
-            if (response.data && Array.isArray(response.data.data)) {
-                const provincesData = response.data.data;
-                const provinceNames = provincesData.map(province => province.name);
-                setData(provinceNames); // Lưu dữ liệu vào state
-            } else {
-                console.error("Dữ liệu API không hợp lệ:", response.data);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false); // Set trạng thái loading là false khi API đã trả về kết quả
-        }
-    };
-
     useEffect(() => {
-        getProvinces(); // Gọi hàm getProvinces khi component được mount
+        
+        const provinceNames = provincesData.data.map((province) => province.name);
+
+        setData(provinceNames);
+        setLoading(false)
+        // const fetchProvinces = async () => {
+        //     try {
+        //         console.log("jj");
+
+        //         const response = await axios.get('https://provinces.open-api.vn/api/p/');
+        //         console.log(response.data)
+        //         const provinces = response.data.map((province) => ({
+        //             ...province,
+        //             name: province.name.replace(/^(Tỉnh|Thành phố) /, ''),
+        //         }));
+        //         setData(provinces);
+        //     } catch (error) {
+        //         console.log(error)
+        //         console.error('Error fetching provinces:', error);
+        //     } finally {
+        //         setLoading(false);
+        //     }
+        // };
+        // fetchProvinces();
     }, []);
+
+    // const getProvinces = async () => {
+    //     try {
+    //         const response = await axios.get("https://open.oapi.vn/location/provinces?size=63");
+
+    //         if (response.data && Array.isArray(response.data.data)) {
+    //             const provincesData = response.data.data;
+    //             const provinceNames = provincesData.map(province => province.name);
+    //             setData(provinceNames); // Lưu dữ liệu vào state
+    //         } else {
+    //             console.error("Dữ liệu API không hợp lệ:", response.data);
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //     } finally {
+    //         setLoading(false); // Set trạng thái loading là false khi API đã trả về kết quả
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     getProvinces(); // Gọi hàm getProvinces khi component được mount
+    // }, []);
 
     // Nếu đang loading, hiển thị ActivityIndicator
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
     }
+
     // Lọc dữ liệu theo từ khóa tìm kiếm
     const filteredData = data.filter(province =>
         province.toLowerCase().includes(searchQuery.toLowerCase())

@@ -1,4 +1,4 @@
-import { Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, useWindowDimensions, View } from 'react-native'
 import React, { useCallback, useState } from 'react'
 import { generateSeats, generate41Seats } from '../../config/seat'
 import { Icon } from 'react-native-elements'
@@ -9,8 +9,7 @@ import Loading from '../loading/Loading'
 import moment from 'moment-timezone';
 import { getData } from '../../utils/fetching'
 import { useSocket } from '../../context/useSocket'
-
-
+import { TabView, SceneMap } from 'react-native-tab-view';
 
 const ChooseSeat = () => {
 
@@ -18,11 +17,41 @@ const ChooseSeat = () => {
     const route = useRoute();
 
     const socket = useSocket();
-    const trip = route.params?.trip;
-    const tripId = route.params?.trip?._id;
+
+    const tripId = route.params?.trip?._id || route.params?.tripdi?._id;
+
+    const trip = route.params?.trip || route.params?.tripdi;
+
+    const [tripve, setTripve] = useState(route.params?.tripve || null)
+    const [tripIdve, setTripIdve] = useState(route.params?.tripve?._id || null)
+    const [index, setIndex] = useState(0);
+
     const ngaydi = route.params?.ngaydi
+    const ngayve = route.params?.ngayve || null;
+
+
+
+
+    const show = route.params?.show;
+    // console.log("trip di", trip);
+    console.log("trip id di", tripId);
+
+    // console.log("trip ve", tripve);
+    console.log("trip id ve", tripIdve);
+
+    const layout = useWindowDimensions();
 
     const date = new Date(ngaydi);
+    const dateVe = new Date(ngayve);
+
+
+    const destinationDate = new Intl.DateTimeFormat('vi-VN', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+        weekday: "short"
+    }).format(dateVe);
+
 
     const departureDate = new Intl.DateTimeFormat('vi-VN', {
         month: '2-digit',
@@ -31,11 +60,34 @@ const ChooseSeat = () => {
         weekday: "short"
     }).format(date);
 
+    const [routes] = useState([
+        {
+            key: 'departure', title: (
+                <>
+                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                        <Text style={{ fontSize: 16, color: "#f95300" }}>Chiều đi</Text>
+                        <Text style={{ fontSize: 14, color: "#f95300" }}>{departureDate}</Text>
+                    </View>
+                </>
+            ),
+        },
+        ...(tripve ? [{
+            key: 'return', title: (
+                <>
+                    <View style={{ flexDirection: "column", alignItems: "center" }}>
+                        <Text style={{ fontSize: 16, color: "#f95300" }}>Chiều về</Text>
+                        <Text style={{ fontSize: 14, color: "#f95300" }}>{destinationDate}</Text>
+                    </View>
+                </>
+            ),
+        }] : [])
+    ]);
     const diemdi = route.params?.diemdi
     const diemden = route.params?.diemden
 
     const totalFareAndPrice = trip?.totalFareAndPrice;
     const [selectedSeats, setSelectedSeats] = useState([]);
+    const [selectedSeatsReturn, setSelectedSeatsReturn] = useState([]);
 
     const [seats, setSeats] = useState(
         Array.from({ length: 40 }, (_, index) => ({
@@ -43,37 +95,7 @@ const ChooseSeat = () => {
             status: 'Còn trống',
         }))
     );
-    const fetchBookedSeats = async () => {
-        setSelectedSeats([]);
-        try {
-            const formattedDepartureTime = moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
-                .isValid()
-                ? moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
-                    .format('YYYY-MM-DD')
-                : 'Ngày không hợp lệ'
 
-            console.log(formattedDepartureTime);
-
-            const response = await getData(`tripsRoutes/getBooked-seats`,
-                { tripId, bookingDate: formattedDepartureTime },
-            );
-
-            const bookedSeats = response.data.bookedSeats || [];
-            console.log("Booked Seats Data:", bookedSeats);
-
-            setSeats((prevSeats) =>
-                prevSeats.map((seat) => ({
-                    ...seat,
-                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
-                        ? "Đã mua"
-                        : "Còn trống",
-                }))
-            );
-
-        } catch (error) {
-            console.error("Lỗi khi lấy ghế đã đặt:", error);
-        }
-    };
 
     useEffect(() => {
 
@@ -84,8 +106,7 @@ const ChooseSeat = () => {
             const bookedSeats = data?.res?.bookedSeats || [];
 
             console.log("Booked Seats Data:", bookedSeats);
-            console.log(data?.message);
-
+            console.log(data);
 
             if (data?.tripId === tripId) {
                 setSeats((prevSeats) =>
@@ -96,8 +117,8 @@ const ChooseSeat = () => {
                             : "Còn trống",
                     }))
                 );
-            } else {
-                await fetchBookedSeats();
+            } else if (!show) {
+                await fetchBookedSeats(tripId, departureDate);
             }
         });
 
@@ -107,7 +128,6 @@ const ChooseSeat = () => {
 
             console.log("Booked Seats Data:", bookedSeats);
 
-
             if (data?.tripId === tripId) {
                 setSeats((prevSeats) =>
                     prevSeats.map((seat) => ({
@@ -122,8 +142,6 @@ const ChooseSeat = () => {
             }
         });
 
-
-
         // Cleanup listener khi component unmount
         return () => {
             socket?.off('update-data-seat');
@@ -131,37 +149,156 @@ const ChooseSeat = () => {
         };
     }, [tripId]);
 
+
+    const fetchBookedSeats = async (tripId, date) => {
+
+        setLoading(true)
+        try {
+            const formattedDepartureTime = moment(date, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+                .isValid()
+                ? moment(date, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi').format('YYYY-MM-DD')
+                : 'Ngày không hợp lệ';
+
+            const response = await getData(`tripsRoutes/getBooked-seats`, {
+                tripId,
+                bookingDate: formattedDepartureTime,
+            });
+            console.log(response.data);
+
+
+            const bookedSeats = response.data.bookedSeats || [];
+            setSeats((prevSeats) =>
+                prevSeats.map((seat) => ({
+                    ...seat,
+                    status: bookedSeats.some((bookedSeat) => bookedSeat.seatId === getSeatCode(seat.id))
+                        ? 'Đã mua'
+                        : 'Còn trống',
+                }))
+            );
+            setLoading(false)
+        } catch (error) {
+            console.error('Lỗi khi lấy ghế đã đặt:', error);
+            setLoading(false)
+        }
+    };
+
     useEffect(() => {
-        fetchBookedSeats();
-    }, [tripId, departureDate]);
+        fetchBookedSeats(tripId, departureDate);
+    }, [tripId, ngaydi]);
+
+    useEffect(() => {
+        if (index === 1 && tripIdve) { // Chỉ thực hiện fetching khi tab "ngày về" được chọn
+            setSelectedSeatsReturn([])
+            fetchBookedSeats(tripIdve, destinationDate);
+
+        } else if (index === 0) {
+            setSelectedSeats([])
+            fetchBookedSeats(tripId, departureDate);
+        }
+    }, [index]);
+
+    const renderScene = SceneMap({
+        departure: () => renderSeatsForTrip(),
+        return: () => renderSeatsForTrip(),
+    });
+
+    const renderSeatsForTrip = () => (
+
+        <ScrollView
+
+        >
+            <View style={styles.body}>
+                <View >
+                    <View style={styles.seatContainer}>
+                        {/* Tầng dưới */}
+                        <View style={styles.levelContainer}>
+                            <Text style={styles.levelLabel}>Tầng dưới</Text>
+                            {renderSeats(seats.slice(0, 15), 0, 3)}
+                            {renderSeats(seats.slice(15, 20), 15, 5)}
+                        </View>
+
+                        {/* Tầng trên */}
+                        <View style={styles.levelContainer}>
+                            <Text style={styles.levelLabel}>Tầng trên</Text>
+                            {renderSeats(seats.slice(20, 35), 20, 3)}
+                            {renderSeats(seats.slice(35, 40), 35, 5)}
+                        </View>
+                    </View>
+                </View>
+
+
+                <View>
+                    <View style={styles.radioIcon}>
+                        <View style={styles.chosing}>
+                            <Icon name='ellipse' type='ionicon' color={"#757575"} />
+                            <Text>Đã bán</Text>
+                        </View>
+                        <View style={styles.chosing}>
+                            <Icon name='ellipse' type='ionicon' color={"#BDD8F1"} />
+                            <Text>Còn trống</Text>
+                        </View>
+                        <View style={styles.chosing}>
+                            <Icon name='ellipse' type='ionicon' color={"#ffc9b9"} />
+                            <Text>Đang chọn</Text>
+                        </View>
+
+                    </View>
+
+
+
+                </View>
+            </View>
+        </ScrollView>
+
+    );
 
     const getSeatCode = (id) => {
         return id <= 20 ? `A${id}` : `B${id - 20}`;
     };
 
-    const SeatCodeSelect = selectedSeats.map((id) => getSeatCode(id));
-    const SeatCode = selectedSeats?.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
     const totalAmountAll = (selectedSeats?.length * totalFareAndPrice);
 
     const handleSeatClick = (seatId) => {
-        setSeats((prevSeats) =>
-            prevSeats.map((seat) => {
-                if (seat.id === seatId) {
-                    if (seat.status === 'Đã mua') {
-                        return seat; // Không làm gì nếu ghế đã mua
+        // Check if the current tab is "departure" or "return"
+        if (index === 0) { // Departure trip
+            setSeats((prevSeats) =>
+                prevSeats.map((seat) => {
+                    if (seat.id === seatId) {
+                        if (seat.status === 'Đã mua') {
+                            return seat; // Don't do anything if the seat is already booked
+                        }
+                        const newStatus = seat.status === 'Còn trống' ? 'Đã chọn' : 'Còn trống';
+                        return { ...seat, status: newStatus };
                     }
-                    const newStatus = seat.status === 'Còn trống' ? 'Đã chọn' : 'Còn trống';
-                    return { ...seat, status: newStatus };
-                }
-                return seat;
-            })
-        );
+                    return seat;
+                })
+            );
 
-        setSelectedSeats((prevSelected) =>
-            prevSelected.includes(seatId)
-                ? prevSelected.filter((id) => id !== seatId)
-                : [...prevSelected, seatId]
-        );
+            setSelectedSeats((prevSelected) =>
+                prevSelected.includes(seatId)
+                    ? prevSelected.filter((id) => id !== seatId)
+                    : [...prevSelected, seatId]
+            );
+        } else if (index === 1) { // Return trip
+            setSeats((prevSeats) =>
+                prevSeats.map((seat) => {
+                    if (seat.id === seatId) {
+                        if (seat.status === 'Đã mua') {
+                            return seat; // Don't do anything if the seat is already booked
+                        }
+                        const newStatus = seat.status === 'Còn trống' ? 'Đã chọn' : 'Còn trống';
+                        return { ...seat, status: newStatus };
+                    }
+                    return seat;
+                })
+            );
+
+            setSelectedSeatsReturn((prevSelected) =>
+                prevSelected.includes(seatId)
+                    ? prevSelected.filter((id) => id !== seatId)
+                    : [...prevSelected, seatId]
+            );
+        }
     };
 
     const [loading, setLoading] = useState(true); // Loading state
@@ -205,11 +342,59 @@ const ChooseSeat = () => {
     }, [nav, diemdi, diemden]);
 
     if (loading) {
-        return <Loading />;
+        return <Loading />
     }
+
+
     const handleInfoPayment = () => {
-        nav.navigate("InfoPayment", { trip, ngaydi, diemdi, diemden, SeatCodeSelect, totalAmountAll, SeatCode })
+        const SeatCodeSelectDeparture = selectedSeats.map((id) => getSeatCode(id));
+        const SeatCodeSelectReturn = selectedSeatsReturn.map((id) => getSeatCode(id));
+
+        if (show && (selectedSeatsReturn === null || selectedSeatsReturn.length === 0)) {
+
+            Alert.alert("Thông báo", "Bạn phải chọn ghế lượt về.");
+            return;
+        }
+
+        const totalAmountAllDeparture = selectedSeats.length * totalFareAndPrice;
+        const totalAmountAllReturn = selectedSeatsReturn.length * totalFareAndPrice;
+        const totalAmountAll = totalAmountAllDeparture + totalAmountAllReturn;
+        const SeatCode = selectedSeats?.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
+
+        const SeatCodeReturn = selectedSeatsReturn?.length === 0 ? "" : selectedSeatsReturn.map(id => getSeatCode(id)).join(", ");
+        // Combine selected seats for both trips
+        const allSeatsSelected = {
+            departure: SeatCodeSelectDeparture,
+            return: SeatCodeSelectReturn,
+        };
+
+        console.log(SeatCodeSelectDeparture);
+        console.log(SeatCodeSelectReturn);
+
+        console.log(totalAmountAllDeparture);
+        console.log(totalAmountAllReturn);
+
+        console.log(totalAmountAll);
+
+        nav.navigate("InfoPayment", {
+            show,
+            trip,
+            tripIdve,
+            tripve: tripve || null,
+            ngaydi,
+            ngayve,
+            diemdi,
+            diemden,
+            allSeatsSelected, // Pass selected seats for both trips
+            totalAmountAllDeparture,
+            totalAmountAllReturn,
+            totalAmountAll,
+            SeatCode,
+            SeatCodeReturn
+        });
+        // nav.navigate("InfoPayment", { trip, ngaydi, diemdi, diemden, SeatCodeSelect, totalAmountAll, SeatCode })
     }
+
     const renderSeats = (seats, startIndex, columnsPerRow) => {
         const rows = [];
         for (let i = 0; i < seats.length; i += columnsPerRow) {
@@ -252,77 +437,69 @@ const ChooseSeat = () => {
         ));
     };
 
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        await fetchBookedSeats();
-        setRefreshing(false);
-    };
 
     return (
         <View style={styles.container}>
-            <ScrollView
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-                }
-            >
-                <View style={styles.body}>
-                    <View>
-                        <View style={styles.topBody}>
-                            <Text style={{ padding: 10 }}>Ngày đi</Text>
-                            {trip?.departureTime && (
-                                <Text style={styles.textTime}>
-                                    {moment(trip.departureTime, 'DD/MM/YYYY, HH:mm')
-                                        .tz('Asia/Ho_Chi_Minh')
-                                        .format('HH:mm')} {departureDate}
-                                </Text>
-                            )}
-                        </View>
-
-                        <View style={styles.seatContainer}>
-                            {/* Tầng dưới */}
-                            <View style={styles.levelContainer}>
-                                <Text style={styles.levelLabel}>Tầng dưới</Text>
-                                {renderSeats(seats.slice(0, 15), 0, 3)}
-                                {renderSeats(seats.slice(15, 20), 15, 5)}
-                            </View>
-
-                            {/* Tầng trên */}
-                            <View style={styles.levelContainer}>
-                                <Text style={styles.levelLabel}>Tầng trên</Text>
-                                {renderSeats(seats.slice(20, 35), 20, 3)}
-                                {renderSeats(seats.slice(35, 40), 35, 5)}
-                            </View>
-                        </View>
+            <TabView
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{ width: layout.width }}
+                tabBarStyle={{
+                    backgroundColor: 'white',  // Màu nền của tab bar
+                }}
+                indicatorStyle={{
+                    backgroundColor: '#f95300',  // Màu của thanh chỉ báo dưới tab
+                }}
+                renderTabBar={(props) => (
+                    <View style={{ flexDirection: 'row', backgroundColor: 'white' }}>
+                        {props.navigationState.routes.map((route, i) => {
+                            const isActive = i === props.navigationState.index;
+                            return (
+                                <TouchableOpacity
+                                    key={route.key}
+                                    style={{
+                                        flex: 1,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: isActive ? 'white' : 'transparent',
+                                        paddingVertical: 10,
+                                        borderBottomWidth: isActive ? 2 : 0,
+                                        borderBottomColor: '#f95300',
+                                    }}
+                                    onPress={() => props.jumpTo(route.key)}
+                                >
+                                    <Text
+                                        style={{
+                                            color: isActive ? '#f95300' : 'gray',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        {route.title}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
-
-
-                    <View>
-                        <View style={styles.radioIcon}>
-                            <View style={styles.chosing}>
-                                <Icon name='ellipse' type='ionicon' color={"#757575"} />
-                                <Text>Đã bán</Text>
-                            </View>
-                            <View style={styles.chosing}>
-                                <Icon name='ellipse' type='ionicon' color={"#BDD8F1"} />
-                                <Text>Còn trống</Text>
-                            </View>
-                            <View style={styles.chosing}>
-                                <Icon name='ellipse' type='ionicon' color={"#ffc9b9"} />
-                                <Text>Đang chọn</Text>
-                            </View>
-
-                        </View>
-
-
-
-                    </View>
-                </View>
-            </ScrollView>
+                )}
+            />
             <View style={styles.bottom}>
-                <View style={{ marginLeft: 20, paddingVertical: 10 }}>
-                    <Text style={{ fontWeight: 500 }} >Chiều đi</Text>
-                    <Text style={{ fontWeight: '300' }}>{selectedSeats?.length || 0} vé</Text>
-                    <Text style={{ fontWeight: '300' }}>{selectedSeats?.length === 0 ? "" : selectedSeats?.map(id => getSeatCode(id)).join(", ")}</Text>
+                <View style={{ flexDirection: "row", }}>
+                    <View style={{ marginLeft: 20, paddingVertical: 10 }}>
+                        <Text style={{ fontWeight: 500 }} >Chiều đi</Text>
+                        <Text style={{ fontWeight: '300' }}>{selectedSeats?.length || 0} vé</Text>
+                        <Text style={{ fontWeight: '300' }}>{selectedSeats?.length === 0 ? "" : selectedSeats?.map(id => getSeatCode(id)).join(", ")}</Text>
+                    </View>
+
+                    {show && (
+                        <View style={{ marginLeft: 100, paddingVertical: 10 }}>
+                            <Text style={{ fontWeight: 500 }}>Chiều về</Text>
+                            <Text style={{ fontWeight: '300' }}>{selectedSeatsReturn?.length || 0} vé</Text>
+                            <Text style={{ fontWeight: '300' }}>
+                                {selectedSeatsReturn?.length === 0 ? "" : selectedSeatsReturn?.map(id => getSeatCode(id)).join(", ")}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
                 <View style={{ marginLeft: 20, paddingVertical: 15 }}>

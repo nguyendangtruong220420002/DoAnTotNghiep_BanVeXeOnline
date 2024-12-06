@@ -6,12 +6,9 @@ import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { OtpInput } from 'react-native-otp-entry';
 import auth from '@react-native-firebase/auth';
-import axios from 'axios';
-import { getData, host, postData, Socket_Port } from '../../utils/fetching';
-import { getAsyncStorage } from '../../utils/cookie';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../../utils/toast';
-import { useSocket } from '../../context/useSocket';
-import { io } from 'socket.io-client';
+import { postData } from '../../utils/fetching';
+
 
 
 const Welcome = () => {

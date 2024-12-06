@@ -22,7 +22,8 @@ import InfoPayment from './Payment/infoPayment/InfoPayment'
 import PaymentScreen from './Payment/PaymentScreen'
 import Toast from 'react-native-toast-message'
 import { SocketProvider } from '../context/SocketProvider'
-
+import ReturnTrip from './result_search/returnTrips/ReturnTrip'
+import ForgotPassword from './forgotPassword/ForgotPassword'
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -89,6 +90,8 @@ const StackNavigator = () => {
           <Stack.Screen name='Welcome' options={{ headerShown: false }} component={Welcome} />
           <Stack.Screen name='Login' options={{ headerShown: false }} component={Login} />
           <Stack.Screen name='Register' options={{ headerShown: false }} component={Register} />
+          <Stack.Screen name='ForgotPassword' component={ForgotPassword} />
+
           <Stack.Screen name='Home' options={{ headerShown: false, }} component={HomeScreen} />
           <Stack.Screen name='DetailAccount'
             component={DetailAccount}
@@ -98,7 +101,7 @@ const StackNavigator = () => {
           <Stack.Screen name='RSearch' component={ResultSearch} />
           <Stack.Screen name='ChooseSeat' component={ChooseSeat} />
           <Stack.Screen name='Setting' component={Setting} />
-
+          <Stack.Screen name='ReturnTrip' component={ReturnTrip} />
           <Stack.Screen name='InfoPayment' component={InfoPayment} />
           <Stack.Screen name='Payment' component={Payment} />
           <Stack.Screen name='PaymentScreen' component={PaymentScreen} />

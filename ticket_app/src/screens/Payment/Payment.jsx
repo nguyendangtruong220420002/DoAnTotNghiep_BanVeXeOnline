@@ -1,4 +1,4 @@
-import { Alert, Image, Linking, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, AppState, Image, Linking, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import useAuthData from '../../context/useAuth';
@@ -10,6 +10,7 @@ import Loading from '../loading/Loading';
 import { getData, postData } from '../../utils/fetching';
 import { showSuccessToast } from '../../utils/toast';
 import PaymentScreen from './PaymentScreen';
+import { useSocket } from '../../context/useSocket';
 
 const Payment = () => {
 
@@ -71,6 +72,7 @@ const Payment = () => {
   const bookingID = route.params?.bookingID;
   const [paymentMethod, setPaymentMethod] = useState("Thanh toán qua PayOS");
   const [orderInfo, setOrderInfo] = useState(null)
+  const [appState, setAppState] = useState(AppState.currentState);
 
   useEffect(() => {
     setTimeout(() => {
@@ -143,20 +145,19 @@ const Payment = () => {
     return unsubscribe;
   }, [nav, diemdi, diemden, trip]);
 
-
+  const socket = useSocket();
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    socket.on('get-order', (data) => { // Lắng nghe dữ liệu từ server
+    socket.on('get-order', (data) => {
       console.log("Received order data:", data);
-
-      if (data) {
-        setOrderInfo(data);
-      } else {
-        setOrderInfo(null)
-      }
+      setOrderInfo(data || null);
     });
-  }, [])
+
+    return () => {
+      socket.off('get-order');
+    };
+  }, [socket]);
 
   const fetchOrder = async () => {
     if (!bookingID) {
@@ -188,31 +189,58 @@ const Payment = () => {
     setRefreshing(false);
   };
 
-  if (loading) {
-    return <Loading />;
-  }
-  const handlePayment = async () => {
 
+
+  const handleTimer = () => {
+    if (timeLeft > 0 && !orderInfo) {
+      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+      return () => clearInterval(timer);
+    }
+  };
+
+  useEffect(() => handleTimer(), [timeLeft, orderInfo]);
+
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState) => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        console.log('App has come to the foreground!');
+  
+        // Emit socket event when returning from payment
+        if (bookingID) {
+          socket.emit('get-order', { bookingID });
+          showSuccessToast("Thông báo", "Kết nối lại và xác nhận trạng thái thanh toán.");
+        }
+      }
+      setAppState(nextAppState);
+    };
+  
+    // Using the updated API for AppState listener
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+  
+    // Cleanup function for removing the listener
+    return () => {
+      appStateSubscription.remove(); // Unsubscribe using the remove function returned by addEventListener
+    };
+  }, [appState, bookingID]);
+  
+  // Do not conditionally return hooks:
+  if (loading) return <Loading />;
+
+  const handlePayment = async () => {
     try {
-      // Gửi yêu cầu thanh toán tới server
       const response = await postData(`addPaymentRoute/add`, {
-        bookingId,
         bookingID,
-        paymentMethod,
-        totalAmountAll: price,
-        SeatCode,
+        totalAmountAll: route.params?.price,
+        paymentMethod: "Thanh toán qua PayOS",
       });
 
-      // Kiểm tra kết quả trả về từ server
       if (response.data.checkoutUrl) {
-        // Mở URL thanh toán trong trình duyệt
-        socket.emit('get-order', { bookingID });
         Linking.openURL(response.data.checkoutUrl).catch((err) => {
           console.error('Failed to open URL:', err);
           Alert.alert('Lỗi', 'Không thể mở trang thanh toán.');
         });
       } else {
-
         Alert.alert('Thông báo', 'Thanh toán thất bại');
       }
     } catch (error) {
@@ -220,6 +248,7 @@ const Payment = () => {
       Alert.alert('Lỗi', 'Đã có lỗi xảy ra khi thanh toán.');
     }
   };
+
   return (
     <View style={styles.container}>
       {!orderInfo ? (<View style={styles.container}>
@@ -380,7 +409,7 @@ const Payment = () => {
       </View>
       ) : (
         <View style={styles.container}>
-          <PaymentScreen data={orderInfo} bookingId={bookingId} />
+          <PaymentScreen data={orderInfo} bookingId={bookingId} bookingID={bookingID} />
         </View>
       )}
     </View>
