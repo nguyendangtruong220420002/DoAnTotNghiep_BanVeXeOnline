@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import {
   Box,
   Typography,
@@ -8,7 +8,10 @@ import {
   Tab,
   Divider,
   LinearProgress,
-  AppBar, Toolbar, Menu, MenuItem
+  AppBar, Toolbar, Menu, MenuItem,InputLabel,Select,FormControl,
+  RadioGroup,
+  FormControlLabel,
+  Radio
 } from "@mui/material";
 import WhereToVoteTwoToneIcon from "@mui/icons-material/WhereToVoteTwoTone";
 import DirectionsBusTwoToneIcon from "@mui/icons-material/DirectionsBusTwoTone";
@@ -42,57 +45,52 @@ import profile from '../../../public/images/profile.png'
 import Nosearchrch from '../../../public/images/Nosearchrch.png'
 import { useNavigate } from 'react-router-dom';
 import RoundTrip from '../AboutPage/RoundTrip';
+import Ticket from '../AboutPage/Ticket'
+import DeleteSweepRoundedIcon from '@mui/icons-material/DeleteSweepRounded';
 
 const ShowTrips = () => {
   const navigate = useNavigate();
-  
 
+  const prevDataRef = useRef();
   const [value, setValue] = useState("1");
   const [openLogin, setOpenLogin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
-  const { dataOfShowTrips ,SeatCode:SeatCodeTrips ,tabIndex1: initialTabIndex1 } = location.state || {}   //Seact của khứ hồi  tabIndex1: initialTabIndex1 
   const [loading, setLoading] = useState(true);
   const API_URL = import.meta.env.VITE_API_URL;
-  const [trips, setTrips] = useState([]);
-  const [tabIndex1, setTabIndex1] = useState(initialTabIndex1 !== undefined ? initialTabIndex1 : 0);
+  
+  const [tabIndex1, setTabIndex1] = useState(0); 
+  const { dataOfShowTrips ,SeatCode:SeatCodeTrips,totalAmountAll:totalAmountAllTrips ,tabIndex1:initialTabIndex1 } = location.state || {}  
   const [selectedBox, setSelectedBox] = useState(null);
   const [tripType, setTripType] = useState(dataOfShowTrips ? dataOfShowTrips.tripType : '');
   const [openTabs, setOpenTabs] = useState({});
   const [tabSeatch, settabSeatch] = useState(0);
-  
-  console.log(" bên tìm chuyến gửi dataOfShowTrips:", dataOfShowTrips);
+  // const [trips, setTrips] = useState([ ]);
+  const [trips, setTrips] = useState({
+    RouteTrips: [],
+    TripsOne: [],
+  });
+  //console.log(" bên tìm chuyến gửi dataOfShowTrips:", dataOfShowTrips);
+  useEffect(() => {
+    if (initialTabIndex1 !== undefined) {
+      // Cập nhật tabIndex1 khi location.state thay đổi
+      setTabIndex1(initialTabIndex1);
+    }
+  }, [initialTabIndex1]);
+  useEffect(() => {
+    if (location.state?.tabIndex1 !== undefined) {
+      setTabIndex1(location.state.tabIndex1);
+    }
+  }, [location.state]);
+  console.log("tabIndex1",tabIndex1);
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
     }
   }, []);
-  // gọu lại khi khứ hồi
-  useEffect(() => {
-    if (!dataOfShowTrips) {
-     // console.warn("dataOfShowTrips không tồn tại. Điều hướng về trang chính.");
-      navigate('/');
-    }
-  }, [dataOfShowTrips, navigate]);
-  
- // console.log("Giá trị dataOfShowTrips:", dataOfShowTrips);
-  useEffect(() => {
-    if (initialTabIndex1 !== undefined) {
-      setTabIndex1(initialTabIndex1);
-    }
-  }, [initialTabIndex1]);
 
-  //console.log("Giá trị tabIndex1:", tabIndex1);
-///////////////////////////////
-  
-  useEffect(() => {
-    if (location.state?.nextTabIndex !== undefined) {
-      setTabIndex1(location.state.nextTabIndex);
-    }
-  }, [location.state]);
- 
   const handleLogout = () => {
     localStorage.clear();
     console.log(localStorage.getItem('userInfo'));
@@ -156,7 +154,7 @@ const ShowTrips = () => {
         departure: dataOfShowTrips.departure || '',
         destination: dataOfShowTrips.destination || '',
         departureDate: dataOfShowTrips.departureDate || '',
-        returnDate: tripType === "Khứ hồi" ? dataOfShowTrips.returnDate : undefined,
+        returnDate: tripType === "Khứ hồi" ? dataOfShowTrips.returnDate : '',
         tripType:dataOfShowTrips.tripType || '',  
         userId: userInfo ? userInfo._id : undefined,
       };
@@ -170,13 +168,12 @@ const ShowTrips = () => {
 
   const fetchTrips = async (params) => {
     try {
-      setTrips([]);
+      // setTrips([]);
+      setTrips({ RouteTrips: [], TripsOne: [] })
       setLoading(true);  
       const response = await axios.get(`${API_URL}/api/tripsRoutes/search`, { params });
-      // setTrips(response.data); 
       setTrips({
-        fromTrips: response.data.fromTrips || [],
-        toTrips: response.data.toTrips || [],
+        RouteTrips: response.data.RouteTrips || [],
         TripsOne: response.data.TripsOne || []  ,
       });
       console.log("Trips from API:", response.data);  
@@ -190,10 +187,15 @@ const ShowTrips = () => {
         console.error("Error:", error.message);
       }
     } finally {
-      setLoading(false);  // Tắt loading
+      setLoading(false); 
     }
   };
+  useEffect(() => {
+    fetchTrips(); 
+  }, []);
   
+
+
   const handleBoxClick = (tripId) => {
     const selected = trips.find((trip) => trip._id === tripId);
     setSelectedBox((prevSelectedBox) => {
@@ -215,7 +217,67 @@ const ShowTrips = () => {
     navigate('/showTrips',{ state: { dataOfShowTrips, userInfo } });
     window.location.reload(); 
   };
-  
+
+
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    ascending: true,
+  });
+  const handleSort = (key) => {
+    const isAscending = sortConfig.key === key ? !sortConfig.ascending : true;
+    setSortConfig({
+      key,
+      ascending: isAscending,
+    });
+    const sortedRouteTrips = [...trips.RouteTrips].sort((a, b) => {
+      if (a[key] < b[key]) return isAscending ? -1 : 1;
+      if (a[key] > b[key]) return isAscending ? 1 : -1;
+      return 0;
+    });
+    const sortedTripsOne = [...trips.TripsOne].sort((a, b) => {
+      if (a[key] < b[key]) return isAscending ? -1 : 1;
+      if (a[key] > b[key]) return isAscending ? 1 : -1;
+      return 0;
+    });
+    setTrips({
+      RouteTrips: sortedRouteTrips,
+      TripsOne: sortedTripsOne,
+    });
+  };
+  const [selectedTimeFilter, setSelectedTimeFilter] = useState(""); 
+  const handleTimeFilterChange = (event) => {
+    setSelectedTimeFilter(event.target.value);
+  };
+
+  const filterTripsByTime = (trip) => {
+    if (!selectedTimeFilter) return true;
+
+    const hour = moment(trip.departureTime, "DD/MM/YYYY, HH:mm")
+      .tz("Asia/Ho_Chi_Minh")
+      .hour();
+
+    if (selectedTimeFilter === "morning") {
+      return hour >= 0 && hour < 6; 
+    }
+    else if (selectedTimeFilter === "lateMorning") {
+      return hour >= 6 && hour < 12; 
+    } else if (selectedTimeFilter === "afternoon") {
+      return hour >= 12 && hour < 18;
+    } else if (selectedTimeFilter === "evening") {
+      return hour >= 18 && hour < 24; 
+    }
+    
+
+    return true; 
+  };
+  const [selectedBusType, setSelectedBusType] = useState('');
+  const filterTripsByBusType = (trip) => {
+    return selectedBusType === '' || trip.busId.busType === selectedBusType;
+  };
+  const clearFilters = () => {
+    setSelectedTimeFilter('');
+    setSelectedBusType('');
+  };
   return (
     <Box>
        <Box sx={{ position: 'relative' }}>
@@ -421,10 +483,16 @@ const ShowTrips = () => {
                 marginLeft: "20px",
               }}>
               <Typography className="button13">Sắp xếp theo:</Typography>
-              <Typography className="button14">Giá </Typography>
-              <Typography className="button14">Xếp hạng</Typography>
-              <Typography className="button14">Thời gian</Typography>
-              <Typography className="button14">Thời gian khởi hành</Typography>
+              <Typography className="button14"  onClick={() => handleSort("totalFareAndPrice")}>
+              Giá {sortConfig.key === "totalFareAndPrice" && (sortConfig.ascending ? "↑" : "↓")}</Typography>
+              <Typography className="button14"  onClick={() => handleSort("rating")}>
+              Xếp hạng {sortConfig.key === "rating" && (sortConfig.ascending ? "↑" : "↓")}</Typography>
+              <Typography className="button14"    onClick={() => handleSort("departureTime")}>
+              Thời gian khởi hành {sortConfig.key === "departureTime" && (sortConfig.ascending ? "↑" : "↓")}
+              </Typography>
+              <Typography className="button14" onClick={() => handleSort("endTime")}>
+              Thời gian kết thúc {sortConfig.key === "endTime" && (sortConfig.ascending ? "↑" : "↓")}</Typography>
+              
             </Box>
             <Box
               sx={{
@@ -456,7 +524,61 @@ const ShowTrips = () => {
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Box
                 sx={{ width: "320px", height: "500px", alignItems: "", border: "1px solid #ececec", backgroundColor: "#ffffff", borderRadius: "8px", marginLeft: "23px", boxShadow: "", }}>
-                <Typography> Bộ Lọc</Typography>
+               
+                <Box sx={{display:'flex', justifyContent:'space-between'}} >
+                <Typography className="button52" sx={{marginLeft:'18px', marginTop:'20px', marginBottom:'10px'}}> Bộ Lọc</Typography>
+                <Button onClick={clearFilters}><DeleteSweepRoundedIcon sx={{width:'50px', height:'30px', color:'#e60c0f'}}></DeleteSweepRoundedIcon></Button>
+                </Box>
+                <Divider sx={{width:'90%', margin: "auto",marginBottom:'10px'}}></Divider>
+                <Box sx={{ border: "0.1px solid #fffefe",backgroundColor: "#f4f4f4",borderRadius: "8px",width:'90%',isplay: "flex", margin: "auto", flexDirection:'column', }}>
+                <Typography className="button52" sx={{marginLeft:'20px', marginTop:'20px'}}> Thời Gian Khởi Hàng</Typography>
+                  <FormControl component="fieldset">
+                  <RadioGroup
+                    value={selectedTimeFilter}
+                    onChange={handleTimeFilterChange}>
+                  <FormControlLabel value="morning" control={<Radio sx={{'&.Mui-checked': {color: '#dc635b'},fontSize: '14px',transform: 'scale(0.8)',marginLeft:'35px'}} />} label="Sáng (00:00 - 06:00)" sx={{ '& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' } }} />
+                  <FormControlLabel value="lateMorning" control={<Radio sx={{'&.Mui-checked': {color: '#dc635b'},fontSize: '14px',transform: 'scale(0.8)',marginLeft:'35px'}} />} label="Sáng (06:00 - 12:00)" sx={{ '& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' } }} />
+                  <FormControlLabel value="afternoon" control={<Radio sx={{'&.Mui-checked': {color: '#dc635b'},fontSize: '14px',transform: 'scale(0.8)',marginLeft:'35px'}} />} label="Chiều (12:00 - 18:00)" sx={{ '& .MuiFormControlLabel-label': { fontSize: '14.5x', display: 'inline' } }} />
+                  <FormControlLabel value="evening" control={<Radio sx={{'&.Mui-checked': {color: '#dc635b'},fontSize: '14px',transform: 'scale(0.8)',marginLeft:'35px'}} />} label="Tối (18:00 - 00:00)" sx={{ '& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' } }} />
+                  </RadioGroup>
+                </FormControl>
+                </Box>
+                  <br></br>
+                <Box sx={{ border: "0.1px solid #fffefe",backgroundColor: "#f4f4f4",borderRadius: "8px",width:'90%',isplay: "flex", margin: "auto", flexDirection:'column', }}>
+                <Typography className="button52" sx={{marginLeft:'20px', marginTop:'20px'}}> Loại xe</Typography>
+                <FormControl component="fieldset">
+                  <RadioGroup
+                     value={selectedBusType}
+                    onChange={(e) => setSelectedBusType(e.target.value)}>
+             
+              <FormControlLabel 
+                value="Giường nằm cao cấp(40G)" control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} label="Giường nằm cao cấp(40G)" 
+                sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
+              />
+              <FormControlLabel 
+                value="Khách sạc đi động(34G)" 
+                control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} 
+                label="Khách sạc đi động(34G)" 
+                sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
+              />
+
+              <FormControlLabel 
+                value="Limousine(20G)" 
+                control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} 
+                label="Limousine(20G)" 
+                sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
+              />
+
+              <FormControlLabel 
+                value="Giường đôi (16G)" 
+                control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} 
+                label="Giường đôi (16G)" 
+                sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
+              />
+              </RadioGroup>
+              </FormControl>
+                </Box>
+                <br></br>
               </Box>
             </Box>
 
@@ -475,7 +597,12 @@ const ShowTrips = () => {
                   {tabIndex1 === 0 && ( 
                     // chuyến đi
                     <Box>
-                    {trips.toTrips.map((trip) => (
+                    {trips.TripsOne
+                      .filter((trip) => filterTripsByTime(trip))
+                       .filter((trip) => filterTripsByBusType(trip, selectedBusType))
+                    .map((trip) => {
+                        const BusName = trip.userId.fullName
+                        return (
                       <Box
                         key={trip._id}
                         onClick={() => handleBoxClick(trip._id)}
@@ -704,6 +831,10 @@ const ShowTrips = () => {
                                       destination={trip.routeId.destination}
                                       business={trip.userId.fullName}
                                       dataOfShowTrips={dataOfShowTrips}
+                                      BusName={BusName}
+                                      //lien quan voi khu hoi
+                                      SeatCodeTrips={SeatCodeTrips}
+                                      totalAmountAllTrips={totalAmountAllTrips}
                                     ></SeatSelection>
                                   </Box>
                                 )}
@@ -873,7 +1004,8 @@ const ShowTrips = () => {
                           <Box sx={{ height: "10px" }}></Box>
                         </Box>
                       </Box>
-                    ))}
+                        );
+                      })}
                   </Box> 
                    //hết chuyến đi
                   )}
@@ -881,7 +1013,12 @@ const ShowTrips = () => {
                    {tabIndex1 === 1 && (
                     //chuyến về
                     <Box>
-                    {trips.fromTrips.map((trip) => (
+                        {trips.RouteTrips && trips.RouteTrips.length > 0 ? (
+                    trips.RouteTrips.filter(filterTripsByTime)
+                    .filter((trip) => filterTripsByBusType(trip, selectedBusType))
+                    .map((trip) => {
+                       const BusName2 = trip.userId.fullName
+                       return (
                       <Box
                         key={trip._id}
                         onClick={() => handleBoxClick(trip._id)}
@@ -1095,8 +1232,7 @@ const ShowTrips = () => {
   
                                 {openTabs[trip._id] === "1" && (
                                   <Box>
-                                    
-                                    <SeatSelection
+                                    <RoundTrip
                                       tripId={trip._id}
                                       userInfo={userInfo}
                                       totalAmount={trip.totalFareAndPrice}
@@ -1110,7 +1246,10 @@ const ShowTrips = () => {
                                       destination={trip.routeId.destination}
                                       business={trip.userId.fullName}
                                       dataOfShowTrips={dataOfShowTrips}
-                                    ></SeatSelection>
+                                      returnDateLab={returnDateLabel}
+                                      BusName2={BusName2}
+                                      //khu hoi 
+                                    ></RoundTrip>
                                   </Box>
                                 )}
                                 {openTabs[trip._id] === "2" && (
@@ -1279,15 +1418,26 @@ const ShowTrips = () => {
                           <Box sx={{ height: "10px" }}></Box>
                         </Box>
                       </Box>
-                    ))}
+                      );
+                    })
+                  ) : (
+                    <Typography sx={{display:'flex', flexDirection:'column', margin:'auto', alignContent:'center', alignItems:'center'}}>
+                      <Typography className="button38-6">Không tìm thấy chuyến xe về . . .</Typography>
+                      <Box component='img'  src={Nosearchrch} sx={{width:'35%', height:'35%',  objectFit: 'contain', objectPosition: 'center',marginTop:'15px'}}></Box>
+                    </Typography>
+                      )}
                   </Box> 
                    // hết khứ hồi
                   )}
                 </Box>
               ) : (
                 <Box>
-                  <Box>
-                  {trips.TripsOne.map((trip) => (
+                  {trips.TripsOne && trips.TripsOne.length > 0 ? (
+                  trips.TripsOne.filter(filterTripsByTime)
+                  .filter((trip) => filterTripsByBusType(trip, selectedBusType))
+                  .map((trip) => {
+                      const BusName = trip.userId.fullName
+                    return (
                     <Box
                       key={trip._id}
                       onClick={() => handleBoxClick(trip._id)}
@@ -1516,6 +1666,9 @@ const ShowTrips = () => {
                                     destination={trip.routeId.destination}
                                     business={trip.userId.fullName}
                                     dataOfShowTrips={dataOfShowTrips}
+                                    SeatCodeTrips={SeatCodeTrips}
+                                    totalAmountAllTrips={totalAmountAllTrips}
+                                    BusName={BusName}
                                   ></SeatSelection>
                                 </Box>
                               )}
@@ -1685,8 +1838,14 @@ const ShowTrips = () => {
                         <Box sx={{ height: "10px" }}></Box>
                       </Box>
                     </Box>
-                  ))}
-                </Box>  
+                    );
+                  })
+                ) : (
+                  <Typography sx={{display:'flex', flexDirection:'column', margin:'auto', alignContent:'center', alignItems:'center'}}>
+                  <Typography className="button38-6">Không tìm thấy chuyến xe đi . . . </Typography>
+                  <Box component='img'  src={Nosearchrch} sx={{width:'35%', height:'35%',  objectFit: 'contain', objectPosition: 'center',marginTop:'15px'}}></Box>
+                </Typography>
+                )} 
               </Box>
               )}
             </Box>
@@ -1699,7 +1858,7 @@ const ShowTrips = () => {
               <Button onClick={handleOpenModal}>Mở modal</Button>
             </TabPanel>
             <TabPanel value="3">
-              <Typography>Vé Của Tôi</Typography>
+            <Ticket  userInfo={userInfo}> onLogout={handleLogout} setUserInfo={setUserInfo} </Ticket>
             </TabPanel>
             <TabPanel value="4">
               <Typography>Cần Trợ Giúp</Typography>
@@ -1709,6 +1868,7 @@ const ShowTrips = () => {
             </TabPanel>
           </TabContext>
         </Box>
+        {/* <Typography>xin chào </Typography> */}
       </Box>
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
       <ConfirmInfo

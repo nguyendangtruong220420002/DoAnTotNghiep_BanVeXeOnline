@@ -18,6 +18,7 @@ import pay from '../../../public/images/pay.png'
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
+ 
   const InforCusto = location.state?.userInfo;
   const dataOfShowTrips = location.state?.dataOfShowTrips;
   const formDataCustoOfTrips = location.state?.formDataCustoOfTrips;
@@ -35,8 +36,20 @@ const Payment = () => {
   const bookingId = location.state?.bookingId;
   const bookingID = location.state?.bookingID;
   const business = location.state?.business;  
-// console.log("dataOfShowTrips",dataOfShowTrips);
+  const { tripType } = dataOfShowTrips || {};
+  const bookingId2 = location.state?.bookingId2;
   
+ //console.log("bookingId2",bookingId2);
+// console.log("dataOfShowTrips",dataOfShowTrips);
+const departure2 = location.state?.departure2;
+const selectedSeats2 = location.state?.selectedSeats2;
+const destination2 = location.state?.destination2;
+const SeatCode2 = location.state?.SeatCode2;
+const from2 = location.state?.from2;
+const to2 = location.state?.to2;
+const totalAmountAllTowTrips = location.state?.totalAmountAllTowTrips;
+//console.log("totalAmountAllTowTrips",totalAmountAllTowTrips)
+
 
   const [paymentMethod, setPaymentMethod] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
@@ -46,6 +59,11 @@ const Payment = () => {
     setPaymentMethod(event.target.value);
   };
  
+  const formattedTotalAmountAllTowTrips = new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(totalAmountAllTowTrips);  
+  
   const initialTime = 5 * 60; 
   const [timeLeft, setTimeLeft] = useState(initialTime);
   useEffect(() => {
@@ -68,9 +86,10 @@ const Payment = () => {
     try {
       const response = await axios.post(`${API_URL}/api/addPaymentRoute/add`, {
         bookingId,
+        bookingId2,
         bookingID,
         paymentMethod,
-        totalAmountAll,
+        totalAmountAllTowTrips,
         SeatCode,
         business,
         dataOfShowTrips,
@@ -149,8 +168,9 @@ const Payment = () => {
                     <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd",borderRadius:'10px', width:'350px',backgroundColor:'rgb(255, 255, 255)',marginTop:'20px'}}> 
                         <Box sx={{display:'flex', justifyContent:'space-between',alignItems:'center'}}> 
                           <Typography className='button35' sx={{marginLeft:'18px', marginTop:'20px' }} >Tạm tính <span style={{color:'red'}}>*</span></Typography>     
-                           <Typography className='button35-5' sx={{ marginTop:'20px', marginRight:'20px' }} > {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""}   </Typography> 
+                           <Typography className='button35-5' sx={{ marginTop:'20px', marginRight:'20px' }} > {formattedTotalAmountAllTowTrips}  </Typography> 
                         </Box>
+                        {tripType !== 'Khứ hồi' && (
                         <Box sx={{display:'flex', marginRight:'20px',justifyContent:'space-between', marginBottom:'20px'}}> 
                           <Typography className='button38' sx={{marginLeft:'20px', }}>Giá vé</Typography>  
                           <Box sx={{display:'flex',flexDirection:'column', justifyContent:'space-between',alignItems:'flex-end'}}>
@@ -161,8 +181,10 @@ const Payment = () => {
                           <Typography className='button38-2'> Mã ghế/giường:  {SeatCode}</Typography>
                           </Box>
                          
-                        </Box>                      
+                        </Box>     
+                        )}               
                     </Box>
+                  
                     <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd",borderRadius:'10px', width:'350px',backgroundColor:'rgb(255, 255, 255)' ,marginTop:'15px'}}>                   
                         <Typography className='button35' sx={{marginLeft:'18px', marginTop:'20px' }} >Thông tin chuyến đi  <span style={{color:'red'}}>*</span></Typography>  
                             <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px', }}>
@@ -185,7 +207,33 @@ const Payment = () => {
                                 <Typography className='button38' sx={{color:'#647280',fontSize:'15px'}}> Tổng tiền lượt đi</Typography>
                                 <Typography className='button38-3' sx={{fontSize:'18px',color:"#2b8276"}}> {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""} </Typography>
                             </Box>        
-                        </Box>
+                      </Box>
+                      
+                       {tripType === 'Khứ hồi' && (
+                      <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd",borderRadius:'10px', width:'350px',backgroundColor:'rgb(255, 255, 255)' ,marginTop:'15px'}}>                   
+                        <Typography className='button35' sx={{marginLeft:'18px', marginTop:'20px' }} >Thông tin chuyến về  <span style={{color:'red'}}>*</span></Typography>  
+                            <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px', }}>
+                                <Typography className='button38' sx={{color:'#647280',fontSize:'15px'}}> Tuyến xe</Typography>
+                                <Typography className='button38-3' sx={{fontSize:'15px',color:"#2b8276"}}> {departure2} - {destination2} </Typography>
+                            </Box> 
+                            <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px',marginTop:'5px'}}>
+                                <Typography className='button38' sx={{color:'#647280',fontSize:'15px'}}> Đón/trả</Typography>
+                                <Typography className='button38-3' sx={{fontSize:'13px',}}> {from2} - {to2} </Typography>
+                            </Box> 
+                            <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px',marginTop:'5px'}}>
+                                <Typography className='button38' sx={{color:'#647280',fontSize:'15px'}}> Số lượng vé</Typography>
+                                <Typography className='button38-3' sx={{fontSize:'15px',color:"#2b8276"}} > {selectedSeats2.length === 0 ? "" : `${selectedSeats2.length} Vé`} </Typography>
+                            </Box> 
+                            <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px',marginTop:'5px'}}>
+                                <Typography className='button38' sx={{color:'#647280',fontSize:'15px'}}> Số vé</Typography>
+                                <Typography className='button38-3'sx={{fontSize:'15px'}}> {SeatCode2},</Typography>
+                            </Box>
+                            <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px',marginTop:'5px', marginBottom:'20px'}}>
+                                <Typography className='button38' sx={{color:'#647280',fontSize:'15px'}}> Tổng tiền lượt đi</Typography>
+                                <Typography className='button38-3' sx={{fontSize:'18px',color:"#2b8276"}}> {selectedSeats2.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats2.length * totalAmount) : ""} </Typography>
+                            </Box>        
+                      </Box>
+                       )}
                         <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd",borderRadius:'10px', width:'350px',backgroundColor:'rgb(255, 255, 255)' ,marginTop:'15px',marginBottom:'20px'}}>                   
                         <Typography className='button35' sx={{marginLeft:'18px', marginTop:'20px' }} >Thông tin liên hệ <span style={{color:'red'}}>*</span></Typography>  
                             <Box sx={{display:'flex', justifyContent:'space-between' , marginLeft:'20px', marginRight:'20px', }}>

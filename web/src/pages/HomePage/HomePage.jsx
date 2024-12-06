@@ -11,7 +11,6 @@ import '../HomePage/css/HomePage.css';
 import Content from '../HomePage/content';
 import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
-
 import Ticket from '../AboutPage/Ticket'
 import Information from '../../../src/pages/AboutPage/Information';
 import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 

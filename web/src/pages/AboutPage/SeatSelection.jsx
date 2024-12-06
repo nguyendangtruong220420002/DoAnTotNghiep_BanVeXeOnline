@@ -12,9 +12,12 @@ import Stack from '@mui/material/Stack';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips}) => {
+const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips,BusName}) => {
   const navigate = useNavigate();
   console.log("Giá trị dataOfShowTrips nhập từ SeatSelection:", dataOfShowTrips);
+  //const totalAmountAllTrips = location.state?.totalAmountAllTrips;      
+  const SeatCodeTrips = location.state?.SeatCodeTrips; 
+  //console.log("totalAmountAllTrips",totalAmountAllTrips)    ;
   const { tripType } = dataOfShowTrips; 
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -110,6 +113,39 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
       );
     } catch (error) {
       console.error("Lỗi khi lấy ghế đã đặt:", error);
+    }
+  };
+
+  const handleNavigation = () => {
+    if (tripType === "Khứ hồi") {
+      // Lưu trữ dữ liệu vào sessionStorage
+      sessionStorage.setItem('tripData', JSON.stringify({
+        userInfo,
+        from,
+        schedule,
+        to,
+        endTime,
+        selectedSeats,
+        totalAmount,
+        SeatCode,
+        departure,
+        destination,
+        tripId,
+        totalAmountAll,
+        departureDate,
+        departureTime,
+        SeatCodeSelect,
+        business,
+        dataOfShowTrips,
+        BusName,
+      }));
+      navigate('/showTrips', { state: { SeatCode ,totalAmountAll , tabIndex1: 1 ,dataOfShowTrips } }) 
+    } else {
+      navigate('/inforCustoOfTrips', {
+        state: {userInfo,from,schedule,to,endTime,selectedSeats,totalAmount,SeatCode,departure,destination,tripId,
+          totalAmountAll,departureDate,departureTime,SeatCodeSelect,business,dataOfShowTrips,BusName,
+        },
+      });
     }
   };
 
@@ -284,37 +320,22 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
                   </Typography>
           </Box>
               {selectedSeats.length > 0 && (
-                // <Button 
-                // onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
-                //   totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
-                // sx={{backgroundColor:  'rgb(220,99,91)' ,
-                //   color:  'white' ,
-                //   borderRadius:"50px",
-                //   width:'150px',
-                //   height:'32px',
-                //   textTransform:'none', 
-                //   textAlign:'center',
-                //   textShadow:"1px 1px 2px rgba(0, 0, 0, 0.2)",
-                //   fontSize:'13.5px',
-                //     }}>
-                //   Tiếp Tục
-                // </Button>
                 <Button
-  onClick={() =>
-    tripType === "Khứ hồi"
-      ? navigate('/showTrips', { state: { SeatCode , tabIndex1: 1 ,dataOfShowTrips } }) 
-      : navigate('/inforCustoOfTrips', {
-          state: {
-            userInfo, from,schedule,to,endTime,selectedSeats,totalAmount,SeatCode,departure,destination,
-            tripId,
-            totalAmountAll,
-            departureDate,
-            departureTime,
-            SeatCodeSelect,
-            business,
-            dataOfShowTrips,
-          },
-        })
+  onClick={
+    // () =>
+    // tripType === "Khứ hồi"
+    //   ? navigate('/showTrips', { state: { SeatCode ,totalAmountAll , tabIndex1: 1 ,dataOfShowTrips } }) 
+    //   : navigate('/inforCustoOfTrips', {
+    //       state: {
+    //         userInfo, from,schedule,to,endTime,selectedSeats,totalAmount,SeatCode,departure,destination,tripId, totalAmountAll,
+    //         departureDate,
+    //         departureTime,
+    //         SeatCodeSelect,
+    //         business,
+    //         dataOfShowTrips,
+    //       },
+    //     })
+    handleNavigation
   }
   sx={{
     backgroundColor: 'rgb(220,99,91)',
@@ -330,6 +351,7 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
 >
   Tiếp Tục
 </Button>
+
               )}
         </Box>
      </Box>
@@ -356,6 +378,7 @@ SeatSelection.propTypes = {
     returnDate: PropTypes.string,
     tripType: PropTypes.string,
   }),
+  BusName:PropTypes.string,
  
 };
 export default SeatSelection;
