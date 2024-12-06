@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Tab, Typography, TextField ,Alert,Stack } from '@mui/material';
+import { Box, Button, Tab, Typography, TextField ,Alert,Stack, Snackbar } from '@mui/material';
 import PropTypes from 'prop-types';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import logout from '../../../public/images/log-out.png';
@@ -9,6 +9,8 @@ import information from '../../../public/images/information.png';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import profile  from '../../../public/images/profile.png';
 import TicketOfMy from '../AboutPage/TicketOfMy'
+import reset  from '../../../public/images/reset-password.png';
+import axios from "axios";
 
 const Information = ({ onLogout, userInfo,setUserInfo }) => {
   
@@ -17,15 +19,72 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
   const [message, setMessage] = useState('');
   const [imagePath, setImagePath] = useState('');
   const API_URL = import.meta.env.VITE_API_URL;
+  const [phoneNumber, setPhoneNumber] = useState(userInfo.phoneNumber);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [alert, setAlert] = useState({
+    open: false,
+    message: '',
+    severity: 'success', 
+  });
+  
 
 
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
-      setUserInfo(JSON.parse(storedUserInfo));
-      
+      const user = JSON.parse(storedUserInfo);
+      setUserInfo(user);
+      setPhoneNumber(user.phoneNumber);  
     }
   }, []);
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+    //  console.log('Token retrieved:', token);
+    }
+  }, []);
+
+  const handlePasswordReset = async () => {
+    const token = localStorage.getItem('token');  
+  
+    if (!token) {
+      console.log('Token not found');
+      return;
+    }
+  
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/users/change-password/${userInfo._id}`,
+        {
+          phoneNumber,
+          newPassword,
+          oldPassword,
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,  
+          },
+        }
+      );
+  
+      setAlert({
+        open: true,
+        message: 'Mật khẩu đã được thay đổi thành công!',
+        severity: 'success',
+      });
+    } catch (error) {
+      setAlert({
+        open: true,
+        message: 'Đã có lỗi xảy ra khi thay đổi mật khẩu.',
+        severity: 'error',
+      });
+     
+    }
+  };
+  
+
   useEffect(() => {
     if (message) {
       console.log('Thông báo mới:', message);
@@ -33,8 +92,8 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
   }, [message]);
   useEffect(() => {
     if (userInfo) {
-      console.log('Số điện thoại:', userInfo.phoneNumber);
-      console.log('Họ và tên:', userInfo.fullName);
+     // console.log('Số điện thoại:', userInfo.phoneNumber);
+    //  console.log('Họ và tên:', userInfo.fullName);
     }
   }, [userInfo]);
 
@@ -129,6 +188,14 @@ if (userInfo.img) {
             <Tab 
               label={<Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '5px' }}>Thông tin cá nhân</Box>} 
               value="1" 
+              className='button6'  
+              iconPosition="start"  
+              sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
+              icon={<Box component='img' src={reset} sx={{ width: '37px', height: '37px' }}></Box>}
+            />
+              <Tab 
+              label={<Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '5px' }}>Đổi mật khẩu</Box>} 
+              value="4" 
               className='button6'  
               iconPosition="start"  
               sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
@@ -315,6 +382,121 @@ if (userInfo.img) {
           </TabPanel>
           <TabPanel value="2"> 
           <TicketOfMy  userInfo={userInfo}></TicketOfMy>
+          </TabPanel>
+          <TabPanel value="4"> 
+
+          <Box>
+              <Typography sx={{ fontSize: '23px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Đặt lại mật khẩu</Typography>
+              <Typography sx={{ fontSize: '15px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.1)', color: '#79828a' }}>Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</Typography>
+              <Box sx={{ width: '770px', height: '398px', marginTop: '20px', backgroundColor: '#fffafa', borderRadius: '15px', border: '2px solid #e5e7eb', boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)' }}> 
+             <Box sx={{display:'flex', flexDirection:'column', margin:'auto',justifyContent:'center', alignItems:'center'}}>
+             <Typography sx={{ fontSize: '23px', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', marginTop:'20px' }}>{userInfo.phoneNumber}</Typography>
+             <TextField
+                 sx={{ marginTop: '20px', width: '50%' }}
+                 color="warning"
+                  InputProps={{
+                sx: {
+                  fontSize: '13px',
+                  backgroundColor: '#fef3f0', 
+                  '&.Mui-focused': {
+                    backgroundColor: 'white', 
+                    boxShadow: ' 0 0 0 2px rgb(255, 224, 212)'
+                  },
+                },
+              }}
+              InputLabelProps={{
+                sx: {
+                  fontSize: '13px', 
+                },
+              }}
+              size="small"
+              label="Mật khẩu cũ"
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+            />
+              <TextField
+          sx={{ marginTop: '20px', width: '50%' }}
+          color="warning"
+       InputProps={{
+         sx: {
+           fontSize: '13px',
+           backgroundColor: '#fef3f0', 
+           '&.Mui-focused': {
+             backgroundColor: 'white', 
+             boxShadow: ' 0 0 0 2px rgb(255, 224, 212)'
+           },
+         },
+       }}
+       InputLabelProps={{
+         sx: {
+           fontSize: '13px', 
+         },
+       }}
+       size="small"
+          label="Mật khẩu mới"
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+        <TextField
+        sx={{ marginTop: '20px', width: '50%' }}
+        color="warning"
+     InputProps={{
+       sx: {
+         fontSize: '13px',
+         backgroundColor: '#fef3f0', 
+         '&.Mui-focused': {
+           backgroundColor: 'white', 
+           boxShadow: ' 0 0 0 2px rgb(255, 224, 212)'
+         },
+       },
+     }}
+     InputLabelProps={{
+       sx: {
+         fontSize: '13px', 
+       },
+     }}
+     size="small"
+          label="Nhập lại mật khẩu"
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+        <Button
+          sx={{ marginTop: '20px', width: '30%' }}
+          variant="contained"
+          color="primary"
+          onClick={handlePasswordReset}
+        >
+          Đổi mật khẩu
+        </Button>
+             </Box>
+        <Stack
+        sx={{
+          width: '400px',
+          margin: 'auto',
+          position: 'absolute',
+          bottom: '800px',
+          left: '85%',
+          transform: 'translateX(-50%)',
+          zIndex: 10,
+        }}
+      >
+        {alert.open && (
+          <Alert
+            variant="filled"
+            severity={alert.severity}
+            onClose={() => setAlert((prev) => ({ ...prev, open: false }))}
+          >
+            {alert.message}
+          </Alert>
+        )}
+      </Stack>
+              </Box>
+            </Box>
+          
+
           </TabPanel>
         </TabContext>
       </Box>

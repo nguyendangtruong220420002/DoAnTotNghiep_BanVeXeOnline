@@ -47,50 +47,62 @@ const RouteForm = ({ userInfo, }) => {
     const fetchProvincesAndDistricts = async () => {
         setLoading(true);
 
-        try {
-            const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
-            if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
-                const provincesData = provincesResponse.data.data;
-                const cleanedProvinces = provincesData.map((province) => ({
-                    ...province,
-                    name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
-                }));
+        // try {
+        //     const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
+        //     if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
+        //         const provincesData = provincesResponse.data.data;
+        //         const cleanedProvinces = provincesData.map((province) => ({
+        //             ...province,
+        //             name: province.name.replace(/^(Tỉnh|Thành phố) /, ""),
+        //         }));
 
-                const allDistricts = [];
-                const pageSize = 100;
-                let page = 1;
+        //         const allDistricts = [];
+        //         const pageSize = 100;
+        //         let page = 1;
 
-                while (true) {
-                    try {
-                        const districtResponse = await axios.get(`https://open.oapi.vn/location/districts?page=${page}&size=${pageSize}`);
-                        if (districtResponse.data.code === 'success') {
-                            const districtsData = districtResponse.data.data.map((district) => {
-                                const province = provincesData.find(prov => prov.id === district.provinceId);
-                                return {
-                                    ...district,
-                                    provinceName: province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : '',
-                                    label: `${district.name.replace(/^(Huyện|Quận) /, "")} - ${province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : ''}`,
-                                };
-                            });
+        //         while (true) {
+        //             try {
+        //                 const districtResponse = await axios.get(`https://open.oapi.vn/location/districts?page=${page}&size=${pageSize}`);
+        //                 if (districtResponse.data.code === 'success') {
+        //                     const districtsData = districtResponse.data.data.map((district) => {
+        //                         const province = provincesData.find(prov => prov.id === district.provinceId);
+        //                         return {
+        //                             ...district,
+        //                             provinceName: province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : '',
+        //                             label: `${district.name.replace(/^(Huyện|Quận) /, "")} - ${province ? province.name.replace(/^(Tỉnh|Thành phố) /, "") : ''}`,
+        //                         };
+        //                     });
 
-                            allDistricts.push(...districtsData);
-                            if (districtsData.length < pageSize) break;
-                            page++;
-                        } else {
-                            break;
-                        }
-                    } catch (error) {
-                        if (error.response && error.response.status === 429) {
-                            await new Promise(resolve => setTimeout(resolve, 1000)); 
-                        } else {
-                            break; 
-                        }
-                    }
-                }
+        //                     allDistricts.push(...districtsData);
+        //                     if (districtsData.length < pageSize) break;
+        //                     page++;
+        //                 } else {
+        //                     break;
+        //                 }
+        //             } catch (error) {
+        //                 if (error.response && error.response.status === 429) {
+        //                     await new Promise(resolve => setTimeout(resolve, 1000)); 
+        //                 } else {
+        //                     break; 
+        //                 }
+        //             }
+        //         }
 
-                setProvinces(cleanedProvinces);
-                setDistricts(allDistricts);
-            }
+            //     setProvinces(cleanedProvinces);
+            //     setDistricts(allDistricts);
+            // }
+            try {
+              const response = await axios.get('https://provinces.open-api.vn/api/p/');
+              const provinces = response.data;
+              const cleanedProvinces = provinces.map((province) => ({
+                        ...province,
+                           name: province.name.replace(/^(Tỉnh|Thành phố) /, ""), 
+                       }));
+              console.log("Số lượng tỉnh/thành phố:", provinces.length); 
+              console.log("Danh sách tỉnh/thành phố:", provinces);
+              setProvinces(cleanedProvinces);
+    
+              setLoading(false);
 
             setLoading(false);
         } catch (error) {

@@ -1,25 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin } = require('../controllers/userController')
+const { createUser, checkPhoneNumberExists, forgotPassword,loginUser, updateUser, updateAvatarMobile, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin } = require('../controllers/userController')
 const authenticateToken = require('../../src/middlewares/authenticateToken');
 const { upload } = require('../config/s3');
 
-// Route tạo người dùng
 router.post('/', createUser);
 
-// Route check sdt tồn tại
 router.post('/check-phone', checkPhoneNumberExists);
 
-// Route đăng nhập người dùng
 router.post('/login', loginUser);
+router.post('/forgotPassword', forgotPassword);
 
 
-// // Route cập nhật thông tin người dùng với upload ảnh
 router.put('/:id', authenticateToken, upload.single('img'), updateUser);
 router.put("/update-avatar-mobile/:id", updateAvatarMobile);
 router.post("/change-password/:id", changePassword);
 
-// Route đăng nhập người dùng
 router.get('/getAll', getAllUser);
 router.get('/get-user-by-admin', getAllUserByAdmin);
 router.post('/create-user-by-admin', creatUserByAdmin);

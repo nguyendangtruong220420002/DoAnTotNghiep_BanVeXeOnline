@@ -10,7 +10,7 @@ import {
   Radio,
   TextField,
   Autocomplete,
-  Button ,Select,MenuItem
+  Button ,Select,MenuItem,Stack, Alert
 } from "@mui/material";
 import "../HomePage/css/content.css";
 import axios from "axios";
@@ -51,25 +51,48 @@ const SearchTrips = ({userInfo}) => {
   const [numberOfTickets, setNumberOfTickets] = useState(1);
   const [showNoTripMessage, setShowNoTripMessage] = useState(false);
   const [tripData, setTripData] = useState(null);
+
+  const [alert, setAlert] = useState('');
+
+  useEffect(() => {
+    if (alert.open) {
+      const timer = setTimeout(() => {
+        setAlert((prev) => ({ ...prev, open: false }));
+      }, 3000);
+      return () => clearTimeout(timer); 
+    }
+  }, [alert.open, setAlert]);
  
   useEffect(() => {
     const fetchProvincesAndDistricts = async () => {
         setLoading(true); 
 
-        try {
-          const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
-          if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
-              const provincesData = provincesResponse.data.data;
-              const cleanedProvinces = provincesData.map((province) => ({
-                  ...province,
-                  name: province.name.replace(/^(Tỉnh|Thành phố) /, ""), 
-              }));
+        //try {
+          // const provincesResponse = await axios.get("https://open.oapi.vn/location/provinces?size=63");
+          // if (provincesResponse.data && Array.isArray(provincesResponse.data.data)) {
+          //     const provincesData = provincesResponse.data.data;
+          //     const cleanedProvinces = provincesData.map((province) => ({
+          //         ...province,
+          //         name: province.name.replace(/^(Tỉnh|Thành phố) /, ""), 
+          //     }));
 
-              console.log("Danh sách tỉnh/thành phố:", cleanedProvinces);
-              setProvinces(cleanedProvinces);
-          } else {
-              console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
-          }
+          //     console.log("Danh sách tỉnh/thành phố:", cleanedProvinces);
+          //     setProvinces(cleanedProvinces);
+          // } else {
+          //     console.error("Dữ liệu API không hợp lệ:", provincesResponse.data);
+          // }
+          try {
+            const response = await axios.get('https://provinces.open-api.vn/api/p/');
+            const provinces = response.data;
+            const cleanedProvinces = provinces.map((province) => ({
+                      ...province,
+                         name: province.name.replace(/^(Tỉnh|Thành phố) /, ""), 
+                     }));
+            // console.log("Số lượng tỉnh/thành phố:", provinces.length); 
+            // console.log("Danh sách tỉnh/thành phố:", provinces);
+            setProvinces(cleanedProvinces);
+  
+            setLoading(false);
 
           setLoading(false);
       } catch (error) {
@@ -83,6 +106,7 @@ const SearchTrips = ({userInfo}) => {
 
   const handleChange = (event) => {
     setSelectedValue(event.target.value);
+    
     if (event.target.value === "one-way") {
       setDateRange([dateRange[0], null]);  
     }
@@ -224,11 +248,18 @@ const SearchTrips = ({userInfo}) => {
   
   const handleSearch = () => {
     const departureDate = new Date(dateRange[0]);
-    //departureDate.setHours(0, 0, 0, 0);  
-  
+   
     const returnDate = dateRange[1] ? new Date(dateRange[1]) : null;
     if (returnDate) {
     //  returnDate.setHours(0, 0, 0, 0); 
+    }
+    if (selectedValue === 'round-trip' && !returnDate) {
+      setAlert({
+        open: true,
+        severity: 'warning', 
+        message: 'Vui lòng chọn ngày trở lại cho chuyến đi khứ hồi!',
+      });
+      return; 
     }
     const formattedDepartureDate = departureDate.toLocaleDateString('vi-VN', {
       weekday: 'short', 
@@ -309,7 +340,6 @@ const SearchTrips = ({userInfo}) => {
           },
         }}
       >
-       
         <MenuItem value="one-way">
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <img
@@ -628,6 +658,21 @@ const SearchTrips = ({userInfo}) => {
                 }}
                 sx={{ width: "62px", marginLeft: "20px", textAlign: "center", height:'50px' }}
               />
+              <Stack sx={{ width: '500px', margin: 'auto',position: "absolute",
+                    bottom: "500px", 
+                    left: "80%",
+                    transform: "translateX(-50%)",
+                    zIndex: 10,}}>
+                    {alert.open && (
+                      <Alert 
+                      variant="filled" 
+                        severity={alert.severity} 
+                        onClose={() => setAlert((prev) => ({ ...prev, open: false }))} 
+                      >
+                        {alert.message}
+                      </Alert>
+                    )}
+                  </Stack>
              <Button
                 variant="contained" 
                 onClick={handleSearch}
@@ -646,7 +691,7 @@ const SearchTrips = ({userInfo}) => {
               </Button>
             </Box>
           </Box>          
-        </Box>
+        </Box>        
       </Typography>
       </Box>
       {/* {showNoTripMessage && (

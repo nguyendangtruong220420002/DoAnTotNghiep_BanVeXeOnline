@@ -7,7 +7,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import EmailRoundedIcon from '@mui/icons-material/EmailRounded';
 import EnhancedEncryptionRoundedIcon from '@mui/icons-material/EnhancedEncryptionRounded';
 import LockResetRoundedIcon from '@mui/icons-material/LockResetRounded';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 
 const ConfirmInfo = ({ open, handleClose, onSubmit, phoneNumber }) => {
   const [fullName, setFullName] = useState('');
@@ -22,11 +22,9 @@ const ConfirmInfo = ({ open, handleClose, onSubmit, phoneNumber }) => {
     setSnackbarOpen(false);
   };
 
-  const handleSubmit = async (e) => { // Đánh dấu hàm là async
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Reset error message
-
-    // Kiểm tra thông tin người dùng
+    setError(''); 
     if (!fullName) {
       setError('Vui lòng nhập họ và tên!');
       return;
@@ -48,20 +46,19 @@ const ConfirmInfo = ({ open, handleClose, onSubmit, phoneNumber }) => {
       return;
     }
 
-    // Tạo thông tin người dùng
     const userInfo = { fullName, email, password, phoneNumber };
     console.log("Thông tin:", userInfo);
 
     try {
-      const response = await axios.post(`${API_URL}/api/users`, userInfo); // Sử dụng userInfo
-      console.log(response.data); // Xử lý phản hồi từ server
+      const response = await axios.post(`${API_URL}/api/users`, userInfo); 
+      console.log(response.data);
       onSubmit(userInfo); 
-      alert('Đăng ký thành công');// Gọi onSubmit chỉ sau khi lưu thành công
-      handleClose(); // Đóng modal sau khi xử lý thành công
+      alert('Đăng ký thành công');
+      handleClose(); 
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Đã xảy ra lỗi:', error);
-      setError('Đã xảy ra lỗi khi tạo tài khoản.'); // Hiển thị lỗi cho người dùng
+      setError('Đã xảy ra lỗi khi tạo tài khoản.');
     }
   };
 

@@ -12,10 +12,11 @@ import Stack from '@mui/material/Stack';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule ,to, endTime ,departure,destination,departureTime,business,dataOfShowTrips}) => {
+const RoundTrip = ({ userInfo:userInfo2, tripId:tripId2, departureDate:departureDate2,totalAmount:totalAmount2,from:from2, schedule:schedule2 
+  ,to:to2, endTime:endTime2 ,departure:departure2,destination:destination2,departureTime:departureTime2,business:business2,dataOfShowTrips:dataOfShowTrips2 ,returnDateLab,BusName2}) => {
   const navigate = useNavigate();
-  console.log("Giá trị dataOfShowTrips nhập từ SeatSelection:", dataOfShowTrips);
-  const [selectedSeats, setSelectedSeats] = useState([]);
+  console.log("Giá trị dataOfShowTrips nhập từ SeatSelection:", dataOfShowTrips2);
+  const [selectedSeats2, setSelectedSeats2] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const showAlert = (severity, message) => {
     const newAlert = {
@@ -49,12 +50,12 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
     }))
   );
   const handleBookSeats = async () => {
-    if (!selectedSeats || selectedSeats.length === 0) {
+    if (!selectedSeats2 || selectedSeats2.length === 0) {
       alert("Bạn chưa chọn ghế.");
       return;
     }
 
-    const formattedDepartureDate = departureDate.replace("Th ", "").trim();
+    const formattedDepartureDate = departureDate2.replace("Th ", "").trim();
     const parts = formattedDepartureDate.split(", ");
     const dayMonthYear = parts[1];
     const formattedDepartureTime = moment(dayMonthYear, "D/MM/YYYY")
@@ -62,10 +63,10 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
       .format("YYYY-MM-DDTHH:mm:ss.SSSZ");
 
     const bookingData = {
-      tripId,
+      tripId2,
       bookingDate: formattedDepartureTime,
-      seats: selectedSeats.map((id) => getSeatCode(id)),
-      userId: userInfo._id,
+      seats: selectedSeats2.map((id) => getSeatCode(id)),
+      userId: userInfo2._id,
     };
 
     try {
@@ -83,10 +84,10 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
   };
   
   const fetchBookedSeats = async () => {
-    console.log(departureDate);
+    console.log(returnDateLab);
     
     try {
-      const formattedDepartureDate = departureDate.replace("Th ", "").trim();
+      const formattedDepartureDate = returnDateLab.replace("Th ", "").trim();
       const parts = formattedDepartureDate.split(", ");
       const dayMonthYear = parts[1];
       const formattedDepartureTime = moment(dayMonthYear, "D/MM/YYYY")
@@ -94,7 +95,7 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
         .format("YYYY-MM-DD");
       console.log(formattedDepartureTime);
       const response = await axios.get(`${API_URL}/api/tripsRoutes/getBooked-seats`, {
-        params: { tripId, bookingDate: formattedDepartureTime },
+        params: { tripId: tripId2, bookingDate: formattedDepartureTime },
       });
 
       const bookedSeats = response.data.bookedSeats || [];
@@ -115,17 +116,17 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
   
   useEffect(() => {
     fetchBookedSeats();
-  }, [tripId, departureDate]);
+  }, [tripId2, departureDate2]);
 
   const getSeatCode = (id) => {
     return id <= 20 ? `A${id}` : `B${id - 20}`;
   };
-  const SeatCodeSelect =  selectedSeats.map((id) => getSeatCode(id));
-  const SeatCode = selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ");
-  const totalAmountAll  =   (selectedSeats.length * totalAmount);
+  const SeatCodeSelect2 =  selectedSeats2.map((id) => getSeatCode(id));
+  const SeatCode2 = selectedSeats2.length === 0 ? "" : selectedSeats2.map(id => getSeatCode(id)).join(", ");
+  const totalAmountAll2  =   (selectedSeats2.length * totalAmount2);
   
   const handleSeatClick = (seatId) => {
-    if (!userInfo || !userInfo._id) {
+    if (!userInfo2 || !userInfo2._id) {
       showAlert('error', 'Bạn cần đăng nhập để đặt vé.');
       return; // Dừng quá trình đặt vé nếu chưa đăng nhập
     }
@@ -147,9 +148,9 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
     setSeats(updatedSeats);
   
     if (clickedSeat.status === "Còn trống") {
-      setSelectedSeats((prev) => [...prev, seatId]);
+      setSelectedSeats2((prev) => [...prev, seatId]);
     } else {
-      setSelectedSeats((prev) => prev.filter((id) => id !== seatId));
+      setSelectedSeats2((prev) => prev.filter((id) => id !== seatId));
     }
   };
 
@@ -265,26 +266,26 @@ const RoundTrip = ({ userInfo, tripId, departureDate,totalAmount,from, schedule 
      <Box sx={{display:'flex' , justifyContent:'space-between', marginLeft:'20px', width:'700px', alignItems:'center' }}>
       <Box sx={{display:'flex' , flexDirection:'column', textAlign:'left'}}>
       <Typography className='button32' sx={{ }}>
-            {selectedSeats.length === 0 ? "" : `${selectedSeats.length} Vé`}
+            {selectedSeats2.length === 0 ? "" : `${selectedSeats2.length} Vé`}
           </Typography>
         <Typography className='button31' sx={{ }}>
-            {selectedSeats.length === 0 ? "" : selectedSeats.map(id => getSeatCode(id)).join(", ") }
+            {selectedSeats2.length === 0 ? "" : selectedSeats2.map(id => getSeatCode(id)).join(", ") }
           </Typography> 
           
       </Box>
         <Box sx={{display:'flex' , justifyContent:'center', alignItems:'center' ,}}>  
           <Box sx={{marginRight:'10px'}}> 
-          {selectedSeats.length > 0 && (
+          {selectedSeats2.length > 0 && (
                 <Typography className='button32' sx={{ textAlign:'right' }} >Tổng tiền</Typography>
               )}
                   <Typography  className='button33'>
-                    {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""}
+                    {selectedSeats2.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats2.length * totalAmount2) : ""}
                   </Typography>
           </Box>
-              {selectedSeats.length > 0 && (
+              {selectedSeats2.length > 0 && (
                 <Button 
-                onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo ,from, schedule ,to, endTime, selectedSeats,
-                  totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,business ,dataOfShowTrips} })}
+                onClick={() => navigate('/inforCustoOfTrips', { state: { userInfo2 ,from2, schedule2 ,to2, endTime2, selectedSeats2,SeatCodeSelect2,
+                  totalAmount2,SeatCode2,departure2,destination2,tripId2 ,totalAmountAll2,departureDate2,departureTime2,business2 ,dataOfShowTrips2,returnDateLab,BusName2} })}
                 sx={{backgroundColor:  'rgb(220,99,91)' ,
                   color:  'white' ,
                   borderRadius:"50px",
@@ -323,6 +324,8 @@ RoundTrip.propTypes = {
     returnDate: PropTypes.string,
     tripType: PropTypes.string,
   }),
+  returnDateLab:PropTypes.string,
+  BusName2:PropTypes.string
  
 };
 export default RoundTrip;

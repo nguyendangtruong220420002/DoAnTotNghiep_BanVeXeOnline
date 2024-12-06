@@ -4,7 +4,6 @@ const bookingSchema = new mongoose.Schema({
   BookingID: {
     type: Number, 
     required: true, 
-    unique: true, 
   },
   tripId: { 
     type: mongoose.Schema.Types.ObjectId, 

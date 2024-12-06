@@ -14,29 +14,26 @@ const PaymentCancel = (socket) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [bookingId, setBookingId] = useState(null);
+  const [bookingId2, setBookingId2] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [dataOfShowTrips, setDataOfShowTrips] = useState(null);
   const [InforCusto, setInforCusto] = useState(null);
 
-  // useEffect(() => {
-  //   const queryParams = new URLSearchParams(location.search);
-  //   const id = queryParams.get('bookingId');
-  //   setBookingId(id);
-  // }, [location]);
   useEffect(() => {
-    // Lấy các tham số từ URL
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get('bookingId');
+     const id2 = queryParams.get('bookingId2');
     const trips = queryParams.get('dataOfShowTrips');
     const customer = queryParams.get('InforCusto');
 
     console.log("Raw Params from URL:");
     console.log("bookingId:", id);
+    console.log("bookingId2:", id2);
     console.log("dataOfShowTrips (raw):", trips);
     console.log("InforCusto (raw):", customer);
 
     setBookingId(id);
-
+    setBookingId2(id2);
     // Giải mã và log dữ liệu sau khi parse
     try {
       const parsedTrips = trips ? JSON.parse(decodeURIComponent(trips)) : null;
@@ -54,7 +51,7 @@ const PaymentCancel = (socket) => {
       console.error("Lỗi khi giải mã hoặc parse JSON:", error);
     }
   }, [location]);
-  console.log("bookingId", bookingId)
+ //console.log("bookingId",bookingId)
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
 
@@ -80,6 +77,20 @@ const PaymentCancel = (socket) => {
       });
     }
   }, [bookingId]);
+  useEffect(() => {
+    if (bookingId2) {
+      axios.get(`${API_URL}/api/addPaymentRoute/cancel`, { 
+        params: { bookingId: bookingId2 },
+      })
+      .then((response) => {
+        console.log( response.data);
+      })
+      .catch((error) => {
+        console.error('Lỗi khi xử lý hủy thanh toán cho bookingId2:', error);
+        setErrorMessage('Đã xảy ra lỗi khi xử lý yêu cầu hủy cho bookingId2.');
+      });
+    }
+  }, [bookingId2]);
 
 
 
