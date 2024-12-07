@@ -192,7 +192,7 @@ const ChooseSeat = () => {
             fetchBookedSeats(tripIdve, destinationDate);
 
         } else if (index === 0) {
-            setSelectedSeats([])
+            setSelectedSeats([]);
             fetchBookedSeats(tripId, departureDate);
         }
     }, [index]);

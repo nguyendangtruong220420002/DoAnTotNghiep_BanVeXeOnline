@@ -25,6 +25,7 @@ const InfoPayment = () => {
 
     const trip = route.params?.trip;
     const show = route.params?.show;
+    const tripType = show && "Khứ hồi";
 
     const tripve = route.params?.tripve;
 
@@ -55,17 +56,17 @@ const InfoPayment = () => {
     const diemdi = route.params?.diemdi;
     const diemden = route.params?.diemden;
     const seatCode = route.params?.SeatCode;
-    const SeatCodeReturn = route.params?.SeatCodeReturn;
-
-
-    const totalAmountAll = route.params?.totalAmountAll;
-    const totalAmountAllDeparture = route.params?.totalAmountAllDeparture;
-    const totalAmountAllReturn = route.params?.totalAmountAllReturn;
-
 
     const SeatCodeSelect = route.params?.allSeatsSelected.departure;
+    const totalAmountAll = route.params?.totalAmountAll;
+    const totalAmountAllDeparture = route.params?.totalAmountAllDeparture;
 
+    const SeatCodeReturn = route.params?.SeatCodeReturn;
+    const totalAmountAllReturn = route.params?.totalAmountAllReturn;
     const SeatCodeSelectReturn = route.params?.allSeatsSelected.return;
+
+
+
     const layout = useWindowDimensions();
     const [index, setIndex] = useState(0);
     // Conditional routes for TabView
@@ -73,6 +74,7 @@ const InfoPayment = () => {
         { key: 'first', title: `Chuyến đi - ${moment(ngaydi).format('DD/MM/YYYY')}` },
         ...(show ? [{ key: 'second', title: `Chiều về - ${moment(ngayve).format('DD/MM/YYYY')}` }] : [])
     ];
+
 
     const Timehouse = moment(trip?.departureTime, 'DD/MM/YYYY, HH:mm')
         .tz('Asia/Ho_Chi_Minh')
@@ -84,7 +86,6 @@ const InfoPayment = () => {
         ? moment(departureDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
             .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
         : 'Ngày không hợp lệ'
-
     const FirstRoute = () => (
 
         <ScrollView
@@ -457,9 +458,8 @@ const InfoPayment = () => {
         setModalVisible(false);
     };
 
+
     const handlePayment = async () => {
-
-
 
         const CustomerInfo = {
             fullName: fullName || user?.fullName,
@@ -473,37 +473,16 @@ const InfoPayment = () => {
 
             return; // Dừng việc tiếp tục điều hướng
         }
-        if (show) {
-            if (!returnPickupPoint || !returnDropOffPoint) {
-                const TimehouseReturn = moment(tripve?.departureTime, 'DD/MM/YYYY, HH:mm')
-                    .tz('Asia/Ho_Chi_Minh')
-                    .format('HH:mm')
-                const formattedReturnTime = moment(returnDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
-                    .isValid()
-                    ? moment(returnDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
-                        .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
-                    : 'Ngày không hợp lệ'
-                // const bookingDataReturnPayment = {
-                //     tripIdve,
-                //     userId: user?._id,
-                //     seatId: SeatCodeReturn,
-                //     totalFare: totalAmountAllReturn,
-                //     selectedDepartureName: returnPickupPoint,
-                //     selectedDestinationName: returnDropOffPoint,
-                //     Timehouse: TimehouseReturn,
-                //     departureDate: returnDate,
-                //     passengerInfo: {
-                //         fullName: fullName || user?.fullName,
-                //         phoneNumber: phoneNumber || user?.phoneNumber,
-                //         email: email || user?.email,
-                //     },
-                // };
-                // console.log("TT thanh toán chuyến về", bookingDataReturnPayment);
-            }
 
-        }
-
-        const bookingDatadepartureForPayment = {
+        const TimehouseReturn = moment(tripve?.departureTime, 'DD/MM/YYYY, HH:mm')
+            .tz('Asia/Ho_Chi_Minh')
+            .format('HH:mm')
+        const formattedReturnTime = moment(returnDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+            .isValid()
+            ? moment(returnDate, ['ww, DD/MM/YYYY', ' DD/MM/YYYY'], 'vi')
+                .format('YYYY-MM-DDTHH:mm:ss.SSSZ')
+            : 'Ngày không hợp lệ'
+        const bookingDataForPayment = {
             tripId,
             userId: user?._id,
             seatId: seatCode,
@@ -518,10 +497,35 @@ const InfoPayment = () => {
                 email: email || user?.email,
             },
         };
-        console.log("Thông tin thanh toán chuyến đi", bookingDatadepartureForPayment);
+        const bookingDataReturn = tripType === 'Khứ hồi' ? {
+            tripId: tripIdve,
+            seatId: SeatCodeReturn,
+            userId: user?._id,
+            totalFare: totalAmountAllReturn,
+            selectedDepartureName: returnPickupPoint,
+            selectedDestinationName: returnDropOffPoint,
+            Timehouse: TimehouseReturn,
+            departureDate: returnDate,
+            passengerInfo: {
+                fullName: fullName || user?.fullName,
+                phoneNumber: phoneNumber || user?.phoneNumber,
+                email: email || user?.email,
+            },
+        } : null;
+
+        console.log(bookingDataForPayment);
+        console.log(bookingDataReturn);
 
         try {
-            const createBookingResponse = await postData(`/bookingRoutes/add`, bookingDatadepartureForPayment);
+            const createBookingResponse = await postData(`/bookingRoutes/add`, bookingDataForPayment);
+            let bookingId2;
+
+            if (tripType === 'Khứ hồi' && bookingDataReturn) {
+                const createBookingReturnResponse = await postData(`/bookingRoutes/addRoutTrip`, bookingDataReturn);
+
+                bookingId2 = createBookingReturnResponse.data.bookingReturn._id;
+                console.log("bookingId2", bookingId2);
+            }
 
             const bookingData = {
                 tripId,
@@ -535,15 +539,57 @@ const InfoPayment = () => {
             };
 
             // console.log("bookingData", bookingData);     
-            await postData(`tripsRoutes/book-seats`, bookingData);
-
-            const bookingId = createBookingResponse.data._id;
-            const bookingID = createBookingResponse.data.BookingID;
-
+            await postData(`/tripsRoutes/book-seats`, bookingData);
             socket?.emit('update-get-seat', { tripId, bookingDate: formattedDepartureTime })
 
+
+            if (tripType === 'Khứ hồi') {
+
+                console.log("formattedReturnTime", formattedReturnTime)
+
+
+                const bookingDataReturn = {
+                    tripId: tripIdve,
+                    bookingDate: formattedReturnTime,
+                    seats: SeatCodeSelectReturn,
+                    userId: user._id,
+                    selectedDepartureName: returnPickupPoint,
+                    selectedDestinationName: returnDropOffPoint,
+                    Timehouse: TimehouseReturn,
+                    departureDate: returnDate,
+                };
+
+                await postData(`/tripsRoutes/book-SeatsRoutTrip`, bookingDataReturn);
+                socket?.emit('update-get-seat', { tripId: tripIdve, bookingDate: formattedReturnTime })
+            }
+            const bookingId = createBookingResponse.data.booking._id;
+            const bookingID = createBookingResponse.data.booking.BookingID;
+
+            console.log(bookingId)
+            console.log(bookingID)
+
             setTimeout(() => {
-                nav.navigate("Payment", { bookingId, bookingID, trip, pickupPoint, dropOffPoint, CustomerInfo, SeatCode: seatCode, SeatCodeSelect, price: totalAmountAll, ngaydi, tripId })
+                nav.navigate("Payment", {
+                    bookingId,
+                    bookingID,
+                    trip,
+                    pickupPoint,
+                    dropOffPoint,
+                    CustomerInfo,
+                    SeatCode: seatCode,
+                    SeatCodeSelect,
+                    totalAmountAll: totalAmountAll,
+                    ngaydi,
+                    ngayve,
+                    tripve,
+                    tripId,
+                    bookingId2,
+                    tripIdve,
+                    SeatCodeReturn,
+                    SeatCodeSelectReturn,
+                    returnPickupPoint,
+                    returnDropOffPoint
+                })
             }, 2000);
 
         } catch (error) {
@@ -561,10 +607,6 @@ const InfoPayment = () => {
                 ]
             );
         }
-
-
-
-
 
     }
 

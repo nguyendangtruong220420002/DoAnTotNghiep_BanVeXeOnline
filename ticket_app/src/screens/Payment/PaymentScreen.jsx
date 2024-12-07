@@ -1,57 +1,68 @@
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import * as Linking from 'expo-linking'
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { getData, postData } from '../../utils/fetching';
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import { Icon } from 'react-native-elements';
 
 const PaymentScreen = (data) => {
+
     const nav = useNavigation()
+    const route = useRoute();
     const bookingId = data?.bookingId;
     const [orderInfo, setOrderInfo] = useState(data?.data)
-    const bookingID = data?.bookingID;
+    const bookingId2 = data?.bookingId2;
 
+
+    console.log("bookingId2", bookingId2);
     console.log("data payment", orderInfo);
 
-    const fetchOrder = async () => {
-        if (!bookingID) {
-            setRefreshing(false);
-            return;
-
-        }
-        try {
-            const response = await getData("addPaymentRoute/getOrder", { bookingID })
-            console.log("booking id:", bookingID);
-
-            console.log("orrder data:", response.data);
-
-            if (response.status === 200) {
-                setOrderInfo(response.data);
-            } else if (response.status === 201) {
-                return;
-            }
-        } catch (error) {
-            console.error("Error when get order:", error);
-        }
-
-    }
-
     useEffect(() => {
-        if (orderInfo?.status === 'CANCELLED') {
-            getData('addPaymentRoute/cancel', { bookingId })
-                .then((response) => {
-                    console.log(response.data);
-                    showErrorToast("Thanh toán thất bại")
-                })
-        } else if (orderInfo?.status === 'PAID') {
-            getData('addPaymentRoute/success', { bookingId })
-                .then((response) => {
-                    console.log(response.data);
-                    showSuccessToast("Thanh toán thành công")
-                })
-        } 
-    }, [bookingId, orderInfo])
+        const processPayment = async () => {
+            try {
+                if (orderInfo?.status === 'CANCELLED') {
+                    if (bookingId) {
+                        const response = await getData('addPaymentRoute/cancel', { bookingId: bookingId2 });
+                        console.log(response.data);
+
+                    }
+
+                    if (bookingId2) {
+                        const response = await getData('addPaymentRoute/cancel', { bookingId });
+                        console.log(response.data);
+
+                    }
+                    showSuccessToast("Thanh toán thất bại");
+
+                } else if (orderInfo?.status === 'PAID') {
+
+                    if (bookingId) {
+                        const response = await getData('addPaymentRoute/success', { bookingId });
+                        console.log(response.data);
+
+                    }
+
+                    if (bookingId2) {
+
+                        const response = await getData('addPaymentRoute/success', { bookingId: bookingId2 });
+                        console.log("as", response.data);
+                    }
+                    showSuccessToast("Thanh toán thành công");
+                }
+
+
+            } catch (error) {
+                console.error("Lỗi khi xử lý thanh toán:", error);
+            }
+        };
+
+
+        processPayment();
+
+    }, [bookingId, bookingId2])
+
+
 
     return (
         <View style={styles.container}>

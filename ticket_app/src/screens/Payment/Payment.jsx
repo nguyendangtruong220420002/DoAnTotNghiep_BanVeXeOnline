@@ -58,17 +58,28 @@ const Payment = () => {
   }).format(date);
   const customerInfo = route.params?.CustomerInfo;
 
-  const price = route.params?.price
+  const totalAmountAll = route.params?.totalAmountAll
 
 
   const trip = route.params?.trip;
+  const tripve = route.params?.tripve;
+
+
   const diemdi = route.params?.trip.routeId.departure;
   const diemden = route.params?.trip.routeId.destination;
   const SeatCodeSelect = route.params?.SeatCodeSelect;
-  const SeatCode = route.params?.SeatCode;
+
+  const SeatCodeReturn = route.params?.SeatCodeReturn;
+  const returnPickupPoint = route.params?.returnPickupPoint
+  const returnDropOffPoint = route.params?.returnDropOffPoint
+  const SeatCodeSelectReturn = route.params?.SeatCodeSelectReturn;
+
   const dropOffPoint = route.params?.dropOffPoint;
   const pickupPoint = route.params?.pickupPoint;
   const bookingId = route.params?.bookingId;
+
+  const bookingId2 = route.params?.bookingId2;
+  console.log("booking id 2: in payment", bookingId2)
   const bookingID = route.params?.bookingID;
   const [paymentMethod, setPaymentMethod] = useState("Thanh toán qua PayOS");
   const [orderInfo, setOrderInfo] = useState(null)
@@ -163,7 +174,6 @@ const Payment = () => {
     if (!bookingID) {
       setRefreshing(false);
       return;
-
     }
     try {
       const response = await getData("addPaymentRoute/getOrder", { bookingID })
@@ -205,7 +215,7 @@ const Payment = () => {
     const handleAppStateChange = (nextAppState) => {
       if (appState.match(/inactive|background/) && nextAppState === 'active') {
         console.log('App has come to the foreground!');
-  
+
         // Emit socket event when returning from payment
         if (bookingID) {
           socket.emit('get-order', { bookingID });
@@ -214,24 +224,25 @@ const Payment = () => {
       }
       setAppState(nextAppState);
     };
-  
+
     // Using the updated API for AppState listener
     const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
-  
+
     // Cleanup function for removing the listener
     return () => {
       appStateSubscription.remove(); // Unsubscribe using the remove function returned by addEventListener
     };
   }, [appState, bookingID]);
-  
+
   // Do not conditionally return hooks:
   if (loading) return <Loading />;
 
   const handlePayment = async () => {
     try {
       const response = await postData(`addPaymentRoute/add`, {
-        bookingID,
-        totalAmountAll: route.params?.price,
+        bookingID: bookingID,
+        totalAmountAllTowTrips: totalAmountAll,
+        bookingId2: bookingId2,
         paymentMethod: "Thanh toán qua PayOS",
       });
 
@@ -358,6 +369,76 @@ const Payment = () => {
             </View>
 
           </View>
+          {tripve && (
+            <View style={styles.viewTrip}>
+              <View>
+                <Text style={{ fontSize: 18, fontWeight: '450', padding: 8 }}>
+                  Thông tin chuyến về
+                </Text>
+                <View style={styles.ListItem}>
+                  <ListItem containerStyle={{ padding: 5 }}>
+
+                    <ListItem.Content>
+                      <ListItem.Title><Text style={styles.textListItem}>Tuyến xe</Text></ListItem.Title>
+                    </ListItem.Content>
+                    <ListItem.Title><Text style={styles.textTitle} >{tripve?.routeId.routeName}</Text></ListItem.Title>
+                  </ListItem>
+                  <ListItem containerStyle={{ padding: 5 }}>
+
+                    <ListItem.Content >
+                      <ListItem.Title><Text style={styles.textListItem}>Thời gian khởi hành</Text></ListItem.Title>
+                    </ListItem.Content>
+                    <ListItem.Title><Text style={styles.textTitle} >{tripve?.departureTime}</Text></ListItem.Title>
+                  </ListItem>
+                  <ListItem containerStyle={{ padding: 5 }}>
+                    <ListItem.Content >
+                      <ListItem.Title><Text style={styles.textListItem}>Vị trí ghế</Text></ListItem.Title>
+                    </ListItem.Content>
+                    <ListItem.Title><Text style={styles.textTitle} >{SeatCodeSelectReturn}</Text></ListItem.Title>
+                  </ListItem>
+
+                  <ListItem containerStyle={{ padding: 5 }}>
+                    <ListItem.Content >
+                      <ListItem.Title><Text style={styles.textListItem}>Điểm lên xe</Text></ListItem.Title>
+                    </ListItem.Content>
+
+                    <ListItem.Title>
+                      <Text style={styles.textTitle} >
+                        {returnPickupPoint}
+                      </Text>
+                    </ListItem.Title>
+                  </ListItem>
+
+                  <ListItem containerStyle={{ paddingHorizontal: 5, paddingTop: 0 }}>
+                    <ListItem.Content >
+                      <ListItem.Title>
+                        <Text style={{ color: "#F95300", fontSize: 16 }}>
+                          Quý khách vui lòng có mặt tại "{returnPickupPoint}" trước {moment(tripve?.departureTime, 'DD/MM/YYYY, HH:mm')
+                            .tz('Asia/Ho_Chi_Minh')
+                            .format('HH:mm')} để được trung chuyển hoặc kiểm tra thông tin trước khi lên xe!
+                        </Text></ListItem.Title>
+                    </ListItem.Content>
+                  </ListItem>
+
+
+                  <ListItem containerStyle={{ paddingHorizontal: 5, paddingVertical: 0 }}>
+                    <ListItem.Content >
+                      <ListItem.Title><Text style={styles.textListItem}>Điểm xuống xe</Text></ListItem.Title>
+                    </ListItem.Content>
+                    <ListItem.Title style={{ flexDirection: "column" }}>
+                      <Text style={styles.textTitle} >{returnDropOffPoint}</Text>
+
+                    </ListItem.Title>
+
+                  </ListItem>
+
+
+                </View>
+              </View>
+
+            </View>
+          )}
+
           <View style={styles.viewPayment}>
             <View style={styles.headerInfoCus}>
               <View>
@@ -366,7 +447,7 @@ const Payment = () => {
                 </Text>
               </View>
               <View style={{}}>
-                <Text style={{ fontSize: 18 }}>{price}đ</Text>
+                <Text style={{ fontSize: 18 }}>{totalAmountAll}đ</Text>
               </View>
             </View>
             <View style={styles.viewCost}>
@@ -389,7 +470,7 @@ const Payment = () => {
                 </TouchableWithoutFeedback>
               </View>
               <View style={{}}>
-                <Text style={{ fontSize: 25 }} >{price}đ</Text>
+                <Text style={{ fontSize: 25 }} >{totalAmountAll}đ</Text>
               </View>
             </View>
           </View>
@@ -409,7 +490,7 @@ const Payment = () => {
       </View>
       ) : (
         <View style={styles.container}>
-          <PaymentScreen data={orderInfo} bookingId={bookingId} bookingID={bookingID} />
+          <PaymentScreen data={orderInfo} bookingId={bookingId} bookingId2={bookingId2} bookingID={bookingID} />
         </View>
       )}
     </View>

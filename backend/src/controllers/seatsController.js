@@ -1,6 +1,5 @@
 const Trips = require('../../src/models/Trips');
 const moment = require('moment-timezone');
-const { v4: uuidv4 } = require('uuid');
 
 const bookSeats = async (req, res) => {
   try {

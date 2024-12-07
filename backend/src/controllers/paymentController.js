@@ -16,6 +16,7 @@ const processPayment = async (req, res) => {
   try {
     const { bookingId,bookingID, totalAmountAllTowTrips,SeatCode ,business , dataOfShowTrips,InforCusto,bookingId2} = req.body;
     //console.log("bookingID",bookingID);
+    
     console.log("processPayment-bookingId2",bookingId2);
     const amount = totalAmountAllTowTrips; 
     const orderCode = bookingID;
@@ -74,7 +75,8 @@ const PaymetCancel = async (req, res) => {
 const PaymetSuccess = async (req, res) => {
   try {
     const { bookingId } = req.query;
-    // console.log("Nhận bookingId:", bookingId);
+    
+    console.log("Nhận bookingId:", bookingId);
 
     // Kiểm tra tính hợp lệ của bookingId
     if (!bookingId || typeof bookingId !== 'string') {

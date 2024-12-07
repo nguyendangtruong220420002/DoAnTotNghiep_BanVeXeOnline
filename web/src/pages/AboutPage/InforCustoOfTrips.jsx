@@ -6,10 +6,10 @@ import logo from '../../../public/images/logohome (2).png';
 import arrow from '../../../public/images/arrow.png';
 import user from '../../../public/images/user.png';
 import '../HomePage/css/HomePage.css';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
 import Information from '../../../src/pages/AboutPage/Information';
-import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo';
+import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
 import Divider from '@mui/material/Divider';
 import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
@@ -27,11 +27,11 @@ import Stack from '@mui/material/Stack';
 
 
 
-const InforCustoOfTrips = (socket) => {
+const InforCustoOfTrips = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const [alert, setAlert] = useState({
     open: false,
-    severity: 'success',
+    severity: 'success', 
     message: '',
   });
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ const { returnDate } = dataOfShowTrips || {};
     fullName: InforCusto?.fullName || '',
     phoneNumber: InforCusto?.phoneNumber || '',
     email: InforCusto?.email || '',
-  });
+});
 
 const [Timehouse, setTimehouse] = useState(null);
 const [Timehouse2, setTimehouse2] = useState(null);
@@ -135,13 +135,13 @@ const formattedTotalAmountAll2 = new Intl.NumberFormat('vi-VN', {
   }).format(totalAmountAllTowTrips);  
 
 
-  { selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', }).format(selectedSeats.length * totalAmount) : "" }
-  const handleChangeDeparture = (event) => {
-    setSelectedDeparture(event.target.value);
-  };
-  const handleChangeDestination = (event) => {
-    setSelectedDestination(event.target.value);
-  };
+{selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""} 
+const handleChangeDeparture = (event) => {
+  setSelectedDeparture(event.target.value); 
+};
+const handleChangeDestination = (event) => {
+  setSelectedDestination(event.target.value); 
+};
 
 const selectedDepartureName =schedule.find((stop) => stop._id === selectedDeparture)?.name || from;
 const selectedDestinationName =schedule.find((stop) => stop._id === selectedDestination)?.name || to;
@@ -320,7 +320,7 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
     localStorage.removeItem('userInfo');
     setUserInfo(null);
     setValue("1");
-    handleCloseMenu();
+    handleCloseMenu(); 
   };
   const handleClickMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -330,11 +330,11 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
   };
   const openMenu = Boolean(anchorEl);
   const handleInfoClick = () => {
-    setValue("5");
-    handleCloseMenu();
+    setValue("5"); 
+    handleCloseMenu(); 
   };
   const handleHistoryClick = () => {
-    setValue("5");
+    setValue("5"); 
     handleCloseMenu();
   };
   const handleSubmitInfo = (userInfo) => {
@@ -343,7 +343,7 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormDataCustoOfTrips((prev) => ({ ...prev, [name]: value }));
-  };
+};
   const handleCloseLogin = () => {
     setOpenLogin(false);
   };
@@ -354,107 +354,105 @@ const handleCloseModal = () => {
 
   return (
     <Box sx={{ position: 'relative', }}>
-      <AppBar sx={{
-        backgroundColor: '#e7e7e7',
-        position: 'unset',
-      }} >
-        <Toolbar sx={{ height: '70px', boxShadow: '2px 2px 6px rgba(47, 46, 46, 0.5)', zIndex: 1 }} >
-          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between' }} className='menu1'>
-            <Box>
-              <Typography >
-                <Box component="img" src={logo} alt="" sx={{ width: '300px', height: '70px', marginTop: '3px' }} ></Box>
+      <AppBar  sx={{ backgroundColor: '#e7e7e7',
+          position: 'unset',  }} >
+      <Toolbar sx={{height:'70px',boxShadow: '2px 2px 6px rgba(47, 46, 46, 0.5)', zIndex:1 }} >
+        <Box sx={{ flexGrow: 1, display: 'flex',justifyContent:'space-between' }} className='menu1'>
+          <Box>
+          <Typography >
+              <Box component="img" src={logo} alt="" sx={{width:'300px', height:'70px', marginTop:'3px'}} ></Box>
               </Typography>
-            </Box>
-            <Box>
-              <TabContext value={value} >
-                <TabList onChange={handleChange} centered className='menu2'>
-                  {userInfo ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', width: '200px', marginTop: '15px' }}>
-
-                      <Box
-                        component="img"
-                        src={userInfo.img || profile}
-                        sx={{ width: 30, height: 30, borderRadius: '50%' }}
-                      />
-                      <Button onClick={handleClickMenu}>
-                        <Typography className="button5" sx={{ position: 'relative', marginTop: '3px', }}>{userInfo ? userInfo.fullName : 'Chưa có thông tin'}</Typography>
-                      </Button>
-
-                      <Menu
-                        anchorEl={anchorEl}
-                        open={openMenu}
-                        onClose={handleCloseMenu}
-                        id="account-menu"
-                        slotProps={{
-                          paper: {
-                            elevation: 0,
-                            sx: {
-                              overflow: 'visible',
-                              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                              mt: 1.5,
-                              '& .MuiAvatar-root': {
-                                width: 32,
-                                height: 32,
-                                ml: -0.5,
-                                mr: 1,
-                              },
-                              '&::before': {
-                                content: '""',
-                                display: 'block',
-                                position: 'absolute',
-                                top: 0,
-                                right: 14,
-                                width: 10,
-                                height: 10,
-                                bgcolor: 'background.paper',
-                                transform: 'translateY(-50%) rotate(45deg)',
-                                zIndex: 0,
-                              },
+          </Box>
+          <Box>
+          <TabContext value={value} >
+          <TabList onChange={handleChange} centered className='menu2'>
+                    {userInfo ? (
+                     <Box sx={{ display: 'flex', alignItems: 'center', width: '200px' , marginTop:'15px' }}>
+                       
+                       <Box
+                          component="img"
+                          src={userInfo.img||profile}
+                          sx={{ width: 30, height: 30 ,borderRadius:'50%'}}
+                        /> 
+                     <Button onClick={handleClickMenu}>
+                       <Typography className="button5" sx={{ position: 'relative', marginTop: '3px',}}>{userInfo ? userInfo.fullName : 'Chưa có thông tin'}</Typography>
+                     </Button>
+                    
+                     <Menu
+                       anchorEl={anchorEl}
+                       open={openMenu}
+                       onClose={handleCloseMenu}
+                       id="account-menu"
+                       slotProps={{
+                        paper: {
+                          elevation: 0,
+                          sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                              width: 32,
+                              height: 32,
+                              ml: -0.5,
+                              mr: 1,
+                            },
+                            '&::before': {
+                              content: '""',
+                              display: 'block',
+                              position: 'absolute',
+                              top: 0,
+                              right: 14,
+                              width: 10,
+                              height: 10,
+                              bgcolor: 'background.paper',
+                              transform: 'translateY(-50%) rotate(45deg)',
+                              zIndex: 0,
                             },
                           },
-                        }}
-                        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                      >
-                        <MenuItem onClick={handleInfoClick} >
-                          <Box
-                            component="img"
-                            src={information}
-                            sx={{ width: '32px', height: '32px' }}
-                          />
-                          <Typography className='button4' sx={{ marginLeft: '8px' }}> Thông tin cá nhân</Typography>
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleHistoryClick}>
-                          <Box
-                            component="img"
-                            src={history}
-                            sx={{ width: '30px', height: '30px' }}
-                          />
-                          <Typography className='button2' sx={{ marginLeft: '11px' }}> Lịnh sử mua vé</Typography>
-                        </MenuItem>
-                        <MenuItem onClick={handleLogout}>
-                          <Box
-                            component="img"
-                            src={loguot}
-                            sx={{ width: '30px', height: '30px' }}
-                          />
-                          <Typography className='button2' sx={{ marginLeft: '11px' }}> Đăng xuất </Typography>
-                        </MenuItem>
-                        <MenuItem onClick={() => setValue("1")}>
-                          <Box
-                            component="img"
-                            src={arrow}
-                            sx={{ width: '30px', height: '30px' }}
-                          />
-                          <Typography className='button2' sx={{ marginLeft: '11px' }}> Quay lại  </Typography>
-                        </MenuItem>
-
-                      </Menu>
-                    </Box>
+                        },
+                      }}
+                      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                     >
+                      <MenuItem onClick={handleInfoClick} >
+                      <Box
+                          component="img"
+                          src={information}
+                          sx={{ width: '32px', height: '32px' }} 
+                        /> 
+                          <Typography className='button4' sx={{marginLeft:'8px'}}> Thông tin cá nhân</Typography>
+                      </MenuItem>
+                      <Divider />
+                      <MenuItem onClick={handleHistoryClick}>
+                      <Box
+                          component="img"
+                          src={history}
+                          sx={{ width: '30px', height: '30px' }} 
+                        /> 
+                            <Typography className='button2' sx={{marginLeft:'11px'}}> Lịnh sử mua vé</Typography>
+                      </MenuItem>
+                       <MenuItem onClick={handleLogout}>
+                       <Box
+                          component="img"
+                          src={loguot}
+                          sx={{ width: '30px', height: '30px' }} 
+                        /> 
+                        <Typography className='button2' sx={{marginLeft:'11px'}}> Đăng xuất </Typography>
+                      </MenuItem>
+                      <MenuItem  onClick={() => setValue("1")}>
+                       <Box
+                          component="img"
+                          src={arrow}
+                          sx={{ width: '30px', height: '30px' }} 
+                        /> 
+                        <Typography className='button2' sx={{marginLeft:'11px'}}> Quay lại  </Typography>
+                      </MenuItem>
+                      
+                     </Menu>
+                   </Box>
                   ) : (
                     <Button
-
+                    
                       onClick={() => setOpenLogin(true)}
                       sx={{ display: 'flex', alignItems: 'center', width: '200px' }}
                     >
@@ -464,70 +462,70 @@ const handleCloseModal = () => {
                       </Typography>
                     </Button>
                   )}
-                </TabList>
-              </TabContext>
-            </Box>
+          </TabList>
+        </TabContext>
           </Box>
-        </Toolbar>
+        </Box>
+      </Toolbar>
       </AppBar>
-      {/* đến đây của context là hết */}
-      <Box sx={{ position: 'relative', height: 'auto' }}>
+{/* đến đây của context là hết */}
+      <Box sx={{ position: 'relative', height: 'auto' }}> 
         <Box>
           <TabContext value={value}>
             <TabPanel value="1" sx={{
-              padding: 0,
-              margin: 0,
-              boxSizing: 'border-box',
+               padding:0,
+               margin:0,
+               boxSizing:'border-box',
             }}>
-              <Box sx={{ width: '100%', height: '5px', backgroundColor: 'rgb(240, 82, 34)' }}></Box>
-              <Box sx={{ width: '100%', height: 'auto', backgroundColor: '#f2f2f2' }}>
-                <Box sx={{ width: '1000px', height: 'auto', alignItems: 'center', margin: 'auto', }}>
-                  <Box>
-                    <Button
-                      startIcon={<ArrowBackIosNewRoundedIcon sx={{ width: '15px', color: '#888888' }} />}
-                      onClick={() => navigate(-1)}
-                      variant="outlined"
-                      sx={{
-                        border: 'none', textTransform: "none", fontSize: "13.5px", color: '#0456ca', lineHeight: '20px', padding: "15px 7px", textShadow: '1px 1px 2px rgba(255, 255, 255, 0.2)'
-                      }}>Quay lại
-                    </Button>
+                <Box sx={{width:'100%' , height:'5px', backgroundColor:'rgb(240, 82, 34)'}}></Box>
+                <Box sx={{width:'100%', height:'auto', backgroundColor:'#f2f2f2'}}>
+                <Box sx={{ width:'1000px', height:'auto', alignItems:'center', margin: 'auto' ,   }}>  
+                <Box>
+                  <Button
+                    startIcon={<ArrowBackIosNewRoundedIcon sx={{width:'15px' , color:'#888888'}} />} 
+                    onClick={() => navigate(-1)}  
+                    variant="outlined"                            
+                    sx={{border:'none',textTransform: "none", fontSize: "13.5px",color:'#0456ca',lineHeight:'20px', padding:"15px 7px",textShadow:'1px 1px 2px rgba(255, 255, 255, 0.2)'
+                    }}>Quay lại
+                  </Button>
                   </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }} >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', }} >
-                      <Box sx={{ display: 'flex', flexDirection: 'column', border: "1px solid #ddd", borderRadius: '10px', width: '620px', backgroundColor: 'rgb(255, 255, 255)' }}>
-                        <Typography className='button35' sx={{ marginLeft: '18px', marginTop: '20px' }} >Thông tin liên hệ  <span style={{ color: 'red' }}>*</span></Typography>
-                        <TextField
-                          className='select1'
-                          label="Tên người đi"
-                          variant="outlined"
-                          fullWidth
-                          required
-                          name="fullName"
-                          value={formDataCustoOfTrips.fullName}
-                          onChange={handleChange} />
-                        <TextField
-                          label="Số điện thoại"
-                          className='select1'
-                          variant="outlined"
-                          fullWidth
-                          required
-                          type="tel"
-                          name="phoneNumber"
-                          value={formDataCustoOfTrips.phoneNumber}
-                          onChange={handleChange} />
-                        <TextField
-                          label="Email"
-                          className='select1'
-                          variant="outlined"
-                          fullWidth
-                          required
-                          type="email"
-                          name="email"
-                          value={formDataCustoOfTrips.email}
-                          onChange={handleChange} />
-                        <Box className='select1' sx={{ border: "1px solid #43b975", borderRadius: '10px', display: 'flex', backgroundColor: '#eefbf4', alignItems: 'center', justifyContent: 'center', padding: '8px 0px' }}>
-                          <VerifiedUserIcon sx={{ width: '17px', color: '#27ae60', margin: '10px' }}></VerifiedUserIcon>
-                          <Typography className='button36' sx={{ fontSize: '14px' }}>Số điện thoại và email được sử dụng để gửi thông tin đơn hàng và liên hệ khi cần thiết.</Typography>
+                <Box sx={{display:'flex' , justifyContent:'space-between' }} >
+                  <Box sx={{display:'flex',flexDirection:'column',}} >
+                    <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px', width:'620px',backgroundColor:'rgb(255, 255, 255)'}}> 
+                        <Typography className='button35' sx={{marginLeft:'18px', marginTop:'20px' }} >Thông tin liên hệ  <span style={{color:'red'}}>*</span></Typography>
+                            <TextField 
+                              className='select1'
+                              label="Tên người đi"
+                              variant="outlined"
+                              fullWidth
+                              required 
+                              name="fullName"
+                              value={formDataCustoOfTrips.fullName}
+                              onChange={handleChange}/>
+                            <TextField
+                              label="Số điện thoại"
+                              className='select1'         
+                              variant="outlined"
+                              fullWidth
+                              required
+                              type="tel"
+                              name="phoneNumber"
+                              value={formDataCustoOfTrips.phoneNumber}
+                              onChange={handleChange}/>
+                            <TextField
+                              label="Email"
+                              className='select1'
+                              variant="outlined"
+                              fullWidth
+                              required
+                              type="email"
+                              name="email"
+                              value={formDataCustoOfTrips.email}
+                              onChange={handleChange}/>
+                        <Box  className='select1' sx={{border: "1px solid #43b975", borderRadius:'10px', display:'flex', backgroundColor:'#eefbf4', alignItems:'center', justifyContent:'center' ,padding:'8px 0px'}}>
+                          <VerifiedUserIcon sx={{width:'17px', color:'#27ae60', margin:'10px'}}></VerifiedUserIcon>  
+                          <Typography className='button36' sx={{fontSize:'14px'}}>Số điện thoại và email được sử dụng để gửi thông tin đơn hàng và liên hệ khi cần thiết.</Typography>   
+                          </Box>
                         </Box>
                     <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px',marginTop:'15px', width:'620px',backgroundColor:'rgb(255, 255, 255)', }}> 
                         <Typography className='button35'  sx={{marginLeft:'18px', marginTop:'20px'}} >Thông tin đón trả điểm đi  <InfoOutlinedIcon sx={{color:'#bd3106'}}></InfoOutlinedIcon></Typography>
@@ -809,60 +807,54 @@ const handleCloseModal = () => {
                       </Box>
                     </Box>
                   </Box>
-                </Box>
-                <Box sx={{ width: '100%', backgroundColor: 'white' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', margin: 'auto', width: '1000px', height: '120px', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', flexDirection: "column" }}>
-                      <Stack sx={{
-                        width: '500px', margin: 'auto', position: "absolute",
-                        bottom: "300px",
-                        left: "80%",
-                        transform: "translateX(-50%)",
-                        zIndex: 10,
-                      }}>
-                        {alert.open && (
-                          <Alert
-                            variant="filled"
-                            severity={alert.severity}
-                            onClose={() => setAlert((prev) => ({ ...prev, open: false }))}
-                          >
-                            {alert.message}
-                          </Alert>
-                        )}
-                      </Stack>
-                      <Button
-                        onClick={handleCreateBooking}
-                        sx={{ display: 'flex', flexDirection: 'column', border: "1px solid #ddd", borderRadius: '10px', width: '620px', backgroundColor: '#e66961', height: '50px' }}>
-                        <Typography sx={{ color: 'white', textTransform: 'none', textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', marginTop: '5px' }}>Thanh Toán</Typography>
-                      </Button>
-                      <Typography className='button36' sx={{ fontSize: '14.5px', textAlign: 'center', marginTop: '10px' }}>Bằng việc nhấn nút Tiếp tục, bạn đồng ý với Chính sách bảo mật thanh toán và Quy chế</Typography>
-                    </Box>
-                    <Typography className='button36' sx={{ width: '350px', backgroundColor: 'rgb(255, 255, 255)', fontSize: '14px' }}>
+                  <Box sx={{width:'100%', backgroundColor:'white'}}>
+                   <Box sx={{display:'flex', alignItems:'center', margin: 'auto', width:'1000px', height:'120px', justifyContent:'space-between'}}>
+                          <Box sx={{display:'flex', flexDirection:"column"}}>
+                              <Stack sx={{ width: '500px', margin: 'auto',position: "absolute",
+                              bottom: "300px", 
+                              left: "80%",
+                              transform: "translateX(-50%)",
+                              zIndex: 10,}}>
+                              {alert.open && (
+                                <Alert 
+                                variant="filled" 
+                                  severity={alert.severity} 
+                                  onClose={() => setAlert((prev) => ({ ...prev, open: false }))} 
+                                >
+                                  {alert.message}
+                                </Alert>
+                              )}
+                            </Stack>
+                          <Button
+                          onClick={handleCreateBooking}
+                           sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px', width:'620px',backgroundColor:'#e66961', height:'50px'}}>
+                              <Typography sx={{color:'white', textTransform:'none', textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)', marginTop:'5px'}}>Thanh Toán</Typography>
+                          </Button>
+                              <Typography className='button36' sx={{fontSize:'14.5px',textAlign:'center', marginTop:'10px'}}>Bằng việc nhấn nút Tiếp tục, bạn đồng ý với Chính sách bảo mật thanh toán và Quy chế</Typography>
+                          </Box>
+                    <Typography className='button36' sx={{width:'350px',backgroundColor:'rgb(255, 255, 255)',fontSize:'14px'}}>
                       Bạn sẽ sớm nhận được biển số xe, số điện thoại tài xế và dễ dàng thay đổi điểm đón trả sau khi đặt.</Typography>
-                  </Box>
-
+                   </Box>
+              
+                    </Box>
                 </Box>
-              </Box>
             </TabPanel>
-            <TabPanel value="5">
-              <Information onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} />
+            <TabPanel value="5"> 
+              <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
             </TabPanel>
           </TabContext>
         </Box>
       </Box>
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
       <ConfirmInfo
-        open={openModal}
-        handleClose={handleCloseModal}
-        onSubmit={handleSubmitInfo}
-        phoneNumber="0123456789"
+  open={openModal} 
+  handleClose={handleCloseModal}
+  onSubmit={handleSubmitInfo}
+  phoneNumber="0123456789" 
 
-      />
+/>
     </Box>
   );
 };
 
-InforCustoOfTrips.propTypes = {
-  socket: PropTypes.object
-};
 export default InforCustoOfTrips;           
