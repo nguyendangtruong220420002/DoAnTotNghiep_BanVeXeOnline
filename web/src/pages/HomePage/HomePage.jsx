@@ -13,7 +13,7 @@ import {TabContext,TabList, TabPanel} from '@mui/lab';
 import Login from '../AboutPage/Login'
 import Ticket from '../AboutPage/Ticket'
 import Information from '../../../src/pages/AboutPage/Information';
-import ConfirmInfo from '../../pages/AboutPage/ConfirmInfo'; 
+import Sale from '../../pages/AboutPage/Sale'; 
 import Divider from '@mui/material/Divider';
 import loguot from '../../../public/images/log-out.png'
 import history from '../../../public/images/history.png'
@@ -230,18 +230,18 @@ const handleCloseModal = () => {
                margin:0,
                boxSizing:'border-box',
             }}>       
-              <Content userInfo={userInfo}  setValue={setValue}  />
-             
+              <Content userInfo={userInfo}  setValue={setValue}  />             
             </TabPanel>
             <TabPanel value="2">
-              <Typography>Mã Giảm giá</Typography>
-              <Button onClick={handleOpenModal}>Mở modal</Button>
+              <Sale></Sale>
             </TabPanel>
             <TabPanel value="3">
              <Ticket  userInfo={userInfo}> onLogout={handleLogout} setUserInfo={setUserInfo} </Ticket>
             </TabPanel>
-            <TabPanel value="4">
-              <Typography>Cần Trợ Giúp</Typography>
+            <TabPanel 
+            value="1"
+            >
+              
             </TabPanel>
             <TabPanel value="5"> 
               <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
@@ -297,7 +297,9 @@ const handleCloseModal = () => {
               
          </Box>
       </Box>
-      
+      <Box sx={{backgroundColor:"#ff1100", marginTop:'80px'}}><Typography sx={{textAlign:'center', color:'white', fontSize:'14px'}}> © 2024|Bản quyền thuộc về Nguyễn Đang Trường_20062481 & Phạm Sỹ Thái_20047921
+|
+Giảng Viên quản lý : Thầy Đặng Văn Thuận</Typography></Box>
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
       
     </Box>

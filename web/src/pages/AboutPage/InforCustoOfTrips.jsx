@@ -38,42 +38,35 @@ const InforCustoOfTrips = () => {
   const location = useLocation();
   const savedData = JSON.parse(sessionStorage.getItem('tripData'));
   const dataOfShowTrips = location.state?.dataOfShowTrips || savedData?.dataOfShowTrips;
-
-const InforCusto = location.state?.userInfo || savedData?.userInfo;
-const from = location.state?.from || savedData?.from;
-const schedule = location.state?.schedule || savedData?.schedule;
-const to = location.state?.to || savedData?.to;
-const totalAmount = location.state?.totalAmount || savedData?.totalAmount;  
-const SeatCode = location.state?.SeatCode || savedData?.SeatCode;  
-const SeatCodeSelect = location.state?.SeatCodeSelect || savedData?.SeatCodeSelect;  
-const business = location.state?.business || savedData?.business;  
-const departure = location.state?.departure || savedData?.departure; 
-const departureDate = location.state?.departureDate || savedData?.departureDate; 
-const departureTime = location.state?.departureTime || savedData?.departureTime; 
-const destination = location.state?.destination || savedData?.destination; 
-const endTime = location.state?.endTime || savedData?.endTime;  
-const selectedSeats = location.state?.selectedSeats || savedData?.selectedSeats;
-const tripId = location.state?.tripId || savedData?.tripId;
-const totalAmountAll = location.state?.totalAmountAll || savedData?.totalAmountAll  || 0;
-const BusName = location.state?.BusName || savedData?.BusName;
-
-
+  const InforCusto = location.state?.userInfo || savedData?.userInfo;
+  const from = location.state?.from || savedData?.from;
+  const schedule = location.state?.schedule || savedData?.schedule;
+  const to = location.state?.to || savedData?.to;
+  const totalAmount = location.state?.totalAmount || savedData?.totalAmount;  
+  const SeatCode = location.state?.SeatCode || savedData?.SeatCode;  
+  const SeatCodeSelect = location.state?.SeatCodeSelect || savedData?.SeatCodeSelect;  
+  const business = location.state?.business || savedData?.business;  
+  const departure = location.state?.departure || savedData?.departure; 
+  const departureDate = location.state?.departureDate || savedData?.departureDate; 
+  const departureTime = location.state?.departureTime || savedData?.departureTime; 
+  const destination = location.state?.destination || savedData?.destination; 
+  const endTime = location.state?.endTime || savedData?.endTime;  
+  const selectedSeats = location.state?.selectedSeats || savedData?.selectedSeats;
+  const tripId = location.state?.tripId || savedData?.tripId;
+  const totalAmountAll = location.state?.totalAmountAll || savedData?.totalAmountAll  || 0;
+  const BusName = location.state?.BusName || savedData?.BusName;
 
 const { tripType } = dataOfShowTrips || {};
-
-const from2 = location.state?.from2;
-const dataOfShowTrips2 = location.state?.dataOfShowTrips2;
-const { returnDate } = dataOfShowTrips || {};
+  const from2 = location.state?.from2;
+  const dataOfShowTrips2 = location.state?.dataOfShowTrips2;
+  const { returnDate } = dataOfShowTrips || {};
   const returnDateLab  = location.state?.returnDateLab;
-
   const schedule2 = location.state?.schedule2 || [];
   const to2 = location.state?.to2;
   const BusName2 = location.state?.BusName2;
   const totalAmount2 = location.state?.totalAmount2;  
   const SeatCode2 = location.state?.SeatCode2;  
- 
   const SeatCodeSelect2 = location.state?.SeatCodeSelect2; 
-  
   const selectedSeats2 = location.state?.selectedSeats2;  
   console.log("SeatCodeSelect2",SeatCodeSelect2);
   const business2 = location.state?.business2;  
@@ -89,8 +82,6 @@ const { returnDate } = dataOfShowTrips || {};
   const [selectedDeparture, setSelectedDeparture] = useState("");
   const [selectedDestination, setSelectedDestination] = useState("");
 
-
-  
   const [value, setValue] = useState("1");
   const [openLogin, setOpenLogin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
@@ -100,7 +91,6 @@ const { returnDate } = dataOfShowTrips || {};
     phoneNumber: InforCusto?.phoneNumber || '',
     email: InforCusto?.email || '',
 });
-
 const [Timehouse, setTimehouse] = useState(null);
 const [Timehouse2, setTimehouse2] = useState(null);
 useEffect(() => {
@@ -109,32 +99,25 @@ useEffect(() => {
     setTimehouse(formattedTime); 
   }
 }, [departureTime])
-
 const formattedTotalAmountAll = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
   currency: 'VND',
 }).format(totalAmountAll || 0);
-
-
 useEffect(() => {
   if (departureTime2) {
     const formattedTime2 = moment(departureTime2, "DD/MM/YYYY, HH:mm").tz("Asia/Ho_Chi_Minh").format("HH:mm");
     setTimehouse2(formattedTime2); 
   }
 }, [departureTime2]);
-
 const formattedTotalAmountAll2 = new Intl.NumberFormat('vi-VN', {
   style: 'currency',
   currency: 'VND',
 }).format(totalAmountAll2);
-
   const totalAmountAllTowTrips= totalAmountAll + totalAmountAll2;
   const formattedTotalAmountAllTowTrips = new Intl.NumberFormat('vi-VN', {
     style: 'currency',
     currency: 'VND',
   }).format(totalAmountAllTowTrips);  
-
-
 {selectedSeats.length > 0 ? new Intl.NumberFormat('vi-VN', {style: 'currency',currency: 'VND',}).format(selectedSeats.length * totalAmount) : ""} 
 const handleChangeDeparture = (event) => {
   setSelectedDeparture(event.target.value); 
@@ -142,23 +125,17 @@ const handleChangeDeparture = (event) => {
 const handleChangeDestination = (event) => {
   setSelectedDestination(event.target.value); 
 };
-
 const selectedDepartureName =schedule.find((stop) => stop._id === selectedDeparture)?.name || from;
 const selectedDestinationName =schedule.find((stop) => stop._id === selectedDestination)?.name || to;
-
 const handleChangeDeparture2 = (event) => {
   setSelectedDeparture2(event.target.value); 
 };
 const handleChangeDestination2 = (event) => {
   setSelectedDestination2(event.target.value); 
 };
-
 const selectedDepartureName2 =schedule2.find((stop) => stop._id === selectedDeparture2)?.name2 || from2;
-const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDestination2)?.name2 || to2;
-    
-
-
-    const handleCreateBooking = async () => {
+const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDestination2)?.name2 || to2; 
+const handleCreateBooking = async () => {
       if (!selectedSeats || selectedSeats.length === 0) {
         setAlert({
           open: true,
@@ -191,9 +168,6 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
       const parts = formattedDepartureDate.split(", ");
       const dayMonthYear = parts[1];
       const formattedDepartureTime = moment(dayMonthYear, "D/MM/YYYY").tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DDTHH:mm:ss.SSSZ");
-
-        
-
       const bookingDataForPayment = {
         tripId,
         userId: InforCusto._id,
@@ -209,7 +183,7 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
           email: formDataCustoOfTrips.email,
         },
       };
-      console.log("bookingDataForPayment",bookingDataForPayment);
+     // console.log("bookingDataForPayment",bookingDataForPayment);
       const bookingDataReturn = tripType === 'Khứ hồi' ? {
         tripId:tripId2,  
         seatId:SeatCode2,
@@ -225,7 +199,7 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
           email: formDataCustoOfTrips.email,
         },
       } : null;
-      console.log("bookingDataReturn",bookingDataReturn);
+     // console.log("bookingDataReturn",bookingDataReturn);
       const isDataValid = Object.values(bookingDataForPayment).every(value => {
         if (typeof value === 'object' && value !== null) {
           return Object.values(value).every(subValue => {
@@ -250,7 +224,7 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
           const createBookingReturnResponse = await axios.post(`${API_URL}/api/bookingRoutes/addRoutTrip`, bookingDataReturn);
 
          bookingId2 = createBookingReturnResponse.data.bookingReturn._id;
-          console.log("bookingId2",bookingId2);
+        //  console.log("bookingId2",bookingId2);
         }
         const bookingData = {
           tripId,
@@ -262,19 +236,14 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
           Timehouse:Timehouse,
           departureDate:departureDate,
         };
-    
        // console.log("bookingData", bookingData);     
      await axios.post(`${API_URL}/api/tripsRoutes/book-seats`, bookingData);
-
-
      if (tripType === 'Khứ hồi') {
         const formattedReturnDate = returnDateLab.replace("Th ", "").trim();
         const parts2 = formattedReturnDate.split(", ");
         const dayMonthYear2 = parts2[1];
         const formattedReturnTime = moment(dayMonthYear2, "D/MM/YYYY").tz("Asia/Ho_Chi_Minh").format("YYYY-MM-DDTHH:mm:ss.SSSZ");
-        console.log("formattedReturnTime",formattedReturnTime)
-
-
+      //  console.log("formattedReturnTime",formattedReturnTime)
         const bookingDataReturn = {
         tripId:tripId2,  
          bookingDate: formattedReturnTime,
@@ -285,14 +254,12 @@ const selectedDestinationName2 =schedule2.find((stop) => stop._id === selectedDe
          Timehouse:Timehouse2,
          departureDate: returnDateLab,
       };
-
       await axios.post(`${API_URL}/api/tripsRoutes/book-SeatsRoutTrip`, bookingDataReturn);
     }
           const bookingId = createBookingResponse.data.booking._id;
           const bookingID = createBookingResponse.data.booking.BookingID;
-          console.log("bookingId",bookingId)
-          console.log("bookingID",bookingID)
-          
+        //  console.log("bookingId",bookingId)
+        //  console.log("bookingID",bookingID)  
         setTimeout(() => {
           navigate('/payment', { state: { bookingId,bookingId2,bookingID,userInfo ,from, schedule ,to, endTime, selectedSeats,business,
             totalAmount,SeatCode,departure,destination,tripId ,totalAmountAll,departureDate,departureTime,SeatCodeSelect,formDataCustoOfTrips ,dataOfShowTrips,InforCusto,

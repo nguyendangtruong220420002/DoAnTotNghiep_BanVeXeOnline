@@ -41,7 +41,7 @@ const RegisterForm = () => {
           const exists = await checkPhoneNumberExists(phoneNumber);
           if (exists) {
             setPhoneError('Số điện thoại đã tồn tại.');
-            return; // Ngừng xử lý nếu số điện thoại đã tồn tại
+            return;
           }
       
           try {

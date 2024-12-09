@@ -630,9 +630,129 @@ body{
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); 
    
   }
+    .button53{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 14.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: uppercase !important;
+    line-height: 21px !important;
+    color: #551615 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    font-weight: bold !important;
+    margin-bottom: 15px !important;
+   
+  }
+    .button53-1{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #000000 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    font-weight: bold !important;
+    margin-bottom: 10px !important;
+   
+  }
+  .button53-2{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 20px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #b5090c !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    font-weight: bold !important;
+    margin-bottom: 10px !important;
+   
+  }
+    .button53-3{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #000000  !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    margin-bottom: 10px !important;
+   
+  }
+    .button54{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 14px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #181818 !important;
+    text-decoration: none !important;
+    margin-bottom: 8px !important;
+  }
+    .button55{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 13px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #444444 !important;
+    text-decoration: none !important;
+    margin-bottom: 8px !important;
+  }
+    .button56{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 14px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #181818 !important;
+    text-decoration: none !important;
+    margin-bottom: 8px !important;
+  }
+  .button57{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 24px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #000000 !important;
+    text-decoration: none !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    font-weight: bold !important;
+    text-align: center !important;
+    margin-top: 25px !important;
+  }
+    .button58{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 20px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color: #000000 !important;
+    text-decoration: none !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); 
+    font-weight: bold !important;
+     margin-bottom: 15px !important;
+  }
+  .button59{
+    transition: color 0.1s, text-shadow 0.1s;
+    font-size: 15.5px !important;
+    font-family: ixi-type, sans-serif !important;
+    text-transform: none !important;
+    line-height: 21px !important;
+    color:#444444 !important;
+    text-decoration: none !important;
+    font-weight: 400 !important;
+    margin-bottom: 15px !important;
+    
+  }
+
+  .button54::before {
+    content: "●" !important;  
+    font-size: 12px !important; 
+    margin-right: 8px !important; 
+    color: #000 !important;
+  }
   .tab2 .Mui-selected {
     color: #dc635b !important;
-    
   }
   .tab2 .MuiTab-root.Mui-selected {
     color: white !important; 

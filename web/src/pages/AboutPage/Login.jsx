@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Modal, Box, TextField, Typography, Button, Tabs, Tab, IconButton  } from '@mui/material';
+import { Modal, Box, TextField, Typography, Button, Tabs, Tab, IconButton,  } from '@mui/material';
 import PropTypes from 'prop-types';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import VisibilityRoundedIcon from '@mui/icons-material/VisibilityRounded';
@@ -8,12 +8,12 @@ import CallRoundedIcon from '@mui/icons-material/CallRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import PasswordRoundedIcon from '@mui/icons-material/PasswordRounded';
 import RegisterForm from '../../../src/pages/AboutPage/RegisterForm'
+import ForgotPasswordModal from '../../../src/pages/AboutPage/ForgotPasswordModal'
+ 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-
-
 
 const Login = ({ open, handleClose, setUserInfo }) => {
   const [tabValue, setTabValue] = useState(0);
@@ -23,8 +23,11 @@ const Login = ({ open, handleClose, setUserInfo }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
-  const [alerts, setAlerts] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
 
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+  const [alerts, setAlerts] = useState([]);
   const showAlert = (severity, message) => {
     const newAlert = {
       severity: severity,
@@ -199,8 +202,13 @@ const Login = ({ open, handleClose, setUserInfo }) => {
         Đăng nhập
       </Button>
     </Box>
-          <Box sx={{marginTop:'35px',fontSize:'14px',textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: '#ef5222' }}> Quên mật khẩu</Box>
-         
+          <Box
+            onClick={handleOpenModal}
+          sx={{marginTop:'35px',fontSize:'14px',textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)', color: '#ef5222' }}
+          > 
+        Quên mật khẩu
+        </Box>
+        <ForgotPasswordModal open={modalOpen} onClose={handleCloseModal} />
           </Box>
         )}
         {tabValue === 1 && (

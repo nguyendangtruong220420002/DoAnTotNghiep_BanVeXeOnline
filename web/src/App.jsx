@@ -9,6 +9,8 @@ import ShowTrips from "../src/pages/HomePage/showTrips"
 import Payment from "../src/pages/AboutPage/Payment"
 import PaymentCancel from "../src/pages/AboutPage/PaymentCancel"
 import PaymetSuccess from "../src/pages/AboutPage/PaymetSuccess"
+import ForgotPasswordForm from "./pages/AboutPage/ForgotPasswordModal"
+
 import { io } from 'socket.io-client'
 
 function App() {
@@ -17,22 +19,15 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    // Calling connecting
     const socket = io(`http://127.0.0.1:2820`, {
       autoConnect: false,
     });
     socket.connect();
 
-    // Set Client
     setSocket(socket);
-
     console.log("socket in app.jsx", socket);
-
-    // Return clean
     return () => {
-      // Disconnect Socket
       socket.disconnect();
-      // Clean
       setSocket(null);
     };
   }, []);
@@ -65,6 +60,7 @@ function App() {
       <Route path="/payment" element={<Payment />} />
       <Route path="/paymentCancel" element={<PaymentCancel socket={socket} />} />
       <Route path="/paymentSuccess" element={<PaymetSuccess />} />
+      <Route path="/ForgotPassword" element={<ForgotPasswordForm/>} />
 
     </Routes>
 
