@@ -47,6 +47,10 @@ import { useNavigate } from 'react-router-dom';
 import RoundTrip from '../AboutPage/RoundTrip';
 import Ticket from '../AboutPage/Ticket'
 import DeleteSweepRoundedIcon from '@mui/icons-material/DeleteSweepRounded';
+import FmdGoodTwoToneIcon from '@mui/icons-material/FmdGoodTwoTone';
+import LocalPhoneTwoToneIcon from '@mui/icons-material/LocalPhoneTwoTone';
+import InventoryTwoToneIcon from '@mui/icons-material/InventoryTwoTone';
+import Sale from '../../pages/AboutPage/Sale'; 
 
 const ShowTrips = (socket) => {
   const navigate = useNavigate();
@@ -319,14 +323,11 @@ const ShowTrips = (socket) => {
             icon={<Box component='img'  src={sale} sx={{ width:'23px', height:'23px', }}></Box>}>  
            
             </Tab>
-
                     <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Vé Của Tôi</Box>} value="3" className='button2' iconPosition="start"
                       icon={<Box component='img' src={ticket} sx={{ width: '23px', height: '23px', }}></Box>}>
                     </Tab>
-
                     <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Cần Trợ Giúp</Box>} value="4" className='button2' iconPosition="start"
                       icon={<Box component='img' src={helpdesk} sx={{ width: '23px', height: '23px', }}></Box>}>
-
                     </Tab>
                     {userInfo ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', width: '200px' }}>
@@ -440,8 +441,7 @@ const ShowTrips = (socket) => {
           flexDirection="column"
           height="100vh">
           <AirportShuttleIcon style={{ fontSize: 50, marginBottom: 20 }} />
-          <LinearProgress style={{ width: "80%" }} />
-          
+          <LinearProgress style={{ width: "80%" }} />        
         </Box>
       ) : trips.length === 0 ?(
         <Box sx={{
@@ -451,17 +451,14 @@ const ShowTrips = (socket) => {
           flexDirection:'column',
           margin: "auto",
           justifyContent: "center",
-          alignItems: "center",
-          
+          alignItems: "center",        
           borderRadius: "8px",
           marginTop: "20px",
-
         }}> <Typography className="button38-6">Không tìm thấy chuyến xe này </Typography>
         <Box component='img'  src={Nosearchrch} sx={{width:'35%', height:'35%',  objectFit: 'contain', objectPosition: 'center',}}></Box>
         </Box>
            ) : (
-        <Box>  
-        
+        <Box>        
           <Box
             sx={{
               width: "1200px",
@@ -491,8 +488,7 @@ const ShowTrips = (socket) => {
               Thời gian khởi hành {sortConfig.key === "departureTime" && (sortConfig.ascending ? "↑" : "↓")}
               </Typography>
               <Typography className="button14" onClick={() => handleSort("endTime")}>
-              Thời gian kết thúc {sortConfig.key === "endTime" && (sortConfig.ascending ? "↑" : "↓")}</Typography>
-              
+              Thời gian kết thúc {sortConfig.key === "endTime" && (sortConfig.ascending ? "↑" : "↓")}</Typography>             
             </Box>
             <Box
               sx={{
@@ -523,8 +519,7 @@ const ShowTrips = (socket) => {
             sx={{ width: "1200px", height: "auto", display: "flex", margin: "auto", marginTop: "15px", }}>
             <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Box
-                sx={{ width: "320px", height: "500px", alignItems: "", border: "1px solid #ececec", backgroundColor: "#ffffff", borderRadius: "8px", marginLeft: "23px", boxShadow: "", }}>
-               
+                sx={{ width: "320px", height: "530px", border: "1px solid #ececec", backgroundColor: "#ffffff", borderRadius: "8px", marginLeft: "23px", }}>           
                 <Box sx={{display:'flex', justifyContent:'space-between'}} >
                 <Typography className="button52" sx={{marginLeft:'18px', marginTop:'20px', marginBottom:'10px'}}> Bộ Lọc</Typography>
                 <Button onClick={clearFilters}><DeleteSweepRoundedIcon sx={{width:'50px', height:'30px', color:'#e60c0f'}}></DeleteSweepRoundedIcon></Button>
@@ -549,8 +544,7 @@ const ShowTrips = (socket) => {
                 <FormControl component="fieldset">
                   <RadioGroup
                      value={selectedBusType}
-                    onChange={(e) => setSelectedBusType(e.target.value)}>
-             
+                    onChange={(e) => setSelectedBusType(e.target.value)}>            
               <FormControlLabel 
                 value="Giường nằm cao cấp(40G)" control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} label="Giường nằm cao cấp(40G)" 
                 sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
@@ -561,19 +555,17 @@ const ShowTrips = (socket) => {
                 label="Khách sạc đi động(34G)" 
                 sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
               />
-
               <FormControlLabel 
                 value="Limousine(20G)" 
                 control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} 
                 label="Limousine(20G)" 
                 sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
               />
-
               <FormControlLabel 
                 value="Giường đôi (16G)" 
                 control={<Radio sx={{'&.Mui-checked': {color: '#dc635b', fontSize: '15px'}, fontSize: '14px', transform: 'scale(0.8)', marginLeft: '35px'}} />} 
                 label="Giường đôi (16G)" 
-                sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }}}
+                sx={{'& .MuiFormControlLabel-label': { fontSize: '14.5px', display: 'inline' }, marginBottom:'10px'}}
               />
               </RadioGroup>
               </FormControl>
@@ -583,7 +575,7 @@ const ShowTrips = (socket) => {
             </Box>
 
             <Box
-              sx={{ width: "100%", maxHeight: "800px", overflowY: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
+              sx={{ width: "100%", maxHeight: "1000px", overflowY: "auto", scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
               {dataOfShowTrips.tripType === "Khứ hồi" ? (
                 <Box>
                   <Tabs value={tabIndex1} 
@@ -625,8 +617,7 @@ const ShowTrips = (socket) => {
                               {trip.userId.fullName}
                             </Typography>
                             <Typography className="button19">
-                              {trip.busId.busType}
-                            
+                              {trip.busId.busType}                          
                             </Typography>
                             <Box sx={{ display: "flex", marginLeft: "10px" }}>
                               <AddCircleRoundedIcon
@@ -813,10 +804,8 @@ const ShowTrips = (socket) => {
                                     Chọn chuyến
                                   </Button>
                                 </Box>
-  
                                 {openTabs[trip._id] === "1" && (
-                                  <Box>
-                                    
+                                  <Box>                                   
                                     <SeatSelection
                                       tripId={trip._id}
                                       userInfo={userInfo}
@@ -1858,22 +1847,68 @@ const ShowTrips = (socket) => {
       )}
             </TabPanel>
             <TabPanel value="2">
-              <Typography>Mã Giảm giá</Typography>
-              <Button onClick={handleOpenModal}>Mở modal</Button>
+            <Sale></Sale>
             </TabPanel>
             <TabPanel value="3">
             <Ticket  userInfo={userInfo}> onLogout={handleLogout} setUserInfo={setUserInfo} </Ticket>
             </TabPanel>
-            <TabPanel value="4">
-              <Typography>Cần Trợ Giúp</Typography>
+            <TabPanel 
+              value="1"
+             >
+             
             </TabPanel>
             <TabPanel value="5"> 
               <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
             </TabPanel>
           </TabContext>
         </Box>
-        {/* <Typography>xin chào </Typography> */}
+       
+        <Box sx={{backgroundColor:"#fff7f5"}}>
+          <Box sx={{ display:'flex', justifyContent:'space-around', width:'75%', marginLeft: '170px', marginTop:'50px' , marginBottom:'20p' }}>
+            <Box sx={{ display:'flex', flexDirection:'column',marginTop:'30px'}}>
+              <Box component="img" src={logo} alt="" sx={{width:'300px', height:'70px', marginTop:'3px'}} ></Box>
+              <Typography className="button56">Website Bán Vé Xe Online là trang web  <br></br> đáng tin cậy để bạn tìm kiếm những vé xé <br></br>  chất lượng nhất!</Typography>
+              <Box sx={{display:'flex',}}>
+                    <FmdGoodTwoToneIcon sx={{color:'#dc635b', width:'15px', height:'20px', marginRight:'5px'}}></FmdGoodTwoToneIcon>
+                    <Typography className="button55">12 Nguyễn Văn Bảo, F4, Q.Gò Vấp, Tp.Hồ Chí Minh</Typography>
+              </Box>
+              <Box sx={{display:'flex'}}>
+                    <LocalPhoneTwoToneIcon sx={{color:'#dc635b',width:'15px', height:'20px',marginRight:'5px'}}></LocalPhoneTwoToneIcon>
+                    <Typography className="button55" >0326923816</Typography>
+              </Box>
+              <Box sx={{display:'flex'}}>
+                    <InventoryTwoToneIcon sx={{color:'#dc635b',width:'15px', height:'20px',marginRight:'5px'}}></InventoryTwoToneIcon>
+                    <Typography className="button55">nguyendangtruong22042002@gmail.com </Typography>
+              </Box>
+            </Box>          
+            <Box sx={{ display:'flex', flexDirection:'column',marginTop:'30px'}}>
+              <Typography className="button53">Thông tin chung</Typography>
+              <a href="#" className="button54">Điều Khoảng & Điều kiện</a>
+              <a href="#" className="button54">Chính Sách Bảo Mật</a>
+              <a href="#" className="button54">Liên Hệ Về Hợp Tác </a>
+              <a href="#" className="button54">Nhà Xe Limosine</a>
+              <a href="#" className="button54">Quy Chế</a>
+            </Box>
+            <Box sx={{ display:'flex', flexDirection:'column',marginTop:'30px'}}>
+              <Typography className="button53">Hổ Trợ  </Typography>
+              <a href="#" className="button54">Điều Khoảng Sử Dụng</a>
+              <a href="#" className="button54">Câu Hỏi Thường Gặp</a>
+              <a href="#" className="button54">Hợp Tác Với Doanh Nghiệp</a>
+              <a href="#" className="button54">Ví Điện Tử</a>
+            </Box>
+            <Box sx={{ display:'flex', flexDirection:'column',marginTop:'30px'}}>
+              <Typography className="button53">Liên hệ </Typography>
+              <Typography className="button53-1">Thứ 2 - Chủ Nhật</Typography>
+              <Typography className="button53-2">0326923816 - 0911513297</Typography>
+              <Typography className="button53-3">08:00 - 22:00</Typography>             
+            </Box>
+          </Box>
+        </Box>
       </Box>
+      <Box sx={{backgroundColor:"#ff1100"}}><Typography sx={{textAlign:'center', color:'white', fontSize:'14px'}}> © 2024|Bản quyền thuộc về Nguyễn Đang Trường_20062481 & Phạm Sỹ Thái_20047921
+|
+Giảng Viên quản lý : Thầy Đặng Văn Thuận</Typography></Box>
+     
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
       <ConfirmInfo
         open={openModal} 

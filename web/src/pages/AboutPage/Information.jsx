@@ -28,9 +28,6 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
     message: '',
     severity: 'success', 
   });
-  
-
-
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
@@ -83,8 +80,6 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
      
     }
   };
-  
-
   useEffect(() => {
     if (message) {
       console.log('Thông báo mới:', message);
@@ -96,14 +91,12 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
     //  console.log('Họ và tên:', userInfo.fullName);
     }
   }, [userInfo]);
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
     if (newValue === "3") {
       onLogout(); 
     }
   };
-
   const handleInputChange = (e, field) => {
     setUserInfo({ ...userInfo, [field]: e.target.value });
   };
@@ -115,17 +108,12 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
   };
   const handleUpdate = async (e) => {
     e.preventDefault();
-  
     if (!userInfo) return;
-  
-
     const token = localStorage.getItem('token');
-  
     if (!token) {
       setMessage('Vui lòng đăng nhập để thực hiện thao tác này.');
       return;
     }
-  
     const formData = new FormData(); 
     formData.append('fullName', userInfo.fullName);
     formData.append('email', userInfo.email);
@@ -138,26 +126,22 @@ if (userInfo.img) {
 } else {
     console.error("Image is null. Please provide a valid image."); 
 }
-  
     try {
       const response = await fetch(`${API_URL}/api/users/${userInfo._id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`, 
         },
-        body: formData, 
-        
+        body: formData,    
       });
       console.log("body",formData)
       if (!response.ok) {
         throw new Error('Cập nhật thất bại');
       }
-  
       const updatedUser = await response.json();
       setUserInfo(updatedUser.user);
       localStorage.setItem('userInfo', JSON.stringify(updatedUser.user));
       console.log('User info saved to localStorage:', JSON.stringify(updatedUser.user));
-  
       setMessage('Cập nhật thành công!');
       resetForm();
     } catch (error) {
@@ -165,7 +149,6 @@ if (userInfo.img) {
       setMessage('Cập nhật thất bại!');
     }
   };
-
   const handleEditToggle = () => {
     if (isEditing) {
       handleUpdate(); 
@@ -179,7 +162,6 @@ if (userInfo.img) {
       setImagePath(URL.createObjectURL(file));
     }
   };
-
   return (
     <Box sx={{ display: 'flex', maxWidth: '1128px', justifyContent: 'space-around', margin: 'auto' }}>
       <Box sx={{ width: '252px', height: '300px',marginTop:'24px', backgroundColor: '#fffefe', borderRadius: '15px', border: '2px solid #e5e7eb', boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)' }}>

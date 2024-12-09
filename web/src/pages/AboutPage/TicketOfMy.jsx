@@ -15,7 +15,6 @@ const TicketOfMy = ({ userInfo }) => {
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState(0); 
   const API_URL = import.meta.env.VITE_API_URL;
-
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -33,16 +32,12 @@ const TicketOfMy = ({ userInfo }) => {
 
     fetchBookings();
   }, [userInfo]);
-
   const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue); // Cập nhật tab được chọn
+    setSelectedTab(newValue); 
   };
-
-  // Lọc bookings theo trạng thái thanh toán
   const filterBookingsByPaymentStatus = (status) => {
     return bookings.filter((booking) => booking.paymentStatus === status);
   };
-
   return (
     <Box sx={{ width: '800px', height: '475px', backgroundColor: '#fffafa', 
          }}>      
@@ -84,7 +79,6 @@ const TicketOfMy = ({ userInfo }) => {
           )}
         </Box>
       )}
-
       {selectedTab === 1 && (
         <Box sx={{  maxHeight: '500px', overflowY: 'auto',  '&::-webkit-scrollbar': {width: ''},scrollbarWidth: 'none',
           }} >
@@ -128,7 +122,6 @@ const TicketOfMy = ({ userInfo }) => {
                     <Typography className="button39-2">{booking.Timehouse}</Typography>
                     <Typography className="button39-3">{booking.tripId.userId.fullName}</Typography>
                     <Typography className="button39-3">{booking.tripId.routeId.departure} - {booking.tripId.routeId.destination} </Typography>
-
                     <Typography className="button39-3"
                     sx={{marginBottom:'10px',}}> <strong>Số điện thoại nhà xe:</strong> {booking.tripId.userId.phoneNumber}</Typography>
                     <Divider></Divider>

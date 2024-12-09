@@ -1,65 +1,20 @@
 const Booking = require('../models/Booking');
 const Trips = require('../models/Trips');
-const Bull = require('bull');
-const Redis = require('ioredis');
-const redis = new Redis();
-require('dotenv').config();
-const paymentQueue = new Bull('paymentQueue', {
-  // redis: { host: 'localhost', port: 6379 } 
-  redis: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    //password: process.env.REDIS_PASSWORD
-  }
-  
-});
-redis.ping().then(() => {
-  console.log('Connected to Redis successfully!');
-}).catch(err => {
-  console.error('Error connecting to Redis:', err);
-});
-// console.log("process.env.REDIS_HOST",process.env.REDIS_HOST);
-//   console.log(" process.env.REDIS_PORT",process.env.REDIS_PORT);
-paymentQueue.process(async (job) => {
-  const { bookingId, tripId, seatId } = job.data;
-  const booking = await Booking.findById(bookingId);
-  if (booking.paymentStatus === 'Đang chờ thanh toán') {
-    booking.paymentStatus = 'Thanh toán không thành công';
-    console.log("Updated paymentStatus:", booking.paymentStatus);
-    await booking.save();
-    const trip = await Trips.findById(tripId);
-    trip.tripDates.forEach(date => {
-      const initialBookedSeatsLength = date.bookedSeats.booked.length;
-      date.bookedSeats.booked = date.bookedSeats.booked.filter(seat => seat.seatId !== seatId);
-      if (date.bookedSeats.booked.length < initialBookedSeatsLength) {
-        console.log(`Ghế với seatId: ${seatId} đã được xóa thành công.`);
-      }
-    });
-    await trip.save();
-  }
-});
-
-let sharedBookingID = null;
 
 const createBooking = async (req, res) => {
   const { 
-    tripId, userId, seatId, totalFare, selectedDepartureName, selectedDestinationName, Timehouse, departureDate, passengerInfo,
-   } = req.body;
-  //  console.log(" tripId ",tripId)
-  //  console.log(" selectedDepartureName",selectedDepartureName)
-  //  console.log(" selectedDestinationName ",selectedDestinationName)
-  //  console.log(" seatId ",Timehouse)
-  //  console.log(" totalFare ",totalFare)
-  //  console.log(" departureDate ",departureDate)
+    tripId, userId, seatId, totalFare, selectedDepartureName, selectedDestinationName, Timehouse, departureDate, passengerInfo 
+  } = req.body;
+
   const lastBooking = await Booking.findOne().sort({ BookingID: -1 });
   const newBookingID = lastBooking ? lastBooking.BookingID + 1 : 1;
   sharedBookingID = newBookingID;
-  console.log("bookingReturn Trên",newBookingID);
-  console.log("bookingReturn dưới",sharedBookingID);
+
   const trip = await Trips.findById(tripId);
   if (trip.bookedSeats && trip.bookedSeats.some(seat => seat.seatId === seatId)) {
     return res.status(400).send('Ghế đã được đặt');
   }
+
   const booking = new Booking({
     BookingID: newBookingID,
     tripId,
@@ -77,62 +32,72 @@ const createBooking = async (req, res) => {
       email: passengerInfo.email
     }
   });
-  
+
   await booking.save();
 
-  paymentQueue.add({
-    bookingId: booking._id,
-    tripId,
-    seatId
-  }, {
-    delay: 5 * 60 * 1000
-  });
+  setTimeout(async () => {
+    const currentBooking = await Booking.findById(booking._id);
+    if (currentBooking.paymentStatus === 'Đang chờ thanh toán') {
+      currentBooking.paymentStatus = 'Thanh toán không thành công';
+      await currentBooking.save();
+
+      const currentTrip = await Trips.findById(tripId);
+      currentTrip.tripDates.forEach(date => {
+        date.bookedSeats.booked = date.bookedSeats.booked.filter(seat => seat.seatId !== seatId);
+      });
+      await currentTrip.save();
+    }
+  }, 5 * 60 * 1000); // 5 phút
+
   res.status(201).send({ message: 'Đặt vé thành công', booking });
 };
 
 const createBookingRoutTrip = async (req, res) => {
-  const { userId,passengerInfo,tripId,selectedDepartureName,selectedDestinationName,seatId,Timehouse,totalFare,departureDate} = req.body;
-   console.log(" tripId ",tripId)
-   console.log(" selectedDepartureName ",selectedDepartureName)
-   console.log(" selectedDestinationName ",selectedDestinationName)
-   console.log(" seatId ",Timehouse)
-   console.log(" totalFare ",totalFare)
-   console.log(" departureDate ",departureDate)
+  const { 
+    userId, passengerInfo, tripId, selectedDepartureName, selectedDestinationName, seatId, Timehouse, totalFare, departureDate 
+  } = req.body;
 
-    const tripReturn = await Trips.findById(tripId);
-   
-    if (tripReturn.bookedSeats && tripReturn.bookedSeats.some(seat => seat.seatId === seatId)) {
-      return res.status(400).send('Ghế đã được đặt cho chuyến đi về');
-    }
-    const bookingReturn = new Booking({
-      BookingID: sharedBookingID,  
-      tripId,
-      userId,
-      seatId,
-      totalFare,
-      selectedDepartureName,
-      selectedDestinationName,
-      Timehouse,
-      departureDate,
-      paymentStatus: 'Đang chờ thanh toán',
-      passengerInfo: {
-        fullName: passengerInfo.fullName,
-        phoneNumber: passengerInfo.phoneNumber,
-        email: passengerInfo.email
-      }
-    });
-  
-    await bookingReturn.save();
-  paymentQueue.add({
-    bookingId: bookingReturn._id,
+  const tripReturn = await Trips.findById(tripId);
+  if (tripReturn.bookedSeats && tripReturn.bookedSeats.some(seat => seat.seatId === seatId)) {
+    return res.status(400).send('Ghế đã được đặt cho chuyến đi về');
+  }
+
+  const bookingReturn = new Booking({
+    BookingID: sharedBookingID,
     tripId,
-    seatId
-  }, {
-    delay: 5 * 60 * 1000
+    userId,
+    seatId,
+    totalFare,
+    selectedDepartureName,
+    selectedDestinationName,
+    Timehouse,
+    departureDate,
+    paymentStatus: 'Đang chờ thanh toán',
+    passengerInfo: {
+      fullName: passengerInfo.fullName,
+      phoneNumber: passengerInfo.phoneNumber,
+      email: passengerInfo.email
+    }
   });
+
+  await bookingReturn.save();
+
+  setTimeout(async () => {
+    const currentBooking = await Booking.findById(bookingReturn._id);
+    if (currentBooking.paymentStatus === 'Đang chờ thanh toán') {
+      currentBooking.paymentStatus = 'Thanh toán không thành công';
+      await currentBooking.save();
+
+      const currentTrip = await Trips.findById(tripId);
+      currentTrip.tripDates.forEach(date => {
+        date.bookedSeats.booked = date.bookedSeats.booked.filter(seat => seat.seatId !== seatId);
+      });
+      await currentTrip.save();
+    }
+  }, 5 * 60 * 1000); // 5 phút
+
   res.status(201).send({ message: 'Đặt vé thành công', bookingReturn });
 };
-
 
 const getBookingByUser = async (req, res) => {
   const { userId } = req.query;

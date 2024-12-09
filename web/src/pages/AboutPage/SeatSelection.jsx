@@ -373,19 +373,6 @@ const SeatSelection = ({ userInfo, tripId, departureDate,totalAmount,from, sched
               {selectedSeats.length > 0 && (
                 <Button
   onClick={
-    // () =>
-    // tripType === "Khứ hồi"
-    //   ? navigate('/showTrips', { state: { SeatCode ,totalAmountAll , tabIndex1: 1 ,dataOfShowTrips } }) 
-    //   : navigate('/inforCustoOfTrips', {
-    //       state: {
-    //         userInfo, from,schedule,to,endTime,selectedSeats,totalAmount,SeatCode,departure,destination,tripId, totalAmountAll,
-    //         departureDate,
-    //         departureTime,
-    //         SeatCodeSelect,
-    //         business,
-    //         dataOfShowTrips,
-    //       },
-    //     })
     handleNavigation
   }
   sx={{
