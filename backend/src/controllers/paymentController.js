@@ -3,6 +3,7 @@ const Trips = require('../../src/models/Trips');
 const axios = require('axios');
 const PayOS = require('@payos/node');
 const moment = require('moment-timezone');
+const nodemailer = require('nodemailer')
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const API_KEY = process.env.API_KEY;
@@ -14,15 +15,15 @@ const payos = new PayOS(CLIENT_ID, API_KEY, CHECKSUM_KEY);
 
 const processPayment = async (req, res) => {
   try {
-    const { bookingId,bookingID, totalAmountAllTowTrips,SeatCode ,business , dataOfShowTrips,InforCusto,bookingId2} = req.body;
+    const { bookingId, bookingID, totalAmountAllTowTrips, SeatCode, business, dataOfShowTrips, InforCusto, bookingId2 } = req.body;
     //console.log("bookingID",bookingID);
-    
-    console.log("processPayment-bookingId2",bookingId2);
-    const amount = totalAmountAllTowTrips; 
+
+    console.log("processPayment-bookingId2", bookingId2);
+    const amount = totalAmountAllTowTrips;
     const orderCode = bookingID;
-    const returnUrl = `${API_URL}/paymentSuccess?bookingId=${bookingId}&bookingId2=${bookingId2}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;  
+    const returnUrl = `${API_URL}/paymentSuccess?bookingId=${bookingId}&bookingId2=${bookingId2}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;
     const cancelUrl = `${API_URL}/paymentCancel?bookingId=${bookingId}&bookingId2=${bookingId2}&dataOfShowTrips=${encodeURIComponent(JSON.stringify(dataOfShowTrips))}&InforCusto=${encodeURIComponent(JSON.stringify(InforCusto))}`;
-    const description = `Mhd${bookingID} Vé${SeatCode} Xe${business} `.slice(0, 25); 
+    const description = `Mhd${bookingID} Vé${SeatCode} Xe${business} `.slice(0, 25);
 
     const order = {
       orderCode: orderCode,
@@ -75,7 +76,7 @@ const PaymetCancel = async (req, res) => {
 const PaymetSuccess = async (req, res) => {
   try {
     const { bookingId } = req.query;
-    
+
     console.log("Nhận bookingId:", bookingId);
 
     // Kiểm tra tính hợp lệ của bookingId
@@ -93,7 +94,7 @@ const PaymetSuccess = async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy booking.' });
     }
 
-    const { tripId, seatId, departureDate } = booking;
+    const { tripId, seatId, departureDate, passengerInfo } = booking;
     // console.log("Chi tiết booking:", { tripId, seatId, departureDate });
 
     // Cập nhật trạng thái thanh toán của booking
@@ -117,7 +118,7 @@ const PaymetSuccess = async (req, res) => {
     // console.log("formattedTime",formattedTime);
     const formattedBookingDate = moment.tz(formattedTime, 'Asia/Ho_Chi_Minh').startOf('day');
     // Tìm ngày chuyến đi trong chuyến đi
-    console.log("formattedBookingDate",formattedBookingDate);
+    console.log("formattedBookingDate", formattedBookingDate);
     const tripDate = trip.tripDates.find((td) =>
       moment(td.date).tz('Asia/Ho_Chi_Minh').isSame(moment(formattedBookingDate), 'day')
     );
@@ -159,7 +160,40 @@ const PaymetSuccess = async (req, res) => {
     // Lưu lại thông tin chuyến đi
     await trip.save();
     console.log("Chuyến đi đã được lưu thành công với thông tin doanh thu mới.");
+    // Gửi email thông báo thanh toán thành công
+    if (passengerInfo && passengerInfo.email) {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_NAME, // Thay bằng email của bạn
+          pass: process.env.EMAIL_PASS, // Thay bằng mật khẩu của bạn
+        },
+      });
 
+      const mailOptions = {
+        from: process.env.EMAIL_NAME,
+        to: passengerInfo.email,
+        subject: 'Xác nhận thanh toán vé xe thành công',
+        text: `Kính gửi ${passengerInfo.fullName},
+        Chúng tôi xin thông báo rằng bạn đã thanh toán thành công cho chuyến đi từ ${booking.selectedDepartureName} đến ${booking.selectedDestinationName}.
+
+        Thông tin chi tiết:
+        - Mã đặt chỗ: ${booking.BookingID}
+        - Ghế: ${seatId}
+        - Thời gian khởi hành: ${departureDate}
+        - Tổng tiền: ${booking.totalFare} VND
+
+        Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.
+
+        Trân trọng,
+        Đội ngũ hỗ trợ`,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`Email xác nhận đã được gửi đến: ${passengerInfo.email}`);
+    } else {
+      console.log('Không tìm thấy email trong thông tin hành khách.');
+    }
     // Trả về thông báo thành công
     res.json({ status: 'success', message: 'Thanh toán thành công.' });
   } catch (error) {
@@ -200,4 +234,4 @@ const getOrderfromPayOS = async (req, res) => {
 }
 
 
-module.exports = { processPayment, PaymetCancel, PaymetSuccess, getOrderfromPayOS,  };
+module.exports = { processPayment, PaymetCancel, PaymetSuccess, getOrderfromPayOS, };
