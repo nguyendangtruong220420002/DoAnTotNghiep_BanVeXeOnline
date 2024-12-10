@@ -126,7 +126,9 @@ const totalAmountAllTowTrips = location.state?.totalAmountAllTowTrips;
         <Box>
         <Box sx={{width:'100%', height:'auto', backgroundColor:'#f2f2f2'}}>
                 <Box sx={{ width:'1000px', height:'auto', alignItems:'center', margin: 'auto' ,   }}>  
-               
+                <Box>
+                
+                  </Box>
                 <Box sx={{display:'flex' , justifyContent:'space-between' }} >
                   <Box sx={{display:'flex',flexDirection:'column',  marginTop:'20px'}} >
                     <Box sx={{display:'flex',flexDirection:'column', border: "1px solid #ddd", borderRadius:'10px', width:'620px',backgroundColor:'rgb(255, 255, 255)'}}> 

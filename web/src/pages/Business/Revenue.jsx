@@ -24,11 +24,9 @@ const Revenue = ({ userInfo }) => {
 
     useEffect(() => {
         generateYearRange();
-        fetchingRevenue();  // Call fetchingRevenue immediately when component mounts
+        fetchingRevenue();  
     }, [userInfo._id]);
 
-
-    // Generate Year Range for dropdown
     const generateYearRange = () => {
         const currentYear = new Date().getFullYear();
         const startYear = currentYear - 5;
@@ -63,24 +61,19 @@ const Revenue = ({ userInfo }) => {
             setBookingInfo(data.bookings);
         }
     };
-
     const handleYearChange = (e) => {
-        const selectedYear = e.target.value; // Lấy giá trị năm đã chọn
-        setCurrentYear(selectedYear);        // Cập nhật currentYear
+        const selectedYear = e.target.value;
+        setCurrentYear(selectedYear);        
         setYear(selectedYear);
         setMonth();
         setDate();
 
-        // Lọc booking theo năm đã chọn
         const filtered = bookingInfo.filter((booking) => booking.bookingDate.slice(0, 4) === selectedYear);
-
-        // Kiểm tra nếu không có bookings cho năm này
         if (filtered.length === 0) {
             setSeatQuantity();
             setTotalRevenue();
-            setChartData([]); // Không có dữ liệu cho năm này, xóa dữ liệu biểu đồ
+            setChartData([]); 
         } else {
-            // Tính toán lại doanh thu và số vé
             const updatedSeatQuantity = filtered.reduce((total, booking) => total + (booking.seatId.includes(',') ? booking.seatId.split(',').length : 1), 0);
             const updatedTotalRevenue = filtered.reduce((sum, booking) => sum + booking.totalFare, 0);
             console.log(updatedSeatQuantity)
@@ -89,12 +82,9 @@ const Revenue = ({ userInfo }) => {
             setFilteredBookings(filtered);
             setSeatQuantity(updatedSeatQuantity);
             setTotalRevenue(updatedTotalRevenue);
-
-            // Cập nhật lại dữ liệu biểu đồ
-            calculateMonthlyData(filtered, selectedYear); // Truyền selectedYear vào để tính toán lại doanh thu theo tháng
+            calculateMonthlyData(filtered, selectedYear);
         }
     };
-    // Cập nhật lại hàm calculateMonthlyData để sử dụng selectedYear thay vì currentYear
     const calculateMonthlyData = (bookings, selectedYear) => {
         const monthlyData = Array(12).fill(0).map((_, index) => ({
             month: `Tháng ${index + 1}`,
@@ -105,15 +95,11 @@ const Revenue = ({ userInfo }) => {
         if (!selectedYear) {
             selectedYear = currentYear;
         }
-        // Lặp qua từng booking để tính doanh thu theo tháng
         bookings.forEach((booking) => {
             const bookingDate = new Date(booking.bookingDate);
             const bookingYear = bookingDate.getFullYear();
-            const bookingMonth = bookingDate.getMonth(); // getMonth() trả về tháng từ 0 đến 11 (0 = tháng 1)
-
-            console.log(`Booking year: ${bookingYear}, Selected year: ${selectedYear}`); // Debug để kiểm tra năm booking và selectedYear
-
-            // Kiểm tra nếu booking năm này là năm đã chọn
+            const bookingMonth = bookingDate.getMonth(); 
+            console.log(`Booking year: ${bookingYear}, Selected year: ${selectedYear}`); 
             if (bookingYear === parseInt(selectedYear)) {
                 const monthIndex = bookingMonth;
                 monthlyData[monthIndex].revenue += booking.totalFare;
@@ -121,16 +107,13 @@ const Revenue = ({ userInfo }) => {
             }
         });
 
-        console.log("Monthly Data:", monthlyData); // Debug để kiểm tra dữ liệu monthlyData
-
-        // Nếu không có dữ liệu cho năm này, set chartData là mảng trống
+        console.log("Monthly Data:", monthlyData);
         if (monthlyData.every(data => data.revenue === 0 && data.tickets === 0)) {
-            setChartData([]); // Không có dữ liệu cho năm này, nên xóa dữ liệu biểu đồ
+            setChartData([]); 
         } else {
-            setChartData(monthlyData); // Cập nhật dữ liệu biểu đồ
+            setChartData(monthlyData); 
         }
     };
-    // Handle Month Change
     const handleMonthChange = (e) => {
         const selectedMonth = e.target.value;
         setMonth(selectedMonth);
@@ -143,8 +126,6 @@ const Revenue = ({ userInfo }) => {
         setSeatQuantity(updatedSeatQuantity);
         setTotalRevenue(updatedTotalRevenue);
     };
-
-    // Handle Date Change
     const handleDateChange = (e) => {
         const selectedDate = e.target.value;
         setDate(selectedDate);
@@ -157,9 +138,7 @@ const Revenue = ({ userInfo }) => {
         setSeatQuantity(updatedSeatQuantity);
         setTotalRevenue(updatedTotalRevenue);
     };
-
     const exportToExcel = () => {
-        // Check if chartData is empty; if so, populate with default data
         const data = chartData.length > 0 ? chartData.map(item => ({
             Month: item.month,
             Revenue: item.revenue,
@@ -169,23 +148,17 @@ const Revenue = ({ userInfo }) => {
             Revenue: 0,
             Tickets: 0,
         }));
-
-        // Calculate the total revenue and tickets
         const totalRevenue = data.reduce((sum, item) => sum + item.Revenue, 0);
         const totalTickets = data.reduce((sum, item) => sum + item.Tickets, 0);
-
-        // Add the total row at the end
         data.push({
             Month: 'Tổng doanh thu',
             Revenue: totalRevenue,
             Tickets: totalTickets,
         });
 
-        const ws = XLSX.utils.json_to_sheet(data);  // Convert data to sheet format
-        const wb = XLSX.utils.book_new();  // Create a new workbook
-        XLSX.utils.book_append_sheet(wb, ws, `Doanh thu năm ${year || currentYear}`);  // Append the sheet to the workbook
-
-        // Generate and download the Excel file
+        const ws = XLSX.utils.json_to_sheet(data); 
+        const wb = XLSX.utils.book_new();  
+        XLSX.utils.book_append_sheet(wb, ws, `Doanh thu năm ${year || currentYear}`); 
         XLSX.writeFile(wb, `Bao_cao_doanh_thu_nam_${year || currentYear}.xlsx`);
     };
 
@@ -214,8 +187,8 @@ const Revenue = ({ userInfo }) => {
                     sx={{ width: '250px' }}
                     name="date"
                     type="date"
-                    value={date} // Giá trị ngày được chọn
-                    onChange={handleDateChange} // Gắn sự kiện onchange
+                    value={date} 
+                    onChange={handleDateChange} 
                     InputProps={{
                         sx: {
                             fontSize: '13px',
@@ -269,7 +242,7 @@ const Revenue = ({ userInfo }) => {
                     label="Lọc theo năm"
                     variant="outlined"
                     name="year"
-                    value={year} // Bảo đảm luôn sử dụng state để cập nhật
+                    value={year}
                     onChange={handleYearChange}
                     size="small"
                     color="warning"

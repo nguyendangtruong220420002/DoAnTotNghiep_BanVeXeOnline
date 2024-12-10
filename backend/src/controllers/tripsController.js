@@ -6,37 +6,28 @@ const moment = require('moment-timezone');
 
 const addNewDays = async () => {
   try {
-    const today = moment().startOf('day'); // Ngày bắt đầu của hôm nay
+    const today = moment().startOf('day');
 
-    // Lấy chuyến xe có `tripType` là 'Cố định'
     const existingTrips = await Trips.findOne({ tripType: 'Cố định' });
 
     if (existingTrips && existingTrips.tripDates) {
-      // Lấy ngày cuối cùng trong danh sách hiện tại
       const lastTripDate = moment(
         existingTrips.tripDates[existingTrips.tripDates.length - 1].date
       );
 
-      // Chỉ thêm ngày tiếp theo nếu ngày cuối chưa đạt đến hôm nay + 15 ngày
       const nextTripDate = lastTripDate.clone().add(1, 'day');
-      const maxAllowedDate = today.clone().add(15, 'days');
-
-      if (nextTripDate.isSameOrBefore(maxAllowedDate)) {
-        await Trips.updateOne(
-          { tripType: 'Cố định' },
-          {
-            $push: {
-              tripDates: {
-                date: nextTripDate.toDate(),
-                sales: { totalTicketsSold: 0, totalRevenue: 0 },
-              },
+      await Trips.updateOne(
+        { tripType: 'Cố định' },
+        {
+          $push: {
+            tripDates: {
+              date: nextTripDate.toDate(),
+              sales: { totalTicketsSold: 0, totalRevenue: 0 },
             },
-          }
-        );
-        console.log(`Đã thêm ngày ${nextTripDate.format('YYYY-MM-DD')} vào hệ thống`);
-      } else {
-        console.log('Không cần thêm ngày mới, đã đủ 15 ngày');
-      }
+          },
+        }
+      );
+      console.log(`Đã thêm ngày ${nextTripDate.format('YYYY-MM-DD')} vào hệ thống`);
     } else {
       console.log('Không tìm thấy chuyến xe hoặc dữ liệu ngày trống!');
     }
@@ -44,28 +35,27 @@ const addNewDays = async () => {
     console.error('Lỗi khi thêm ngày mới:', error);
   }
 };
-// Hàm thêm chuyến xe mới
+
 const addTrips = async (req, res) => {
   try {
     const { TripsName, routeId, busId, userId, status, departureTime, endTime, tripType, schedule: initialSchedule, totalFareAndPrice } = req.body;
-    
+
     if (!tripType) {
       return res.status(400).json({ message: 'Trip type is required' });
     }
 
     let tripDates = [];
-    
+
     if (tripType === 'Cố định') {
-      const today = moment().startOf('day'); 
-    
+      const today = moment().startOf('day');
+
       const existingTrips = await Trips.findOne({ tripType: 'Cố định' });
       let existingDates = [];
       if (existingTrips && existingTrips.tripDates) {
         existingDates = existingTrips.tripDates
-          .filter(dateObj => moment(dateObj.date).isSameOrAfter(today))
           .map(dateObj => moment(dateObj.date).format('YYYY-MM-DD'));
       }
-    
+
       for (let i = 0; i < 15; i++) {
         const tripDate = today.clone().add(i, 'days').format('YYYY-MM-DD');
         if (!existingDates.includes(tripDate)) {
@@ -82,7 +72,7 @@ const addTrips = async (req, res) => {
       if (!departureTime || !endTime) {
         return res.status(400).json({ message: 'Thời gian khởi hành và thời gian kết thúc là bắt buộc cho chuyến xe không cố định' });
       }
-      
+
       const tripDate = moment(departureTime).format('YYYY-MM-DD');
       tripDates.push({
         date: moment(departureTime).toDate(),
@@ -121,18 +111,15 @@ const addTrips = async (req, res) => {
       status,
       totalFareAndPrice,
       tripType,
-      tripDates,  
-      schedule: initialSchedule || []  
+      tripDates,
+      schedule: initialSchedule || [],
     });
 
     await newTrip.save();
     await Bus.findByIdAndUpdate(busId, { status: 'Đang phục vụ' });
-
-    // Gọi hàm thêm ngày mới tự động sau khi thêm chuyến xe
     await addNewDays();
 
     res.status(201).json({ message: 'Thêm chuyến xe thành công!', Trip: newTrip });
-
   } catch (error) {
     console.error("Error adding trip:", error);
     res.status(500).json({ message: "Không thể thêm chuyến xe" });
@@ -304,15 +291,14 @@ const editTrips = async (req, res) => {
   const { TripsName, routeId, busId, userId, departureTime, endTime, status, tripType, schedule: updatedSchedule, totalFareAndPrice } = req.body;
 
   try {
-    console.log("Dữ liệu gửi từ frontend:");
-    console.log("departureTime từ frontend:", departureTime);
-    console.log("endTime từ frontend:", endTime);
+    // console.log("Dữ liệu gửi từ frontend:");
+    // console.log("departureTime từ frontend:", departureTime);
+    // console.log("endTime từ frontend:", endTime);
     const currentTrip = await Trips.findById(id);
     if (!currentTrip) {
       return res.status(404).json({ message: 'Chuyến xe không tồn tại' });
     }
 
-    // Xử lý dữ liệu chuyến xe theo tripType
     let tripDates = [];
     if (tripType === 'Cố định') {
       const today = moment();
@@ -463,16 +449,18 @@ const getTripsSeach = async (req, res) => {
     // console.log("Điểm đến:", destination);
     // console.log("Ngày đi:", departureDate);
    //  console.log("Ngày về:", returnDate || "Không có");
-    const route = await BusRoute.findOne({ departure: departure, destination: destination });
+    const route = await BusRoute.find({ departure: departure, destination: destination });
     if (!route) {
       // console.log("Không tìm thấy tuyến đường:", { departure, destination });
       return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
     }
-    // console.log("Tuyến đường tìm thấy:", route);
+     console.log("Tuyến đường tìm thấy:", route);
     const formattedTime = moment(departureDate).format('HH:mm');
    // console.log("Thời gian định dạng HH:mm:", formattedTime);
+   const routeIds = route.map(route => route._id);
     const queryConditions = {
-      routeId: route._id,
+      // routeId: route._id,
+      routeId: { $in: routeIds },
       'tripDates.date': {
         $gte: moment(departureDate).startOf('day').toDate(),
         $lte: moment(departureDate).endOf('day').toDate(),
@@ -491,11 +479,13 @@ if (tripType === "Khứ hồi" && departureDate && returnDate) {
     .populate('userId')
     .populate('busId');
 
-  const returnRoute = await BusRoute.findOne({ departure: destination, destination: departure });
+  const returnRoute = await BusRoute.find({ departure: destination, destination: departure });
   if (returnRoute) {
    // console.log("Tuyến đường tìm thấy khứ hồi:", returnRoute);
+   const returnRouteIds = returnRoute.map(route => route._id);
     const queryConditionsRoundTrip = {
-      routeId: returnRoute._id,
+      // routeId: returnRoute._id,
+      routeId: { $in: returnRouteIds },
       'tripDates.date': {
         $gte: moment(returnDate).startOf('day').toDate(),
         $lte: moment(returnDate).endOf('day').toDate(),
@@ -561,7 +551,7 @@ const RouteTripsWithLocalTime = RouteTrips.map(returnTrip => {
   };
 });
 
-// console.log("Danh sách chuyến xe đã xử lý:", tripsWithLocalTime.length);
+console.log("Danh sách chuyến xe đã xử lý:", tripsWithLocalTime.length);
 // console.log("Danh sách chuyến xe đã Khư hồi:", RouteTripsWithLocalTime.length);
 res.status(200).json({
   TripsOne: tripsWithLocalTime,

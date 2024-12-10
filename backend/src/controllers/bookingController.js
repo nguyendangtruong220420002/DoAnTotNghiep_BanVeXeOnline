@@ -1,13 +1,13 @@
 const Booking = require('../models/Booking');
 const Trips = require('../models/Trips');
-
+let sharedBookingID = null;
 const createBooking = async (req, res) => {
   const { 
     tripId, userId, seatId, totalFare, selectedDepartureName, selectedDestinationName, Timehouse, departureDate, passengerInfo 
   } = req.body;
 
   const lastBooking = await Booking.findOne().sort({ BookingID: -1 });
-  const newBookingID = lastBooking ? lastBooking.BookingID + 1 : 1;
+  const newBookingID = lastBooking ? Math.max(lastBooking.BookingID + 1, 330) : 330;
   sharedBookingID = newBookingID;
 
   const trip = await Trips.findById(tripId);
