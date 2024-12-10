@@ -42,7 +42,7 @@ export const styles = StyleSheet.create({
     },
     imgWel2: {
         width: "100%",
-        height: 250,
+        height: 320,
         marginTop: 40
     },
     textlabel: {
@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
         height: 40,
         width: 290,
         borderRadius: 20,
-        bottom: 50
+        bottom: 0
     },
     text_btn: {
         color: "white",

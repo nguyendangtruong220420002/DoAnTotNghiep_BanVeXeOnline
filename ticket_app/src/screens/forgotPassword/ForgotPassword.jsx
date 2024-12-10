@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native'
+import { Image, StyleSheet, Text, View, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { styles } from './styles'
 import { useNavigation, useRoute } from '@react-navigation/native'
@@ -7,6 +7,7 @@ import { OtpInput } from 'react-native-otp-entry';
 import { showSuccessToast } from '../../utils/toast'
 import { postData } from '../../utils/fetching'
 import { Icon } from 'react-native-elements'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 const ForgotPassword = () => {
 
@@ -27,7 +28,7 @@ const ForgotPassword = () => {
 
     const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
     const [isFocused2, setIsFocused2] = useState(false);
-
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         // Set the header with dynamic data
         nav.setOptions({
@@ -69,55 +70,68 @@ const ForgotPassword = () => {
     };
 
     const handleChangePassword = async () => {
+        setLoading(true)
         const data = { phoneNumber, newPassword }
         if (retypePassword !== newPassword) {
             alert("Mật khẩu mới không khớp!");
             return;
         }
         try {
-            const response = await postData(`users/forgot-password`, data)
+            const response = await postData(`users/forgotPassword`, data)
+
             if (response?.status === 200) {
-                setOldPassword("")
                 setNewPassword("");
                 setReTypePassword("");
-
+                setLoading(false)
                 alert("Đổi mật khẩu thành công!");
-
+                nav.navigate("Welcome")
             }
         } catch (error) {
-
+            setLoading(false)
         }
 
 
     }
     return (
-        <View style={styles.container}>
-            <Image
-                source={require("../../../img/wel-pass.png")}
-                style={styles.imgWel2}
-            />
-            <View style={styles.body}>
-                {!showInputPassword ? (
-                    <View style={{
-                        height: 350,
-                        marginTop: 20,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%'
-                    }}>
-                        <View style={{ marginVertical: 22, width: '80%' }}>
-                            <OtpInput
-                                numberOfDigits={6}
-                                onTextChange={(text) => setOTP(text)}
-                            />
-                        </View>
-                        <View style={{ marginTop: 10, flexDirection: 'row' }}>
-                            <Text>Không nhận được mã !</Text>
-                            <TouchableOpacity >
-                                <Text style={{ color: '#3399FF' }}>Gửi lại</Text>
-                            </TouchableOpacity>
-                        </View>
+        <TouchableWithoutFeedback
+            onPress={Keyboard.dismiss}>
+
+
+
+            <View style={styles.container}>
+                <Image
+                    source={require("../../../img/wel-pass.png")}
+                    style={styles.imgWel2}
+                />
+                <View style={styles.body}>
+                    {!showInputPassword ? (
                         <View style={{
+                            height: 350,
+                            marginTop: 20,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}>
+                            <View style={{ marginVertical: 22, width: '80%' }}>
+                                <OtpInput
+                                    numberOfDigits={6}
+                                    onTextChange={(text) => setOTP(text)}
+                                />
+                            </View>
+                            <View style={{ marginTop: 10, flexDirection: 'row' }}>
+                                <Text>Không nhận được mã !</Text>
+                                <TouchableOpacity >
+                                    <Text style={{ color: '#3399FF' }}>Gửi lại</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Spinner
+                                visible={loading}
+                                textContent="Vui lòng đợi..."
+                                textStyle={{ color: "white" }}
+                                overlayColor="rgba(0, 0, 0, 0.5)" // Màu nền
+                                color="#fff" // Màu spinner
+                            />
+                            {/* <View style={{
                             marginTop: 80,
                             backgroundColor: "white",
                             width: 60,
@@ -126,84 +140,85 @@ const ForgotPassword = () => {
                             justifyContent: 'center',
                             borderRadius: 50
                         }}>
-                            {/* <TouchableOpacity onPress={handleBackName}>
-            <Icon name='arrow-back-outline' type='ionicon' color={'#FE9B4B'} size={38} />
-        </TouchableOpacity> */}
-                        </View>
-                        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                            <TouchableOpacity style={styles.btn_submit} onPress={handleSubmitOTP}>
-                                <Text style={styles.text_btn}>Xác Nhận</Text>
+                            <TouchableOpacity onPress={handleBackName}>
+                                <Icon name='arrow-back-outline' type='ionicon' color={'#FE9B4B'} size={38} />
                             </TouchableOpacity>
-                        </View>
-                    </View>
-                ) : (
-                    <View >
-                        <View>
-
-                            {/* 2 */}
-                            <View style={{ marginBottom: 15 }}>
-                                <Text style={styles.textlabel}>Nhập mật khẩu mới</Text>
-                                <TextInput
-                                    style={[styles.TextInput, { borderColor: isFocused2 ? "#FE9B4B" : "#ced4da" }]}
-                                    placeholder={'Nhập mật khẩu mới'}
-                                    value={newPassword}
-                                    onChangeText={(text) => setNewPassword(text)}
-
-                                    secureTextEntry={!isPasswordVisible2}
-                                    onFocus={() => setIsFocused2(true)}
-                                    onBlur={() => setIsFocused2(false)}
-                                />
+                        </View> */}
+                            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                                <TouchableOpacity style={styles.btn_submit} onPress={handleSubmitOTP}>
+                                    <Text style={styles.text_btn}>Xác Nhận</Text>
+                                </TouchableOpacity>
                             </View>
-                            <TouchableOpacity
-                                style={{ position: 'absolute', right: 45, top: 230 }}
-                                onPress={() => setIsPasswordVisible2(!isPasswordVisible2)}
-                            >
-                                <Icon
-                                    name={isPasswordVisible2 ? 'eye-off-outline' : 'eye-outline'}
-                                    type='ionicon'
-                                    size={28}
-                                    color={isFocused2 ? "#FE9B4B" : "#ced4da"} />
-                            </TouchableOpacity>
-                            <View style={{ marginBottom: 15 }}>
-                                <Text style={styles.textlabel}>Mật khẩu lại mới</Text>
-                                <TextInput
-                                    style={[styles.TextInput, { borderColor: isFocused1 ? "#FE9B4B" : "#ced4da" }]}
-                                    placeholder={'Nhập lại mật khẩu'}
-                                    value={retypePassword}
-                                    onChangeText={(text) => setReTypePassword(text)}
-                                    secureTextEntry={!isPasswordVisible1}
-                                    onFocus={() => setIsFocused1(true)}
-                                    onBlur={() => setIsFocused1(false)}
-                                />
+                        </View>
+                    ) : (
+                        <View >
+                            <View>
+
+                                {/* 2 */}
+                                <View style={{ marginBottom: 15 }}>
+                                    <Text style={styles.textlabel}>Nhập mật khẩu mới</Text>
+                                    <TextInput
+                                        style={[styles.TextInput, { borderColor: isFocused2 ? "#FE9B4B" : "#ced4da" }]}
+                                        placeholder={'Nhập mật khẩu mới'}
+                                        value={newPassword}
+                                        onChangeText={(text) => setNewPassword(text)}
+
+                                        secureTextEntry={!isPasswordVisible2}
+                                        onFocus={() => setIsFocused2(true)}
+                                        onBlur={() => setIsFocused2(false)}
+                                    />
+                                </View>
+                                <TouchableOpacity
+                                    style={{ position: 'absolute', right: 45, top: 230 }}
+                                    onPress={() => setIsPasswordVisible2(!isPasswordVisible2)}
+                                >
+                                    <Icon
+                                        name={isPasswordVisible2 ? 'eye-off-outline' : 'eye-outline'}
+                                        type='ionicon'
+                                        size={28}
+                                        color={isFocused2 ? "#FE9B4B" : "#ced4da"} />
+                                </TouchableOpacity>
+                                <View style={{ marginBottom: 15 }}>
+                                    <Text style={styles.textlabel}>Mật khẩu lại mới</Text>
+                                    <TextInput
+                                        style={[styles.TextInput, { borderColor: isFocused1 ? "#FE9B4B" : "#ced4da" }]}
+                                        placeholder={'Nhập lại mật khẩu'}
+                                        value={retypePassword}
+                                        onChangeText={(text) => setReTypePassword(text)}
+                                        secureTextEntry={!isPasswordVisible1}
+                                        onFocus={() => setIsFocused1(true)}
+                                        onBlur={() => setIsFocused1(false)}
+                                    />
+                                </View>
+
+                                <TouchableOpacity
+                                    style={{ position: 'absolute', right: 45, top: 135 }}
+                                    onPress={() => setIsPasswordVisible1(!isPasswordVisible1)}
+                                >
+                                    <Icon
+                                        name={isPasswordVisible1 ? 'eye-off-outline' : 'eye-outline'}
+                                        type='ionicon'
+                                        size={28}
+                                        color={isFocused1 ? "#FE9B4B" : "#ced4da"} />
+                                </TouchableOpacity>
                             </View>
 
-                            <TouchableOpacity
-                                style={{ position: 'absolute', right: 45, top: 135 }}
-                                onPress={() => setIsPasswordVisible1(!isPasswordVisible1)}
-                            >
-                                <Icon
-                                    name={isPasswordVisible1 ? 'eye-off-outline' : 'eye-outline'}
-                                    type='ionicon'
-                                    size={28}
-                                    color={isFocused1 ? "#FE9B4B" : "#ced4da"} />
-                            </TouchableOpacity>
+
+                            <View style={{ justifyContent: 'flex-end' }}>
+                                <TouchableOpacity style={styles.btn_submit}
+                                    onPress={() => handleChangePassword()}
+                                >
+                                    <Text style={styles.text_btn}>Cật nhật</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
+                    )}
+                </View>
 
 
-                        <View style={{ justifyContent: 'flex-end' }}>
-                            <TouchableOpacity style={styles.btn_submit}
-                                onPress={() => handleChangePassword()}
-                            >
-                                <Text style={styles.text_btn}>Cật nhật</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                )}
+
             </View>
-
-
-
-        </View>
+        </TouchableWithoutFeedback>
     )
 }
 

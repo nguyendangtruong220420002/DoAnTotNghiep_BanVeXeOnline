@@ -8,6 +8,7 @@ import CookieUtils, { getAsyncStorage, setAsyncStorage } from '../../utils/cooki
 import { postData } from '../../utils/fetching'
 import { showErrorToast, showSuccessToast } from '../../utils/toast';
 import auth from '@react-native-firebase/auth';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 const Login = () => {
 
@@ -19,14 +20,19 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true)
 
     const userInfo = { phoneNumber, password }
     if (!password) {
+      setLoading(false)
+
       showErrorToast("Mật khẩu trống", "Vui lòng nhập mật khẩu")
     }
     try {
+      setLoading(true)
 
       const response = await postData("users/login", userInfo);
 
@@ -42,6 +48,7 @@ const Login = () => {
 
 
       if (response.status === 200) {
+        setLoading(false)
 
         showSuccessToast('Đăng nhập thành công');
 
@@ -51,29 +58,31 @@ const Login = () => {
       // Gọi onSubmit chỉ sau khi lưu thành công
     } catch (error) {
       console.error('Đã xảy ra lỗi:', error);
-      alert('Đã xảy ra lỗi khi đăng nhập.'); // Hiển thị lỗi cho người dùng
+      alert('Mật khẩu hoặc Số điện thoại đăng nhập không đúng'); // Hiển thị lỗi cho người dùng
+      setLoading(false)
+
     }
 
   }
-  const [confirm, setConfirm] = useState(null);
 
-  const handleSendOTP = async () => {
-
-  };
 
   const handleForgotPassword = async () => {
     const internationalPhoneNumber = `+84${phoneNumber.slice(1)}`;
     console.log(internationalPhoneNumber);
-
+    setLoading(true)
     try {
       const confirmation = await auth().signInWithPhoneNumber(internationalPhoneNumber);
-
       if (confirmation) {
+        setLoading(false)
         nav.navigate("ForgotPassword", { confirm: confirmation, phoneNumber: phoneNumber });
       }
+      setLoading(false)
+
 
     } catch (error) {
       console.log("Error send otp", error);
+      setLoading(false)
+
     }
   }
 
@@ -100,7 +109,13 @@ const Login = () => {
               source={require("../../../img/wel-pass.png")}
               style={styles.imgWel2}
             />
-
+            <Spinner
+              visible={loading}
+              textContent="Vui lòng đợi..."
+              textStyle={{ color: "white" }}
+              overlayColor="rgba(0, 0, 0, 0.5)" // Màu nền
+              color="#fff" // Màu spinner
+            />
             <View>
               <Text style={styles.welcomeText}>Xin chào,{fullName}</Text>
 

@@ -1,4 +1,4 @@
-import { FlatList, Image, SafeAreaView, StyleSheet, Text, View, RefreshControl } from 'react-native'
+import { FlatList, Image, SafeAreaView, StyleSheet, Text, View, RefreshControl, TouchableOpacity } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import { styles } from './styles'
 import { Icon, Tab, TabView } from 'react-native-elements'
@@ -46,7 +46,7 @@ const Ticket = () => {
 
   const fetchBookingData = async () => {
     try {
-      const res = await getData("bookingRoutes/getBookingByUser", { userId: user?._id })
+      const res = await getData("bookingRoutes/getBookingByUserId", { userId: user?._id })
       if (res.status === 201) {
         return;
       }
@@ -71,23 +71,15 @@ const Ticket = () => {
   };
 
   const [index, setIndex] = useState(0);
-  const today = new Date()
-  const todayDateString = today.toLocaleDateString();
-
-  const upcomingBookings = bookingTicket?.filter(item => {
-    const formattedDepartureTime = moment(item.departureDate, 'ww ,DD/MM/YYYY')
-      .tz('Asia/Ho_Chi_Minh')
-      .format("DD/MM/YYYY")
-
-
-    // So sánh với ngày hiện tại
-    return formattedDepartureTime > todayDateString;
-  });
-
-  const historyBookings = bookingTicket;
+  const paidTickets = bookingTicket?.filter(item => item.paymentStatus === 'Đã thanh toán');
+  const cancelledTickets = bookingTicket?.filter(item => item.paymentStatus === 'Thanh toán không thành công');
 
   if (loading) {
     return <Loading />;
+  }
+
+  const handleInfoTicket = (item) => {
+    nav.navigate("InfoTicket", item);
   }
 
   return (
@@ -101,29 +93,30 @@ const Ticket = () => {
             backgroundColor: '#f95300',
             height: 3
           }}
-
         >
           <Tab.Item
-            title="Sắp khởi hành"
-            titleStyle={{ fontSize: 14, color: index === 0 ? "#f95300" : "#333", }}
+            title="Đã thanh toán"
+            titleStyle={{ fontSize: 14, color: index === 0 ? "#f95300" : "#333" }}
             containerStyle={{ backgroundColor: "#fff" }}
           />
           <Tab.Item
-            title="Lịch sử vé"
+            title="Đã hủy"
             titleStyle={{ fontSize: 14, color: index === 1 ? "#f95300" : "#333" }}
             containerStyle={{ backgroundColor: "#fff" }}
           />
         </Tab>
         <TabView value={index} onChange={setIndex} animationType="spring">
-          {upcomingBookings && upcomingBookings.length > 0 ? (
+          {paidTickets && paidTickets.length > 0 ? (
             <FlatList
               refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
               }
-              data={upcomingBookings}
+              data={paidTickets}
               keyExtractor={(item) => item._id.toString()}
               renderItem={({ item }) => (
-                <View style={styles.bookingCard}>
+                <TouchableOpacity
+                  onPress={() => handleInfoTicket(item)}
+                  style={styles.bookingCard}>
                   <View style={styles.headerCard}>
                     <View>
                       <Text style={styles.bookingTitle}>
@@ -136,11 +129,11 @@ const Ticket = () => {
                     </View>
                     <View>
                       <Text style={styles.bookingTitle}>
-                        Nhà xe {item.tripId.busId.busName}
+                        Nhà xe {item?.tripId?.userId?.fullName}
                       </Text>
 
                       <Text style={styles.bookingFare}>
-                        {item.totalFare} VND
+                        Số điện thoại: {item?.tripId?.userId?.phoneNumber}
                       </Text>
                     </View>
                   </View>
@@ -177,21 +170,29 @@ const Ticket = () => {
                         : 'Ngày không hợp lệ'}
                     </Text>
                   </View>
-                </View>
+                  <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", borderTopWidth: 0.5, borderTopColor: "gray", marginTop: 5, width: "100%" }}>
+                    <Text style={styles.bookingDetails}>
+                      Tổng giá vé:
+                    </Text>
+                    <Text style={styles.bookingFare}>
+                      {item?.totalFare}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               )}
             />
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Bạn chưa đặt vé</Text>
+              <Text style={styles.emptyText}>Không có vé xe đã thanh toán</Text>
             </View>
           )}
 
-          {historyBookings && historyBookings.length > 0 ? (
+          {cancelledTickets && cancelledTickets.length > 0 ? (
             <FlatList
               refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
               }
-              data={historyBookings}
+              data={cancelledTickets}
               keyExtractor={(item) => item._id.toString()}
               renderItem={({ item }) => (
                 <View style={styles.bookingCard}>
@@ -207,11 +208,11 @@ const Ticket = () => {
                     </View>
                     <View>
                       <Text style={styles.bookingTitle}>
-                        Nhà xe {item.tripId.busId.busName}
+                        Nhà xe {item?.tripId?.userId?.fullName}
                       </Text>
 
                       <Text style={styles.bookingFare}>
-                        {item.totalFare} VND
+                        Số điện thoại: {item?.tripId?.userId?.phoneNumber}
                       </Text>
                     </View>
                   </View>
@@ -246,12 +247,20 @@ const Ticket = () => {
                         .format(" DD/MM/YYYY")}
                     </Text>
                   </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text style={styles.bookingDetails}>
+                      Tổng giá vé
+                    </Text>
+                    <Text style={styles.bookingFare}>
+                      {item?.totalFare}
+                    </Text>
+                  </View>
                 </View>
               )}
             />
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Bạn chưa đặt vé</Text>
+              <Text style={styles.emptyText}>Không có vé xe đã hủy</Text>
             </View>
           )}
         </TabView>

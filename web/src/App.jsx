@@ -17,9 +17,10 @@ function App() {
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
+  const VITE_API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const socket = io(`http://127.0.0.1:2820`, {
+    const socket = io(`${VITE_API_URL}:2820`, {
       autoConnect: false,
     });
     socket.connect();
@@ -52,7 +53,7 @@ function App() {
 
   return (
     <Routes>
-       <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/business" element={<BusinessPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/inforCustoOfTrips" element={<InforCustoOfTrips socket={socket} />} />
@@ -60,7 +61,7 @@ function App() {
       <Route path="/payment" element={<Payment />} />
       <Route path="/paymentCancel" element={<PaymentCancel socket={socket} />} />
       <Route path="/paymentSuccess" element={<PaymetSuccess />} />
-      <Route path="/ForgotPassword" element={<ForgotPasswordForm/>} />
+      <Route path="/ForgotPassword" element={<ForgotPasswordForm />} />
 
     </Routes>
 

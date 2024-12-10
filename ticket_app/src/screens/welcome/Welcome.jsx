@@ -8,6 +8,7 @@ import { OtpInput } from 'react-native-otp-entry';
 import auth from '@react-native-firebase/auth';
 import { showErrorToast, showSuccessToast, showWarningToast } from '../../utils/toast';
 import { postData } from '../../utils/fetching';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 
 
@@ -24,29 +25,35 @@ const Welcome = () => {
     const [name, setName] = useState("");
     const [OTP, setOTP] = useState("");
     const [isFocused, setIsFocused] = useState(false);
-
+    const [loading, setLoading] = useState(false);
 
     const handleContinue = async () => {
+        setLoading(true)
         const regexPhone = /^0\d{9}$/;
         if (!regexPhone.test(phoneNumber)) {
+            setLoading(false)
             showWarningToast("Số điện thoại không hợp lệ", "Vui lòng nhập số điện thoại hợp lệ",)
         } else {
+            setLoading(true)
             try {
                 const response = await postData("users/check-phone", { phoneNumber })
 
                 const fullName = response?.data?.user?.fullName;
-                console.log(response.data);
 
                 if (response.status === 200 && response.data.user?.role === "User") {
+                    setLoading(false)
                     nav.navigate("Login", { phoneNumber, fullName });
                 } else if (response.data.user?.role !== "User" && response.status === 200) {
+                    setLoading(false)
                     showErrorToast("Bạn phải đăng nhập vào web dành cho doanh nghiệp")
                 }
                 if (response.status === 201) {
+                    setLoading(false)
                     setIsPhoneInput(false); // Trigger registration dialog
                 }
             } catch (error) {
                 console.error("Error when find phoneNumber:", error);
+                setLoading(false)
                 alert("Có lỗi xảy ra khi kiểm tra số điện thoại");
             }
         }
@@ -56,7 +63,7 @@ const Welcome = () => {
         setIsPhoneInput(true);
     }
     const handleBackName = () => {
-        setConfirm(false);  
+        setConfirm(false);
     }
 
     const handleSendOTP = async () => {
@@ -101,6 +108,7 @@ const Welcome = () => {
                         style={showOTP ? styles.imgWel2 : styles.imgWel}
                     />
 
+
                     {isPhoneInput ? (
                         <View>
                             <Text style={styles.welcomeText}>Chào mừng bạn đến với</Text>
@@ -116,7 +124,13 @@ const Welcome = () => {
                             </Text>
                         </View>
                     )}
-
+                    <Spinner
+                        visible={loading}
+                        textContent="Vui lòng đợi..."
+                        textStyle={{ color: "white" }}
+                        overlayColor="rgba(0, 0, 0, 0.5)" // Màu nền
+                        color="#fff" // Màu spinner
+                    />
                     {confirm ? (
                         <View style={{
                             height: 350,
