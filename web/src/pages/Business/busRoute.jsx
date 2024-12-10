@@ -363,6 +363,7 @@ const RouteForm = ({ userInfo, }) => {
         placeholder="Ước tính khoảng cách"
         value={route.distance} 
         onChange={handleChange}
+        type="number" 
         InputProps={{
             sx: {
               fontSize: '13px',

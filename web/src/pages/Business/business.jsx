@@ -165,6 +165,9 @@ const Business = () => {
   return (
     <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', width: '100%', }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '82%', position: 'absolute', left: '10px', zIndex: 1, marginTop: '5px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', height: '50px', marginLeft: '260px', }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2c6e49', mr:60 }}>
+          Trang Công Ty Vận Tải
+        </Typography>       
         {userInfo ? (
           <Box sx={{ display: 'flex', alignItems: 'center', }}>
             <Box

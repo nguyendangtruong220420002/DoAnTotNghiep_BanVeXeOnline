@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createUser, checkPhoneNumberExists, forgotPassword,loginUser, updateUser, updateAvatarMobile, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin } = require('../controllers/userController')
+const { createUser, checkPhoneNumberExists, forgotPassword,loginUser, updateUser, updateAvatarMobile, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin ,updateUserByAdmin,deleteUserByAdmin} = require('../controllers/userController')
 const authenticateToken = require('../../src/middlewares/authenticateToken');
 const { upload } = require('../config/s3');
 
@@ -19,6 +19,8 @@ router.post("/change-password/:id", changePassword);
 router.get('/getAll', getAllUser);
 router.get('/get-user-by-admin', getAllUserByAdmin);
 router.post('/create-user-by-admin', creatUserByAdmin);
+router.put('/edit-user-by-admin/:id', updateUserByAdmin);
+router.delete('/delete-user-by-admin/:id', deleteUserByAdmin);
 
 
 

@@ -1,4 +1,11 @@
 const User = require('../../src/models/User');
+const Bus = require('../../src/models/Bus');
+const BusRoute = require('../../src/models/BusRoute');
+const Trips = require('../../src/models/Trips');
+const Booking = require('../models/Booking');
+
+
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { upload, uploadMobile } = require('../config/s3');
@@ -181,15 +188,38 @@ const getAllUser = async (req, res) => {
   }
 };
 
+// const getAllUserByAdmin = async (req, res) => {
+//   try {
+//     const users = await User.find({ role: { $ne: 'Admin' } });
+//     res.status(200).json({ users });
+
+//   } catch (error) {
+//     res.status(500).json({ message: 'Error fetching users', error: error.message });
+//   }
+// }
+
 const getAllUserByAdmin = async (req, res) => {
   try {
     const users = await User.find({ role: { $ne: 'Admin' } });
-    res.status(200).json({ users });
+    const buses = await Bus.find(); 
+    const busRoutes = await BusRoute.find();
+    const trips = await Trips.find(); 
+    const bookings = await Booking.find().populate("tripId"); 
 
+    res.status(200).json({
+      users,
+      buses,
+      busRoutes,
+      trips,
+      bookings,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching users', error: error.message });
+    res.status(500).json({ message: 'Error fetching data', error: error.message });
   }
-}
+};
+
+
+
 const creatUserByAdmin = async (req, res) => {
   const { fullName, email, password, phoneNumber, role } = req.body;
   try {
@@ -212,5 +242,55 @@ const creatUserByAdmin = async (req, res) => {
     res.status(500).json({ message: 'Đã xảy ra lỗi khi tạo tài khoản.' });
   }
 }
+const updateUserByAdmin = async (req, res) => {
+  const { id } = req.params; 
+  const { fullName, email, password, phoneNumber, role } = req.body;
 
-module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, forgotPassword, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin };
+  try {
+    const existingUser = await User.findById(id);
+    if (!existingUser) {
+      return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+    }
+    const userWithPhone = await User.findOne({ phoneNumber });
+    if (userWithPhone && userWithPhone._id.toString() !== id) {
+      return res.status(400).json({ message: 'Số điện thoại đã được sử dụng bởi người dùng khác.' });
+    }
+    const userWithEmail = await User.findOne({ email });
+    if (userWithEmail && userWithEmail._id.toString() !== id) {
+      return res.status(400).json({ message: 'Email đã được sử dụng bởi người dùng khác.' });
+    }
+    existingUser.fullName = fullName || existingUser.fullName;
+    existingUser.email = email || existingUser.email;
+    existingUser.phoneNumber = phoneNumber || existingUser.phoneNumber;
+    existingUser.role = role || existingUser.role;
+    if (password) {
+      existingUser.password = await bcrypt.hash(password, 10);
+    }
+    await existingUser.save();
+    res.status(200).json({ message: 'Thông tin người dùng đã được cập nhật thành công!', user: existingUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi cập nhật thông tin người dùng.' });
+  }
+};
+const deleteUserByAdmin = async (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  try {
+    const deletedUser = await User.findByIdAndDelete(id);
+    
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'Người dùng không tồn tại.' });
+    }
+
+    res.status(200).json({ message: 'Người dùng đã được xóa thành công.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi xóa người dùng.' });
+  }
+};
+
+
+
+
+module.exports = { createUser, checkPhoneNumberExists, loginUser, updateUser, updateAvatarMobile, forgotPassword, changePassword, getAllUser, getAllUserByAdmin, creatUserByAdmin ,updateUserByAdmin,deleteUserByAdmin};

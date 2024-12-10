@@ -20,8 +20,9 @@ import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { useNavigate } from 'react-router-dom';
 import TuneRoundedIcon from '@mui/icons-material/TuneRounded';
-import Revenue from '../Business/Revenue';
+import AllRevenue from './AllRevenue';
 import UserManagement from './UserManagement';
+import BusinessManagementInfo from './BusinessManagementInfo';
 import RvHookupOutlinedIcon from '@mui/icons-material/RvHookupOutlined';
 import EditRoadOutlinedIcon from '@mui/icons-material/EditRoadOutlined';
 import DirectionsBusFilledOutlinedIcon from '@mui/icons-material/DirectionsBusFilledOutlined';
@@ -42,12 +43,8 @@ const Admin = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
-  const [showMenuTuyenXe, setShowMenuTuyenXe] = useState(false);
-  const [showMenuChuyenXe, setShowMenuChuyenXe] = useState(false);
-  const [showMenuXe, setShowMenuXe] = useState(false);
-  const [showMenuVeXe, setShowMenuVeXe] = useState(false);
+  const [showMenuNhaXe, setShowMenuNhaXe] = useState(false);
   const [showMenuDoanhThu, setShowMenuDoanhThu] = useState(false);
-
   const [showMenuQLyUser, setShowMenuQLyUser] = useState(false);
   const [selectedTab, setSelectedTab] = useState('');
   const [selectedSubMenu, setSelectedSubMenu] = useState(null);
@@ -82,69 +79,37 @@ const Admin = () => {
   const handleTabClick = (tabName) => {
     setSelectedTab(tabName);
 
-    if (tabName === 'tuyenXe') {
-      setShowMenuTuyenXe((prev) => !prev);
-    } else if (tabName === 'chuyenXe') {
-      setShowMenuChuyenXe((prev) => !prev);
-    } else if (tabName === 'xe') {
-      setShowMenuXe((prev) => !prev);
-
-    } else if (tabName === 'veXe') {
-      setShowMenuVeXe((prev) => !prev);
+    if (tabName === 'nhaXe') {
+      setShowMenuNhaXe((prev) => !prev);
     } else if (tabName === 'doanhThu') {
       setShowMenuDoanhThu((prev) => !prev);
-
     } else if (tabName === 'QLyUser') {
       setShowMenuQLyUser((prev) => !prev);
     } else if (tabName === 'home') {
-      setShowMenuTuyenXe(false);
-      setShowMenuChuyenXe(false);
-      setShowMenuXe(false);
+      setShowMenuNhaXe(false);
+      setShowMenuDoanhThu(false);
+      setShowMenuQLyUser(false);
     }
   };
 
   const handleMenuItemClick = (menuItem) => {
-    if (menuItem === 'themTuyenXe') {
-      setValue("3");
-      setSelectedTab('tuyenXe');
-    } else if (menuItem === 'danhSachTuyenXe') {
-      setValue("4");
-      setSelectedTab('tuyenXe');
-    } else if (menuItem === 'danhSachChuyenXe') {
+   if (menuItem === 'nhaXe') {
       setValue("6");
-      setSelectedTab('chuyenXe');
-    } else if (menuItem === 'themChuyenXe') {
-      setValue("7");
-      setSelectedTab('chuyenXe');
-    }
-    else if (menuItem === 'xe') {
-      setValue("8");
-      setSelectedTab('xe');
-    }
-    else if (menuItem === 'loaixe') {
-      setValue("9");
-      setSelectedTab('loaixe');
-    }
-    else if (menuItem === 'veXe') {
-      setValue("10");
-      setSelectedTab('veXe');
+      setSelectedTab('nhaXe');
     }
     else if (menuItem === 'doanhThu') {
-      setValue("11");
+      setValue("7");
       setSelectedTab('doanhThu');
     } else if (menuItem === 'QLyUser') {
-      setValue('12')
+      setValue('8')
       setSelectedTab('QLyUser');
 
     }
     setSelectedSubMenu(menuItem);
   };
-  const isTuyenXeActive = selectedTab === 'tuyenXe' || value === '3' || value === '4';
-  const isChuyenXeActive = selectedTab === 'chuyenXe' || value === '6' || value === '7';
-  const isXeActive = selectedTab === 'xe' || value === '8' || value === '9';
-  const isVeXeActive = selectedTab === 'veXe' || value === '10';
-  const isDoanhThuActive = selectedTab === 'doanhThu' || value === '11';
-  const isQLyUserActive = selectedTab === 'QLyUser' || value === '12';
+  const isNhaXeActive = selectedTab === 'nhaXe' || value === '6';
+  const isDoanhThuActive = selectedTab === 'doanhThu' || value === '7';
+  const isQLyUserActive = selectedTab === 'QLyUser' || value === '8';
   const handleInfoClick = () => {
     setValue("5");
     handleCloseMenu();
@@ -174,6 +139,10 @@ const Admin = () => {
   return (
     <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', width: '100%', }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '82%', position: 'absolute', left: '10px', zIndex: 1, marginTop: '5px', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', height: '50px', marginLeft: '260px', }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2c6e49', mr:60 }}>
+          Trang Quản Trị - Admin
+        </Typography>
+
         {userInfo ? (
           <Box sx={{ display: 'flex', alignItems: 'center', }}>
             <Box
@@ -182,7 +151,7 @@ const Admin = () => {
               sx={{ width: 40, height: 40, borderRadius: '50%' }}
             />
             <Button onClick={handleClickMenu}>
-              <Typography className="button8" sx={{ position: 'relative', marginTop: '2px', }}>Nhà xe :</Typography>
+              <Typography className="button8" sx={{ position: 'relative', marginTop: '2px', }}>Admin :</Typography>
               <Typography className="button10" sx={{ position: 'relative', marginTop: '3px' }}>{userInfo ? userInfo.fullName : 'Chưa có thông tin'}</Typography>
             </Button>
 
@@ -286,129 +255,33 @@ const Admin = () => {
               <Tab
                 label={
                   <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
-                    <div style={{ marginTop: '4px' }}>Quản lý Tuyến xe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-                    {showMenuTuyenXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
+                    <div style={{ marginTop: '4px' }}>Quản lý các Nhà xe&nbsp;&nbsp;&nbsp;</div>
+                    {showMenuNhaXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
                   </Box>
                 }
-                className={isTuyenXeActive ? "button11 active" : "button11"}
+                className={isNhaXeActive ? "button11 active" : "button11"}
                 iconPosition="start"
-                onClick={() => handleTabClick('tuyenXe')}
+                onClick={() => handleTabClick('nhaXe')}
                 sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
                 icon={<RvHookupOutlinedIcon sx={{ marginLeft: '10px' }} />}
               />
-              {showMenuTuyenXe && (
+              {showMenuNhaXe && (
                 <>
 
                   <Tab
-                    label="Thông tin Tuyến xe"
-                    className={`button12 ${selectedSubMenu === 'themTuyenXe' ? 'active' : ''}`}
-                    onClick={() => handleMenuItemClick('themTuyenXe')}
+                    label="Thống kê "
+                    className={`button12 ${selectedSubMenu === 'nhaXe' ? 'active' : ''}`}
+                    onClick={() => handleMenuItemClick('nhaXe')}
                     sx={{ minHeight: 0, marginRight: '5px' }}
                     iconPosition="start"
                     icon={<PlaylistAddOutlinedIcon sx={{ width: '20px' }}></PlaylistAddOutlinedIcon>}
                   />
                 </>
               )}
-
-              <Tab
-                label={
-                  <Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '3px', display: 'flex' }}>
-                    <div style={{ marginTop: '4px' }}>Quản lý Chuyến xe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-                    {showMenuChuyenXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
-                  </Box>
-                }
-                className={isChuyenXeActive ? "button11 active" : "button11"}
-                iconPosition="start"
-                onClick={() => handleTabClick('chuyenXe')}
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'left',
-                  minHeight: 0,
-                }}
-                icon={<EditRoadOutlinedIcon sx={{ marginLeft: '10px' }} />}
-              />
-
-              {showMenuChuyenXe && (
-                <>
-                  <Tab
-                    label="Thông tin chuyến xe"
-                    className={`button12 ${selectedSubMenu === 'themChuyenXe' ? 'active' : ''}`}
-                    onClick={() => handleMenuItemClick('themChuyenXe')}
-                    sx={{ minHeight: 0, }}
-                    iconPosition="start"
-                    icon={<PlaylistAddOutlinedIcon sx={{ width: '20px' }} />}
-                  />
-                  <Tab
-                    label="Lịch trình cho chuyến xe"
-                    className={`button12 ${selectedSubMenu === 'danhSachChuyenXe' ? 'active' : ''}`}
-                    onClick={() => handleMenuItemClick('danhSachChuyenXe')}
-                    sx={{ minHeight: 0, marginLeft: '25px' }}
-                    iconPosition="start"
-                    icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
-                  />
-                </>
-              )}
-
-              <Tab
-                label={
-                  <Box sx={{ position: 'relative', marginTop: '3px', marginLeft: '3px', display: 'flex' }}>
-                    <div style={{ marginTop: '4px' }}>Quản lý Xe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-                    {showMenuXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
-                  </Box>
-                }
-                className={isXeActive ? "button11 active" : "button11"}
-                iconPosition="start"
-                onClick={() => handleTabClick('xe')}
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'left',
-                  minHeight: 0,
-                  marginTop: '5px',
-                  backgroundColor: selectedTab === 'xe' ? 'red' : 'transparent',
-                }}
-                icon={<DirectionsBusFilledOutlinedIcon sx={{ marginLeft: '10px' }} />}
-              />
-              {showMenuXe && (
-                <>
-                  <Tab
-                    label="Thông tin xe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                    className={`button12 ${selectedSubMenu === 'xe' ? 'active' : ''}`}
-                    onClick={() => handleMenuItemClick('xe')}
-                    sx={{ minHeight: 0, marginLeft: '20px' }}
-                    iconPosition="start"
-                    icon={<FormatListBulletedOutlinedIcon sx={{ width: '20px' }} />}
-                  />
-                </>
-              )}
               <Tab
                 label={
                   <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
-                    <div style={{ marginTop: '4px' }}>Quản lý Vé xe&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
-                    {showMenuVeXe ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
-                  </Box>
-                }
-                className={isVeXeActive ? "button11 active" : "button11"}
-                iconPosition="start"
-                onClick={() => handleTabClick('veXe')}
-                sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
-                icon={<TuneRoundedIcon sx={{ marginLeft: '10px' }} />}
-              />
-              {showMenuVeXe && (
-                <>
-                  <Tab
-                    label="Thông tin Vé xe&nbsp;"
-                    className={`button12 ${selectedSubMenu === 'veXe' ? 'active' : ''}`}
-                    onClick={() => handleMenuItemClick('veXe')}
-                    sx={{ minHeight: 0, marginRight: '5px' }}
-                    iconPosition="start"
-                    icon={<ConfirmationNumberRoundedIcon sx={{ width: '20px' }}></ConfirmationNumberRoundedIcon>}
-                  />
-                </>
-              )}
-              <Tab
-                label={
-                  <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
-                    <div style={{ marginTop: '4px' }}>Quản lý Doan Thu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div style={{ marginTop: '4px' }}>Quản lý Doanh Thu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
                     {setShowMenuDoanhThu ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
                   </Box>
                 }
@@ -431,14 +304,14 @@ const Admin = () => {
                 </>
               )}
 
-              <Tab
+                <Tab
                 label={
                   <Box sx={{ display: 'flex', marginTop: '3px', marginLeft: '3px' }}>
-                    <div style={{ marginTop: '4px' }}>Quản lý Người dùng&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div style={{ marginTop: '4px' }}>Thông tin người dùng&nbsp;&nbsp;&nbsp;</div>
                     {setShowMenuQLyUser ? <ExpandMoreOutlinedIcon sx={{ width: '23px' }} /> : <KeyboardArrowUpOutlinedIcon sx={{ width: '23px' }} />}
                   </Box>
                 }
-                className={isQLyUserActive ? "button12 active" : "button12"}
+                className={isQLyUserActive ? "button11 active" : "button11"}
                 iconPosition="start"
                 onClick={() => handleTabClick('QLyUser')}
                 sx={{ display: 'flex', justifyContent: 'left', minHeight: 0 }}
@@ -447,7 +320,7 @@ const Admin = () => {
               {showMenuQLyUser && (
                 <>
                   <Tab
-                    label="Thông tin người dùng&nbsp;"
+                    label="Quản lý người dùng &nbsp;"
                     className={`button12 ${selectedSubMenu === 'QLyUser' ? 'active' : ''}`}
                     onClick={() => handleMenuItemClick('QLyUser')}
                     sx={{ minHeight: 0, marginRight: '5px' }}
@@ -456,7 +329,6 @@ const Admin = () => {
                   />
                 </>
               )}
-
             </TabList>
 
           </TabContext>
@@ -483,26 +355,15 @@ const Admin = () => {
                 <Information onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} />
               </TabPanel>
               <TabPanel value="6">
-                <Schedule userInfo={userInfo} setUserInfo={setUserInfo}></Schedule>
+              <BusinessManagementInfo  userInfo={userInfo} setUserInfo={setUserInfo}></BusinessManagementInfo>
               </TabPanel>
               <TabPanel value="7">
-                <Trips userInfo={userInfo} setUserInfo={setUserInfo}></Trips>
+                <AllRevenue userInfo={userInfo} setUserInfo={setUserInfo}></AllRevenue>
               </TabPanel>
               <TabPanel value="8">
-                <AddBus userInfo={userInfo} setUserInfo={setUserInfo} ></AddBus>
+                <UserManagement userInfo={userInfo} setUserInfo={setUserInfo} ></UserManagement>
               </TabPanel>
-              <TabPanel value="9">
-                <Typography>Quản lý </Typography>
-              </TabPanel>
-              <TabPanel value="10">
-                <TicketManagement userInfo={userInfo} setUserInfo={setUserInfo} ></TicketManagement>
-              </TabPanel>
-              <TabPanel value="11">
-                <Revenue_Admin userInfo={userInfo} setUserInfo={setUserInfo} > </Revenue_Admin>
-              </TabPanel>
-              <TabPanel value="12">
-                <UserManagement userInfo={userInfo} setUserInfo={setUserInfo} > </UserManagement>
-              </TabPanel>
+             
             </TabContext>
           </Box>
         </Box>
