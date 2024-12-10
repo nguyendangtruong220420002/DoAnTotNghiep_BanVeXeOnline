@@ -194,11 +194,6 @@ const ShowTrips = (socket) => {
       setLoading(false); 
     }
   };
-  useEffect(() => {
-    fetchTrips(); 
-  }, []);
-  
-
 
   const handleBoxClick = (tripId) => {
     const selected = trips.find((trip) => trip._id === tripId);
