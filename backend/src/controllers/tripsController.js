@@ -512,16 +512,16 @@ if (tripType === "Khứ hồi" && departureDate && returnDate) {
 const tripsWithLocalTime = TripsOne.map(trip => {
   const tripDatesWithLocalTime = trip.tripDates.map(tripDate => ({
     ...tripDate.toObject(),
-    date: moment(tripDate.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
+    date: moment(tripDate.date,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
   }));
-  const departureTime = trip.departureTime ? moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm') : null;
+  const departureTime = trip.departureTime ? moment(trip.departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('HH:mm') : null;
   const returnTime = trip.returnTrips && trip.returnTrips[0]
-    ? moment(trip.returnTrips[0].departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm'): null;
+    ? moment(trip.returnTrips[0].departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('HH:mm'): null;
   if (departureTime && departureTime >= formattedTime) {
     return {
       ...trip.toObject(),
-      departureTime: departureTime ? moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
-      endTime: trip.endTime ? moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
+      departureTime: departureTime ? moment(trip.departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
+      endTime: trip.endTime ? moment(trip.endTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
       returnTime: returnTime,
       tripDates: tripDatesWithLocalTime,
       user: trip.userId,
@@ -533,15 +533,15 @@ const tripsWithLocalTime = TripsOne.map(trip => {
 }).filter(trip => trip !== null);
 const RouteTripsWithLocalTime = RouteTrips.map(returnTrip => {
   const returnDatesWithLocalTime = returnTrip.tripDates.map(returnTripDate => ({
-    ...returnTripDate.toObject(),date: moment(returnTripDate.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
+    ...returnTripDate.toObject(),date: moment(returnTripDate.date,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
   }));
-  const returnTime = returnTrip.departureTime?moment(returnTrip.departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm'): null;
-  const departureTime = returnTrip.departureTime ? moment(returnTrip.departureTime).tz('Asia/Ho_Chi_Minh').format('HH:mm') : null;
+  const returnTime = returnTrip.departureTime?moment(returnTrip.departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('HH:mm'): null;
+  const departureTime = returnTrip.departureTime ? moment(returnTrip.departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('HH:mm') : null;
   return {
     ...returnTrip.toObject(),
-    departureTime: departureTime ? moment(returnTrip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
-      endTime: returnTrip.endTime ? moment(returnTrip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
-    returnTime: returnTime ? moment(returnTrip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
+    departureTime: departureTime ? moment(returnTrip.departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
+      endTime: returnTrip.endTime ? moment(returnTrip.endTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
+    returnTime: returnTime ? moment(returnTrip.departureTime,'DD/MM/YYYY, HH:mm').tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm') : null,
     tripDates: returnDatesWithLocalTime,
     user: returnTrip.userId,
     bus: returnTrip.busId,
