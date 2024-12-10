@@ -438,25 +438,22 @@ const deleteTripSchedule = async (req, res) => {
 
 const getTripsSeach = async (req, res) => {
   const { departure, destination, departureDate, returnDate, tripType } = req.query;
-  if (!departure || !destination || !departureDate || !tripType) {
-   // console.log("Thiếu thông tin tìm kiếm:", { departure, destination, departureDate, returnDate, tripType });
-    return res.status(400).json({ message: 'Vui lòng cung cấp đủ thông tin tìm kiếm' });
+  if (tripType === 'Một chiều' && returnDate) {
+    return res.status(400).json({ message: 'Không cần thiết phải cung cấp ngày về cho chuyến một chiều' });
   }
   try {
-    // console.log("Thông tin tìm kiếm:");
-    // console.log("Loại chuyến:", tripType);
-    // console.log("Điểm đi:", departure);
-    // console.log("Điểm đến:", destination);
-    // console.log("Ngày đi:", departureDate);
-   //  console.log("Ngày về:", returnDate || "Không có");
+    console.log("Thông tin tìm kiếm:");
+    console.log("Loại chuyến:", tripType);
+    console.log("Điểm đi:", departure);
+    console.log("Điểm đến:", destination);
+    console.log("Ngày đi:", departureDate);
+    console.log("Ngày về:", returnDate || "Không có");
     const route = await BusRoute.find({ departure: departure, destination: destination });
     if (!route) {
-      // console.log("Không tìm thấy tuyến đường:", { departure, destination });
       return res.status(404).json({ message: 'Tuyến đường không tồn tại' });
     }
      console.log("Tuyến đường tìm thấy:", route);
     const formattedTime = moment(departureDate).format('HH:mm');
-   // console.log("Thời gian định dạng HH:mm:", formattedTime);
    const routeIds = route.map(route => route._id);
     const queryConditions = {
       // routeId: route._id,
