@@ -14,10 +14,6 @@ const PaymentScreen = (data) => {
     const [orderInfo, setOrderInfo] = useState(data?.data)
     const bookingId2 = data?.bookingId2;
 
-
-    console.log("bookingId2", bookingId2);
-    console.log("data payment", orderInfo);
-
     useEffect(() => {
         const processPayment = async () => {
             try {
@@ -33,7 +29,7 @@ const PaymentScreen = (data) => {
                         console.log(response.data);
 
                     }
-                    showSuccessToast("Thanh toán thất bại");
+                    showErrorToast("Thanh toán thất bại");
 
                 } else if (orderInfo?.status === 'PAID') {
 

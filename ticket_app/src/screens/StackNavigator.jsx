@@ -24,6 +24,7 @@ import Toast from 'react-native-toast-message'
 import { SocketProvider } from '../context/SocketProvider'
 import ReturnTrip from './result_search/returnTrips/ReturnTrip'
 import ForgotPassword from './forgotPassword/ForgotPassword'
+import InfoTicket from './ticket/infoTicket/InfoTicket'
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -70,19 +71,24 @@ function HomeScreen() {
   )
 }
 
-
 const StackNavigator = () => {
-  const navigationRef = createRef();
 
+  const navigationRefContainer = React.useRef();
   useEffect(() => {
-    if (navigationRef.current) {
-      checkTokenExpiration(navigationRef.current);
-    }
-  }, []);
+    const checkSession = async () => {
+      // Tự động kiểm tra token khi ứng dụng khởi chạy
+      const navigationRef = navigationRefContainer.current;
+      if (navigationRef) {
+        await checkTokenExpiration(navigationRef);
+      }
+    };
 
+    checkSession();
+  }, []);
 
   return (
     <NavigationContainer
+      ref={navigationRefContainer}
     >
       <SocketProvider>
         <Toast />
@@ -96,6 +102,8 @@ const StackNavigator = () => {
           <Stack.Screen name='DetailAccount'
             component={DetailAccount}
           />
+
+          <Stack.Screen name='InfoTicket' component={InfoTicket} />
           <Stack.Screen name='ListProvinces' component={ListProvinces} />
           <Stack.Screen name='TripRoute' component={TripRoute} />
           <Stack.Screen name='RSearch' component={ResultSearch} />

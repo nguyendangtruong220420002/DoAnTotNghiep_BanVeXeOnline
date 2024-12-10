@@ -87,7 +87,9 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         color: '#f95300',
-        textAlign: "right"
+        textAlign: "right",
+        top:3,
+        left:2
     },
     dashedLineHorizontal: {
         width: '100%',
@@ -97,4 +99,7 @@ export const styles = StyleSheet.create({
         borderColor: '#E0E0E0',
         marginVertical: 10,
     },
+    emptyContainer: {
+
+    }
 })

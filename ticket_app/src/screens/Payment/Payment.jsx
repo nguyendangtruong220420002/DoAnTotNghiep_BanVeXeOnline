@@ -79,7 +79,6 @@ const Payment = () => {
   const bookingId = route.params?.bookingId;
 
   const bookingId2 = route.params?.bookingId2;
-  console.log("booking id 2: in payment", bookingId2)
   const bookingID = route.params?.bookingID;
   const [paymentMethod, setPaymentMethod] = useState("Thanh toán qua PayOS");
   const [orderInfo, setOrderInfo] = useState(null)
