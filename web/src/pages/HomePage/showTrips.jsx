@@ -162,6 +162,9 @@ const ShowTrips = (socket) => {
         tripType:dataOfShowTrips.tripType || '',  
         userId: userInfo ? userInfo._id : undefined,
       };
+      if (dataOfShowTrips.tripType === 'Một chiều') {
+        delete params.returnDate; 
+      }
   
       console.log("Request Params:", params); 
   
