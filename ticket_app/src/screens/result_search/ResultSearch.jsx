@@ -20,7 +20,7 @@ const ResultSearch = () => {
     const diemden = route.params?.diemden;
     const soVe = route.params?.soVe;
 
-    const [trips, setTrips] = useState(route.params?.trips?.TripsOne)
+    const [trips, setTrips] = useState(route.params?.tripdi)
     const ngayve = route.params?.ngayve;
     const show = route.params?.show;
 
@@ -28,12 +28,11 @@ const ResultSearch = () => {
     const [dateArray, setDateArray] = useState(generateDateRange(ngaydi));
 
     const [loading, setLoading] = useState(true); // Loading state
-    // modal Filter
+
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState(''); // Lưu lựa chọn của người dùng
     const [selectedOptions, setSelectedOptions] = useState({
         'Giá': '',
-        'Loại ghế': '',
         'Khung giờ': '',
     });
 
@@ -71,8 +70,7 @@ const ResultSearch = () => {
 
     const filterOptions = {
         'Giá': ['Dưới 100k', '100k - 200k', 'Trên 200k'],
-        'Loại ghế': ['Ghế thường', 'Ghế mềm', 'Ghế VIP'],
-        'Khung giờ': ['Sáng', 'Chiều', 'Tối'],
+        'Khung giờ': ['Sáng (5:00 - 11:59)', 'Trưa (12:00 - 18:59)', 'Tối (19:00 - 4:59)'],
     };
 
     const openModal = (filterType) => {
@@ -138,6 +136,22 @@ const ResultSearch = () => {
 
     const closeModal = () => setModalVisible(false);
 
+    const filterTrips = (trips) => {
+
+        const currentTime = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm");
+
+
+        return trips.filter((trip) => {
+
+            const tripDepartureMoment = moment.tz(trip.departureTime, "DD/MM/YYYY, HH:mm", "Asia/Ho_Chi_Minh");
+
+            const tripDepartureTime = tripDepartureMoment.format("HH:mm");
+
+            // Lọc chuyến nếu ngày khởi hành là hôm nay và giờ khởi hành lớn hơn giờ hiện tại
+            return tripDepartureTime >= currentTime;
+        });
+    };
+
     // Provide item layout for better scrolling performance
     const getItemLayout = (data, index) => (
         { length: 60, offset: 90 * index, index } // Adjust the length based on your item height
@@ -147,17 +161,15 @@ const ResultSearch = () => {
         let selectedFullDate = new Date(dateArray[index].fullDate);
 
         if (selectedFullDate) {
-            // Lấy ngày hôm nay
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Đặt giờ của hôm nay về 00:00
 
-            // Đặt giờ của selectedFullDate về 00:00 để so sánh ngày
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const compareDate = new Date(selectedFullDate);
             compareDate.setHours(0, 0, 0, 0);
 
-            // So sánh nếu selectedFullDate khác hôm nay
+
             if (compareDate.getTime() !== today.getTime()) {
-                selectedFullDate.setUTCHours(0, 0, 0, 0); // Đặt giờ về 00:00 UTC
+                selectedFullDate.setUTCHours(0, 0, 0, 0);
             }
 
         }
@@ -166,10 +178,10 @@ const ResultSearch = () => {
         setDate(item.date);
         setMonth(item.month);
         setDay(item.day);
-        setSelectedDate(index); // Cập nhật chỉ mục ngày được chọn
+        setSelectedDate(index);
 
-        setDateArray(generateDateRange(selectedFullDate)); // Cập nhật mảng ngày hiển thị
-        setNewngaydi(selectedFullDate); // Cập nhật ngày đi mới
+        setDateArray(generateDateRange(selectedFullDate));
+        setNewngaydi(selectedFullDate);
 
         await fetchingTrip(selectedFullDate);
     };
@@ -186,7 +198,17 @@ const ResultSearch = () => {
             });
 
             if (response && response?.data) {
-                setTrips(response?.data?.TripsOne); // Cập nhật danh sách trips trong state
+                const tripsOne = response?.data?.TripsOne || [];
+
+                // Lọc chuyến đi nếu ngày được chọn là hôm nay
+                const selectedDate = moment(date).tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY");
+                const today = moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY");
+
+                const filteredTrips = selectedDate === today ? filterTrips(tripsOne) : tripsOne;
+
+                // Gán vào setTrips
+                setTrips(filteredTrips);
+                //setTrips(response?.data?.TripsOne); // Cập nhật danh sách trips trong state
             } else {
                 console.warn("No trips found for the selected date.");
                 setTrips([]); // Nếu không có chuyến nào, làm rỗng danh sách trips
@@ -195,10 +217,9 @@ const ResultSearch = () => {
             console.error("Error fetching trips:", error);
             setTrips([]); // Làm rỗng danh sách trips khi gặp lỗi
         } finally {
-            setLoading(false); // Tắt loading sau khi hoàn thành
+            setLoading(false);
         }
     }
-
     const handleChooseSeat = (trip) => {
 
         if (show) {
@@ -206,9 +227,9 @@ const ResultSearch = () => {
                 diemden,
                 diemdi,
                 tripdi: trip,
-                trips: route.params?.trips.RouteTrips,
+                trips: route.params?.tripve,
                 ngaydi: newngaydi ? newngaydi.toISOString() : ngaydi.toISOString(),
-                ngayve,
+                ngayve: route?.params?.ngayve,
                 show: show,
             })
         } else {
@@ -270,7 +291,7 @@ const ResultSearch = () => {
                 </View>
 
                 <View style={styles.viewFilter}>
-                    {['Giá', 'Loại ghế', 'Khung giờ'].map((filterType) => (
+                    {['Giá', 'Khung giờ'].map((filterType) => (
                         <View style={styles.filterChild} key={filterType}>
                             <TouchableOpacity
                                 style={styles.btnFilter}
@@ -281,6 +302,11 @@ const ResultSearch = () => {
                             </TouchableOpacity>
                         </View>
                     ))}
+                    <View>
+                        <TouchableOpacity style={{ backgroundColor: "#ECECEC", padding: 10, borderRadius: 5 }}>
+                            <Text>Bỏ lọc</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
                 <Modal
 
@@ -322,7 +348,7 @@ const ResultSearch = () => {
                     style={styles.listTicket}
                     contentContainerStyle={{ paddingBottom: 10 }}
                 >
-                    {trips.map((trip, index) => (
+                    {trips?.map((trip, index) => (
                         <TouchableWithoutFeedback
                             key={index}
                             onPress={() => handleChooseSeat(trip)}

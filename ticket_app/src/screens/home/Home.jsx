@@ -10,7 +10,7 @@ import { deleteAsyncStorage, getAsyncStorage, setAsyncStorage } from '../../util
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import useAuthData, { useAuth } from '../../context/useAuth';
 import { getData } from '../../utils/fetching';
-
+import moment from "moment-timezone"
 
 const Home = () => {
 
@@ -162,7 +162,23 @@ const Home = () => {
     }
     return dateArray;
   };
+  // Hàm để lọc các chuyến đi
+  const filterTrips = (trips) => {
 
+    const currentTime = moment().tz("Asia/Ho_Chi_Minh").format("HH:mm");
+    console.log("currentTime", currentTime);
+
+    return trips.filter((trip) => {
+      // Chuyển đổi departureTime từ chuỗi thành đối tượng moment
+      const tripDepartureMoment = moment.tz(trip.departureTime, "DD/MM/YYYY, HH:mm", "Asia/Ho_Chi_Minh");
+
+      const tripDepartureTime = tripDepartureMoment.format("HH:mm");
+
+
+      // Lọc chuyến nếu ngày khởi hành là hôm nay và giờ khởi hành lớn hơn giờ hiện tại
+      return tripDepartureTime >= currentTime;
+    });
+  };
   const handleSearch = async () => {
 
     const newDateTo = show ? dateto.toISOString() : 'null'
@@ -191,12 +207,23 @@ const Home = () => {
         returnDate: newDateTo,
         tripType: show && "Khứ hồi",
       });
-      console.log(response?.data);
 
-      setTrips(response?.data);
+      const tripsOne = response?.data?.TripsOne || [];
+
+      // Lọc chuyến đi nếu ngày được chọn là hôm nay
+      const selectedDate = moment(datefrom.toISOString()).tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY");
+      const today = moment().tz("Asia/Ho_Chi_Minh").format("DD/MM/YYYY");
+
+      const filteredTrips = selectedDate === today ? filterTrips(tripsOne) : tripsOne;
+
+      // Gán vào setTrips
+      setTrips(filteredTrips);
+
       //Navigate to the RSearch screen with parameters
       nav.navigate("RSearch", {
-        trips: response?.data,
+        tripve: response?.data.RouteTrips,
+        tripdi: filteredTrips,
+        // trips: response?.data,
         ngaydi: datefrom.toISOString(),
         ngayve: newDateTo,
         diemdi: diemDi,

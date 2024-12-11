@@ -20,7 +20,7 @@ function App() {
   const VITE_API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const socket = io(`${VITE_API_URL}`, {
+    const socket = io(`http://127.0.0.1:2820`, {
       autoConnect: false,
     });
     socket.connect();

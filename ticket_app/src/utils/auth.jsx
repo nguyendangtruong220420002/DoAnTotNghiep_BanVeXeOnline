@@ -11,10 +11,6 @@ export const checkTokenExpiration = async (navigation) => {
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
 
-      console.log(decoded);
-      console.log(currentTime);
-
-
       if (decoded?.exp > currentTime) {
         // Token is valid, navigate to Home screen
         navigation.navigate("Home");
