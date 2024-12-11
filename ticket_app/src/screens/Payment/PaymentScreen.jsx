@@ -9,9 +9,10 @@ import { Icon } from 'react-native-elements';
 const PaymentScreen = (data) => {
 
     const nav = useNavigation()
-    const route = useRoute();
-    const bookingId = data?.bookingId;
-    const [orderInfo, setOrderInfo] = useState(data?.data)
+    console.log(data);
+
+    const bookingId = data?.bookingId
+    const orderInfo = data?.data
     const bookingId2 = data?.bookingId2;
 
     useEffect(() => {

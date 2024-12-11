@@ -29,16 +29,7 @@ const ChooseSeat = () => {
     const ngaydi = route.params?.ngaydi
     const ngayve = route.params?.ngayve || null;
 
-
-
-
     const show = route.params?.show;
-    // console.log("trip di", trip);
-    console.log("trip id di", tripId);
-
-    // console.log("trip ve", tripve);
-    console.log("trip id ve", tripIdve);
-
     const layout = useWindowDimensions();
 
     const date = new Date(ngaydi);
@@ -104,8 +95,6 @@ const ChooseSeat = () => {
         socket?.on('update-data-seat', async (data) => {
             // Dữ liệu ghế mới
             const bookedSeats = data?.res?.bookedSeats || [];
-
-            console.log("Booked Seats Data:", bookedSeats);
             console.log(data);
 
             if (data?.tripId === tripId) {
@@ -368,14 +357,6 @@ const ChooseSeat = () => {
             return: SeatCodeSelectReturn,
         };
 
-        console.log(SeatCodeSelectDeparture);
-        console.log(SeatCodeSelectReturn);
-
-        console.log(totalAmountAllDeparture);
-        console.log(totalAmountAllReturn);
-
-        console.log(totalAmountAll);
-
         nav.navigate("InfoPayment", {
             show,
             trip,
@@ -503,8 +484,9 @@ const ChooseSeat = () => {
                 </View>
 
                 <View style={{ marginLeft: 20, paddingVertical: 15 }}>
-                    <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {totalAmountAll?.toLocaleString("vi-VN") || 0}đ</Text>
+                    <Text style={{ fontSize: 20, fontWeight: 450 }}>Số tiền: {show ? (selectedSeats?.length * totalFareAndPrice + selectedSeatsReturn?.length * totalFareAndPrice) : totalAmountAll?.toLocaleString("vi-VN") || 0}đ</Text>
                 </View>
+
                 <TouchableOpacity
                     onPress={() => handleInfoPayment()}
                     style={styles.btnContinue}>

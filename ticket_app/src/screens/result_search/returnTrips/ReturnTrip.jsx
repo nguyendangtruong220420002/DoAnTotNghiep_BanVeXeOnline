@@ -21,14 +21,16 @@ const ReturnTrip = () => {
     const soVe = route.params?.soVe;
 
     const [trips, setTrips] = useState(route.params?.trips);
-    console.log(route.params?.trips);
 
-    const ngayve = route.params?.ngayve;
+
+    const ngayve = new Date(route.params?.ngayve);
     const show = route.params?.show;
 
-
-    // Generate initial dates starting from ngaydi
-    const [dateArray, setDateArray] = useState(generateDateRange(ngaydi));
+    // Lọc và tạo mảng ngày hợp lệ
+    const [dateArray, setDateArray] = useState(() => {
+        const initialDates = generateDateRange(ngaydi);
+        return initialDates.filter(dateItem => dateItem.fullDate > ngaydi);
+    });
 
     const [loading, setLoading] = useState(true); // Loading state
     // modal Filter
@@ -40,10 +42,10 @@ const ReturnTrip = () => {
         'Khung giờ': '',
     });
 
-    const monthValue = ngaydi?.getMonth() + 1;
-    const dayValue = ngaydi?.getDate();
+    const monthValue = ngayve?.getMonth() + 1;
+    const dayValue = ngayve?.getDate();
 
-    const [newngaydi, setNewngaydi] = useState();
+    const [newngayve, setNewngayve] = useState();
 
     const [date, setDate] = useState(dayValue?.toString());
     const [month, setMonth] = useState(monthValue?.toString().padStart(2, '0'));
@@ -52,16 +54,16 @@ const ReturnTrip = () => {
     // State for selected date index
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // Effect to set the selected date based on 'ngaydi' when component mounts
+
     useEffect(() => {
         const initialSelectedDate = dateArray.findIndex(item =>
-            item.fullDate.toDateString() === ngaydi.toDateString()
+            item.fullDate.toDateString() === ngayve.toDateString()
         );
 
         setSelectedDate(initialSelectedDate !== -1 ? initialSelectedDate : 0);
-    }, []); // Run only once when the component mounts
+    }, []);
 
-    // Effect to scroll to the selected date in the FlatList
+
     useEffect(() => {
         if (flatListRef.current && selectedDate !== null && selectedDate >= 0) {
             try {
@@ -172,7 +174,7 @@ const ReturnTrip = () => {
         setSelectedDate(index); // Cập nhật chỉ mục ngày được chọn
 
         setDateArray(generateDateRange(selectedFullDate)); // Cập nhật mảng ngày hiển thị
-        setNewngaydi(selectedFullDate); // Cập nhật ngày đi mới
+        setNewngayve(selectedFullDate); // Cập nhật ngày đi mới
 
         await fetchingTrip(selectedFullDate);
     };
@@ -183,13 +185,14 @@ const ReturnTrip = () => {
             const response = await getData("tripsRoutes/search", {
                 departure: diemdi,
                 destination: diemden,
-                departureDate: date, // Ngày khởi hành mới được chọn
-                returnDate: ngayve,
+                departureDate: ngaydi, // Ngày khởi hành mới được chọn
+                returnDate: date,
                 tripType: show && "Khứ hồi",
             });
 
-            if (response && response.data) {
-                setTrips(response.data); // Cập nhật danh sách trips trong state
+            if (response && response?.data) {
+                console.log(response?.data);
+                setTrips(response.data.RouteTrips); // Cập nhật danh sách trips trong state
             } else {
                 console.warn("No trips found for the selected date.");
                 setTrips([]); // Nếu không có chuyến nào, làm rỗng danh sách trips
@@ -204,15 +207,15 @@ const ReturnTrip = () => {
 
     const handleChooseSeat = (tripve) => {
         console.log(show);
-        
+
         nav.navigate("ChooseSeat", {
             diemden,
             diemdi,
             tripdi: route.params?.tripdi,
             tripve: tripve,
-            ngaydi: newngaydi ? newngaydi.toISOString() : ngaydi.toISOString(),
-            ngayve: ngayve,
-            show:route.params?.show
+            ngaydi: ngaydi ? ngaydi.toISOString() : ngaydi.toISOString(),
+            ngayve: newngayve.toISOString(),
+            show: route.params?.show
         })
     }
     // Update handleTripRoute to accept a trip parameter
