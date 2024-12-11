@@ -2000,7 +2000,8 @@ const ShowTrips = (socket) => {
       </Box>
       <Box sx={{backgroundColor:"#ff1100"}}><Typography sx={{textAlign:'center', color:'white', fontSize:'14px'}}> © 2024|Bản quyền thuộc về Nguyễn Đang Trường_20062481 & Phạm Sỹ Thái_20047921
 |
-Giảng Viên quản lý : Thầy Đặng Văn Thuận</Typography></Box>
+Giảng Viên quản lý : Thầy Đặng Văn Thuận</Typography>
+      </Box>
      
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
     </Box>

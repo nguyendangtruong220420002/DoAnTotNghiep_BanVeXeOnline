@@ -223,8 +223,8 @@ const handleCloseModal = () => {
       </Toolbar>
     
       </AppBar>
-      <Box sx={{ position: 'relative', height: 'auto' }}> 
-        <Box
+      <Box sx={{ position: 'relative', height: 'auto',backgroundColor:'#f5f0ee' }}> 
+        <Box sx={{backgroundColor:'#f5f0ee'}}
         >
           <TabContext value={value}>
             <TabPanel value="1" sx={{
@@ -325,7 +325,7 @@ const handleCloseModal = () => {
             </TabPanel>
           </TabContext>
         </Box>
-         <Box sx={{display:'flex' ,flexDirection:'column',width:'60%',justifyContent:'space-between', margin:'auto', mt:8}}>
+         <Box sx={{display:'flex' ,flexDirection:'column',width:'60%',justifyContent:'space-between', margin:'auto', mt:8,backgroundColor:'#f5f0ee'}}>
               <Box sx={{display:'flex', marginBottom:'45px'}}>
                   <Box sx={{display:'flex',}}><Box component="img" src={tickets} alt="" sx={{width:'55px', height:'55px', marginTop:'10px' , marginRight:'15px'}} ></Box>
                          <Box sx={{display:'flex',flexDirection:'column' ,width:'400px',}}>
@@ -372,10 +372,11 @@ const handleCloseModal = () => {
               </Box>
               
          </Box>
-      </Box>
-      <Box sx={{backgroundColor:"#ff1100", marginTop:'80px'}}><Typography sx={{textAlign:'center', color:'white', fontSize:'14px'}}> © 2024|Bản quyền thuộc về Nguyễn Đang Trường_20062481 & Phạm Sỹ Thái_20047921
+         <Box sx={{backgroundColor:"#ff1100", marginTop:'100px'}}><Typography sx={{textAlign:'center', color:'white', fontSize:'14px'}}> © 2024|Bản quyền thuộc về Nguyễn Đang Trường_20062481 & Phạm Sỹ Thái_20047921
 |
 Giảng Viên quản lý : Thầy Đặng Văn Thuận</Typography></Box>
+      </Box>
+      
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
       
     </Box>

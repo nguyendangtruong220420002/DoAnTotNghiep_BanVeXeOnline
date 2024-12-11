@@ -26,6 +26,9 @@ import { solarToLunar  } from 'lunar-calendar';
 import ShowTrips from '../HomePage/showTrips';
 import PropTypes from 'prop-types';
 import home_banner from '../../../public/images/home1.png';
+import bg1 from '../../../public/images/bg1.png';
+import bg from '../../../public/images/bg.png';
+import bg3 from '../../../public/images/bg3.png';
 import { useLocation } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 
@@ -49,7 +52,18 @@ const Content = ({userInfo}) => {
   const [showNoTripMessage, setShowNoTripMessage] = useState(false);
   const [tripData, setTripData] = useState(null);
   const [alert, setAlert] = useState('');
-
+  const images = [home_banner, bg1, bg, bg3]; 
+  const [currentImage, setCurrentImage] = useState(images[0]); 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prevImage) => {
+        const currentIndex = images.indexOf(prevImage);
+        const nextIndex = (currentIndex + 1) % images.length;
+        return images[nextIndex];
+      });
+    }, 10000); 
+    return () => clearInterval(interval);
+  }, [images]);
   useEffect(() => {
     if (alert.open) {
       const timer = setTimeout(() => {
@@ -232,16 +246,12 @@ const Content = ({userInfo}) => {
       });
       return; 
     }
-      
-  
-    // Định dạng ngày theo kiểu "T4, 20/11/2024"
     const formattedDepartureDate = departureDate.toLocaleDateString('vi-VN', {
       weekday: 'short', 
       day: '2-digit',   
       month: '2-digit', 
       year: 'numeric', 
     });
-  
     const formattedReturnDate = returnDate
       ? returnDate.toLocaleDateString('vi-VN', {
           weekday: 'short',
@@ -250,14 +260,10 @@ const Content = ({userInfo}) => {
           year: 'numeric',
         })
       : null;
- 
-    // Lưu trữ vào localStorage
     localStorage.setItem('fromProvince', JSON.stringify(fromProvince));
     localStorage.setItem('toProvince', JSON.stringify(toProvince));
     localStorage.setItem('dateRange', JSON.stringify([departureDate, returnDate])); 
     localStorage.setItem('selectedValue', selectedValue);
-  
-    // Dữ liệu chuyến đi
     const dataOfShowTrips = {
       departure: fromProvince?.name,
       destination: toProvince?.name,
@@ -276,7 +282,8 @@ const Content = ({userInfo}) => {
   
   return (
     <Box sx={{background:'#f4f4f4', height:'auto'}}>
-     <img alt="" className='home_banner' src={home_banner} style={{ width: '100%', height: 'auto', }} />
+     <img alt="" className='home_banner' src={currentImage} style={{ width: '100%', height: 'auto', }} />
+  
       <Box
        sx={{
         position: 'absolute',
