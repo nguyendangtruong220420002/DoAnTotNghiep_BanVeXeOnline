@@ -764,8 +764,8 @@ const Ticket = ({ onLogout, userInfo, setUserInfo }) => {
 
 Ticket.propTypes = {
   onLogout: PropTypes.func.isRequired,
-  userInfo: PropTypes.func.isRequired,
-  setUserInfo: PropTypes.func.isRequired,
+  userInfo: PropTypes.func,
+  setUserInfo: PropTypes.func,
 };
 
 export default Ticket;
