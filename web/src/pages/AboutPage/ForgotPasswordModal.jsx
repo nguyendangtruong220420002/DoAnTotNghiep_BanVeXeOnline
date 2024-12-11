@@ -17,7 +17,7 @@ const ForgotPasswordModal = ({ open, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [verificationId, setVerificationId] = useState('');
   const [timeLeft, setTimeLeft] = useState(120);
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState([]);
   const [otpError, setOtpError] = useState('');
   const [loading, setLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL;
@@ -60,7 +60,7 @@ const ForgotPasswordModal = ({ open, onClose }) => {
       return;
     }
     setTimeLeft(120);
-    setOtp(['', '', '', '', '', '']);
+    setOtp([]);
     setOtpError('');
     try {
       const response = await axios.post(`${API_URL}/api/users/check-phone`, { phoneNumber });
