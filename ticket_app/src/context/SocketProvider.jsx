@@ -8,10 +8,10 @@ export const SocketProvider = ({ children }) => {
 
     const [socket, setSocket] = useState(null);
     const http_local = `http://${host_socket}:${Socket_Port}`;
-    const http_hosting = API_URL; // https://doantotnghiep-banvexeonline.onrender.com/
+    const http_hosting = API_URL; // https://doantotnghiep-banvexeonline.onrender.com
     useEffect(() => {
         // Calling connecting
-        const socket = io(`${http_hosting}`, {
+        const socket = io(`${http_local}`, {
             autoConnect: false,
         });
         socket.connect();

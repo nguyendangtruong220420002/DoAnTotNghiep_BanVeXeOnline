@@ -4,9 +4,9 @@ import { getAsyncStorage } from './cookie';
 // Tạo một instance của axios để tái sử dụng
 // API Host
 export const api_host = 'http://10.68.1.218:5000';
-export const Socket_Port = "2820";
 export const API_URL = "https://doantotnghiep-banvexeonline.onrender.com"
 export const host_socket = "10.68.1.218"
+export const Socket_Port = "2820";
 // Server Port
 const port = '5000';
 export const s3_URL = 'https://vexeonline6868.s3.ap-southeast-1.amazonaws.com';
