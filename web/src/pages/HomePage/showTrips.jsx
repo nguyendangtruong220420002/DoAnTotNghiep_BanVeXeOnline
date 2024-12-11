@@ -11,7 +11,8 @@ import {
   AppBar, Toolbar, Menu, MenuItem,InputLabel,Select,FormControl,
   RadioGroup,
   FormControlLabel,
-  Radio
+  Radio,
+  Link
 } from "@mui/material";
 import WhereToVoteTwoToneIcon from "@mui/icons-material/WhereToVoteTwoTone";
 import DirectionsBusTwoToneIcon from "@mui/icons-material/DirectionsBusTwoTone";
@@ -51,6 +52,8 @@ import FmdGoodTwoToneIcon from '@mui/icons-material/FmdGoodTwoTone';
 import LocalPhoneTwoToneIcon from '@mui/icons-material/LocalPhoneTwoTone';
 import InventoryTwoToneIcon from '@mui/icons-material/InventoryTwoTone';
 import Sale from '../../pages/AboutPage/Sale'; 
+import loginer from '../../../public/images/4860253.jpg'
+import iuh from '../../../public/images/iuh.png'
 
 const ShowTrips = (socket) => {
   const navigate = useNavigate();
@@ -70,7 +73,7 @@ const ShowTrips = (socket) => {
   const [tripType, setTripType] = useState(dataOfShowTrips ? dataOfShowTrips.tripType : '');
   const [openTabs, setOpenTabs] = useState({});
   const [tabSeatch, settabSeatch] = useState(0);
-  // const [trips, setTrips] = useState([ ]);
+   const [departureDate, setdepartureDate] = useState(dataOfShowTrips.departureDate);
   const [trips, setTrips] = useState({
     RouteTrips: [],
     TripsOne: [],
@@ -78,16 +81,20 @@ const ShowTrips = (socket) => {
   //console.log(" bên tìm chuyến gửi dataOfShowTrips:", dataOfShowTrips);
   useEffect(() => {
     if (initialTabIndex1 !== undefined) {
-      // Cập nhật tabIndex1 khi location.state thay đổi
       setTabIndex1(initialTabIndex1);
     }
   }, [initialTabIndex1]);
   useEffect(() => {
     if (location.state?.tabIndex1 !== undefined) {
       setTabIndex1(location.state.tabIndex1);
+      // 2 chiều
     }
   }, [location.state]);
-  console.log("tabIndex1",tabIndex1);
+  // console.log("tabIndex1",tabIndex1);
+  useEffect(() => {
+    // console.log('Reset trạng thái khi vào ShowTrips');
+   // một chiều
+  }, [location.state]);
   useEffect(() => {
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
@@ -165,9 +172,7 @@ const ShowTrips = (socket) => {
       if (dataOfShowTrips.tripType === 'Một chiều') {
         delete params.returnDate; 
       }
-  
-      console.log("Request Params:", params); 
-  
+     // console.log("Request Params:", params); 
       fetchTrips(params);  
       setTimeout(() => setLoading(false), 8000);
     }
@@ -183,7 +188,7 @@ const ShowTrips = (socket) => {
         RouteTrips: response.data.RouteTrips || [],
         TripsOne: response.data.TripsOne || []  ,
       });
-      console.log("Trips from API:", response.data);  
+      // console.log("Trips from API:", response.data);  
     } catch (error) {
       if (error.response) {
         console.error("Lỗi tìm chuyến:", error.response.data);
@@ -213,14 +218,10 @@ const ShowTrips = (socket) => {
       [tripId]: prevState[tripId] === tab ? null : tab,
     }));
   };
-
-
   const handleSearchHome = () => {
     navigate('/showTrips',{ state: { dataOfShowTrips, userInfo } });
     window.location.reload(); 
   };
-
-
   const [sortConfig, setSortConfig] = useState({
     key: null,
     ascending: true,
@@ -268,8 +269,6 @@ const ShowTrips = (socket) => {
     } else if (selectedTimeFilter === "evening") {
       return hour >= 18 && hour < 24; 
     }
-    
-
     return true; 
   };
   const [selectedBusType, setSelectedBusType] = useState('');
@@ -280,6 +279,24 @@ const ShowTrips = (socket) => {
     setSelectedTimeFilter('');
     setSelectedBusType('');
   };
+  const isFutureTrip = (departureTime) => {
+    const DateDefault = new Date(); 
+    const tripTime = new Date(departureTime); 
+    const currentDate = `${DateDefault.getDate()}-${DateDefault.getMonth() + 1}-${DateDefault.getFullYear()}`;
+    const tripDateFormatted = `${departureDate.getDate()}-${departureDate.getMonth() + 1}-${departureDate.getFullYear()}`;
+    if (currentDate === tripDateFormatted) {
+        const currentHour = DateDefault.getHours();
+        const currentMinute = DateDefault.getMinutes();
+        const tripHour = tripTime.getHours();
+        const tripMinute = tripTime.getMinutes();
+        if (tripHour > currentHour || (tripHour === currentHour && tripMinute > currentMinute)) {
+            return true; 
+        }
+        return false; 
+    }    
+    return true;
+};
+  
   return (
     <Box>
        <Box sx={{ position: 'relative' }}>
@@ -324,7 +341,7 @@ const ShowTrips = (socket) => {
                     <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Vé Của Tôi</Box>} value="3" className='button2' iconPosition="start"
                       icon={<Box component='img' src={ticket} sx={{ width: '23px', height: '23px', }}></Box>}>
                     </Tab>
-                    <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Cần Trợ Giúp</Box>} value="4" className='button2' iconPosition="start"
+                    <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Về Chúng Tôi</Box>} value="4" className='button2' iconPosition="start"
                       icon={<Box component='img' src={helpdesk} sx={{ width: '23px', height: '23px', }}></Box>}>
                     </Tab>
                     {userInfo ? (
@@ -589,7 +606,8 @@ const ShowTrips = (socket) => {
                     <Box>
                     {trips.TripsOne
                       .filter((trip) => filterTripsByTime(trip))
-                       .filter((trip) => filterTripsByBusType(trip, selectedBusType))
+                      .filter((trip) => filterTripsByBusType(trip, selectedBusType))
+                      .filter((trip) => isFutureTrip(trip.departureTime))
                     .map((trip) => {
                         const BusName = trip.userId.fullName
                         return (
@@ -1425,8 +1443,10 @@ const ShowTrips = (socket) => {
                   {trips.TripsOne && trips.TripsOne.length > 0 ? (
                   trips.TripsOne.filter(filterTripsByTime)
                   .filter((trip) => filterTripsByBusType(trip, selectedBusType))
+                  .filter((trip) => isFutureTrip(trip.departureTime))
                   .map((trip) => {
                       const BusName = trip.userId.fullName
+                      
                     return (
                     <Box
                       key={trip._id}
@@ -1473,6 +1493,7 @@ const ShowTrips = (socket) => {
                                   .format("HH:mm")}
                               </Typography>
                             )}
+                            
                             <Typography
                               className="button21"
                               sx={{ width: "auto" }}>
@@ -1848,12 +1869,86 @@ const ShowTrips = (socket) => {
             <Sale></Sale>
             </TabPanel>
             <TabPanel value="3">
-            <Ticket  userInfo={userInfo}> onLogout={handleLogout} setUserInfo={setUserInfo} </Ticket>
+            {userInfo ? (
+                <Ticket userInfo={userInfo} onLogout={handleLogout} setUserInfo={setUserInfo} />
+              ) : (
+                <Box>
+                    <Button               
+                onClick={() => setOpenLogin(true)}
+                sx={{ display: 'flex', alignItems: 'center', width: '200px' ,margin:'auto', backgroundColor:'#dc635b',  }}
+              >
+                <Typography  sx={{ position: 'relative', marginTop: '3px',color:'white'  }}>
+                  Đăng Nhập
+                </Typography>
+              </Button> 
+              <Box component="img" src={loginer} sx={{ width: '500px', height: '400px', ml:60}} />
+                </Box>
+              )}
             </TabPanel>
             <TabPanel 
-              value="1"
-             >
-             
+            value="4"
+            >
+              <Box sx={{ borderRadius: "10px",
+            border: "1px solid #e5e5e5",
+            padding: "10px",
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+            margin:'auto',
+            width: "50%",
+            }}>
+               <Box component="img" src={iuh} sx={{ width: '700px', height: '400px', position: 'absolute',zIndex: 1, opacity: 0.15,}}>
+                 
+               </Box>
+              <Box sx={{ padding: 3, position: 'relative',zIndex: 2}}>
+      <Typography variant="h6" gutterBottom sx={{  textAlign: 'center',fontWeight: 'bold', textTransform:"uppercase",mb:2 }}>Đồ Án Tốt Nghiệp Năm 2024</Typography>
+      <Box sx={{ marginBottom: 1.5 , display:'flex', ml:2}}>
+      <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Tên đề tài:</Typography>
+      <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>VeXeOnline</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex',ml:2 }}>
+      <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Thông tin nhóm :</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>91 khóa K16-DHKTPM16TT Khoa-CNTT</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Tên sinh viên:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Nguyễn Đang Trường (20062481) - Phạm Sỹ Thái (20049721)</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5 ,display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Giảng viên phụ trách:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>TS. Đặng Văn Thuận</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Trường:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Đại học Công Nghiệp Tp.Hồ Chí Minh</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex',ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Địa chỉ:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>12 Nguyễn Văn Bảo, F4, Q.Gò Vấp, Tp.Hồ Chí Minh</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Website:</Typography>
+        <Link href="https://doantotnghiep-banvexeonline.onrender.com" target="_blank" sx={{ color: '#1976d2', textDecoration: 'none' ,mt:0.4 }}>
+          https://doantotnghiep-banvexeonline.onrender.com
+        </Link>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Số điện thoại:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>0326923816 - 0911513279</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex',ml:2 }}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }} >Email:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>nguyendangtruong22042002@gmail.com - phamsythai644@gmail.com</Typography>
+      </Box>
+              </Box>
+            </Box>
+
             </TabPanel>
             <TabPanel value="5"> 
               <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
@@ -1908,11 +2003,6 @@ const ShowTrips = (socket) => {
 Giảng Viên quản lý : Thầy Đặng Văn Thuận</Typography></Box>
      
       <Login open={openLogin} handleClose={handleCloseLogin} setUserInfo={setUserInfo} />
-      <ConfirmInfo
-        open={openModal} 
-        handleClose={handleCloseModal}
-        onSubmit={handleSubmitInfo}
-        phoneNumber="0123456789" />
     </Box>
         
      

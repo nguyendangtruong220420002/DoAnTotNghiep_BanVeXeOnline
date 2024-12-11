@@ -33,8 +33,13 @@ const bookSeats = async (req, res) => {
     }
     const bookedSeatIds = new Set(tripDate.bookedSeats.booked.map((seat) => seat.seatId));
     const conflictingSeats = seats.filter((seat) => bookedSeatIds.has(seat));
-
-    i 
+    
+    if (conflictingSeats.length > 0) {
+      return res.status(400).json({
+        message: "Chỗ đã được đặt trước !!! Vui lòng chọn chỗ khác",
+        conflictingSeats
+      });
+    }
     seats.forEach((seat) => {
       if (!seat || !userId) {
         return res.status(400).json({ message: "Ghế hoặc userId không hợp lệ" });
@@ -42,6 +47,7 @@ const bookSeats = async (req, res) => {
       if (bookedSeatIds.has(seat)) {
         return res.status(400).json({
           message: `Ghế ${seat} đã được đặt trước, vui lòng chọn ghế khác.`
+          
         });
       }
 
@@ -64,7 +70,6 @@ const bookSeats = async (req, res) => {
     res.status(500).json({ message: "Không thể đặt ghế. Vui lòng thử lại sau." });
   }
 };
-
 const bookSeatsRoutTrip = async (req, res) => {
   try {
     const { tripId, bookingDate, seats, userId, } = req.body;

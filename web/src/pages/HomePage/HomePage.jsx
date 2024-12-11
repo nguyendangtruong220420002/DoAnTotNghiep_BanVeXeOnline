@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React ,  { useState, useEffect } from 'react';
-import {Box, AppBar, Toolbar ,Typography, Tab , Button, Menu, MenuItem, Avatar} from '@mui/material'
+import {Box, AppBar, Toolbar ,Typography, Tab , Button, Menu, MenuItem, Avatar,Link} from '@mui/material'
 import logo from '../../../public/images/logohome (2).png';
 import ticket from '../../../public/images/ticket.png';
 import shed from '../../../public/images/bus(3).png';
@@ -25,6 +25,8 @@ import money from '../../../public/images/money.png'
 import customer_service from '../../../public/images/customer-service.png'
 import pass from '../../../public/images/pass.png'
 import payment_method from '../../../public/images/payment-method.png'
+import loginer from '../../../public/images/4860253.jpg'
+import iuh from '../../../public/images/iuh.png'
 
 import { useNavigate } from 'react-router-dom';
 
@@ -120,7 +122,7 @@ const handleCloseModal = () => {
             icon={<Box component='img'  src={ticket} sx={{ width:'23px', height:'23px', }}></Box>}>  
             </Tab>
 
-            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Cần Trợ Giúp</Box>}  value="4" className='button2'  iconPosition="start"  
+            <Tab label={<Box sx={{ position: 'relative', marginTop: '5px' }}>Về Chúng Tôi</Box>}  value="4" className='button2'  iconPosition="start"  
             icon={<Box component='img'  src={helpdesk} sx={{width:'23px', height:'23px', }}></Box>}>  
             
             </Tab>
@@ -236,12 +238,87 @@ const handleCloseModal = () => {
               <Sale></Sale>
             </TabPanel>
             <TabPanel value="3">
-             <Ticket  userInfo={userInfo}> onLogout={handleLogout} setUserInfo={setUserInfo} </Ticket>
+            {userInfo ? (
+                <Ticket userInfo={userInfo} onLogout={handleLogout} setUserInfo={setUserInfo} />
+              ) : (
+                <Box>
+                    <Button               
+                onClick={() => setOpenLogin(true)}
+                sx={{ display: 'flex', alignItems: 'center', width: '200px' ,margin:'auto', backgroundColor:'#dc635b',  }}
+              >
+                <Typography  sx={{ position: 'relative', marginTop: '3px',color:'white'  }}>
+                  Đăng Nhập
+                </Typography>
+              </Button> 
+              <Box component="img" src={loginer} sx={{ width: '500px', height: '400px', ml:60}} />
+                </Box>
+              )}
+            
             </TabPanel>
             <TabPanel 
-            value="1"
+            value="4"
             >
-              
+              <Box sx={{ borderRadius: "10px",
+            border: "1px solid #e5e5e5",
+            padding: "10px",
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+            margin:'auto',
+            width: "50%",
+            }}>
+               <Box component="img" src={iuh} sx={{ width: '700px', height: '400px', position: 'absolute',zIndex: 1, opacity: 0.15,}}>
+                 
+               </Box>
+              <Box sx={{ padding: 3, position: 'relative',zIndex: 2}}>
+      <Typography variant="h6" gutterBottom sx={{  textAlign: 'center',fontWeight: 'bold', textTransform:"uppercase",mb:2 }}>Đồ Án Tốt Nghiệp Năm 2024</Typography>
+      <Box sx={{ marginBottom: 1.5 , display:'flex', ml:2}}>
+      <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Tên đề tài:</Typography>
+      <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>VeXeOnline</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex',ml:2 }}>
+      <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Thông tin nhóm :</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>91 khóa K16-DHKTPM16TT Khoa-CNTT</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Tên sinh viên:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Nguyễn Đang Trường (20062481) - Phạm Sỹ Thái (20049721)</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5 ,display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Giảng viên phụ trách:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>TS. Đặng Văn Thuận</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Trường:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>Đại học Công Nghiệp Tp.Hồ Chí Minh</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex',ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Địa chỉ:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>12 Nguyễn Văn Bảo, F4, Q.Gò Vấp, Tp.Hồ Chí Minh</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Website:</Typography>
+        <Link href="https://doantotnghiep-banvexeonline.onrender.com" target="_blank" sx={{ color: '#1976d2', textDecoration: 'none' ,mt:0.4 }}>
+          https://doantotnghiep-banvexeonline.onrender.com
+        </Link>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex' ,ml:2}}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }}>Số điện thoại:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>0326923816 - 0911513279</Typography>
+      </Box>
+
+      <Box sx={{ marginBottom: 1.5, display:'flex',ml:2 }}>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#676966', fontSize:'16px', mr:1,textShadow:'1px 1px 2px rgba(0, 0, 0, 0.1)' }} >Email:</Typography>
+        <Typography variant="body1" sx={{ fontWeight: 400,color:'#000000', fontSize:'17px',textShadow:'1px 1px 2px rgba(0, 0, 0, 0.2)' }}>nguyendangtruong22042002@gmail.com - phamsythai644@gmail.com</Typography>
+      </Box>
+              </Box>
+            </Box>
+
             </TabPanel>
             <TabPanel value="5"> 
               <Information  onLogout={handleLogout} userInfo={userInfo} setUserInfo={setUserInfo} /> 
@@ -261,8 +338,7 @@ const handleCloseModal = () => {
                             <Typography className='button50'> Hủy miễn phí vé xe</Typography>
                             <Typography className='button51'>Nhận lại toàn bộ tiền hoàn lại khi mua vé tàu bằng cách chọn tính năng hủy miễn phí của chúng tôi.</Typography>
                           </Box>
-                    </Box>
-                    
+                    </Box>   
               </Box>
               <Box sx={{display:'flex', marginBottom:'45px'}}>
                   <Box sx={{display:'flex'}}><Box component="img" src={money} alt="" sx={{width:'50px', height:'50px', marginTop:'10px' , marginRight:'15px'}} ></Box>

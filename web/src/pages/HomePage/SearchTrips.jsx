@@ -295,6 +295,7 @@ const SearchTrips = ({userInfo}) => {
     setTripData(dataOfShowTrips);
     setShowNoTripMessage(true);
     navigate('/showTrips', { state: { dataOfShowTrips, userInfo }});
+    window.location.reload();
     
   };
   
