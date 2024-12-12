@@ -101,6 +101,10 @@ const ForgotPasswordModal = ({ open, onClose }) => {
   };
 
   const handleResetPassword = async () => {
+    if (newPassword.length < 6) {
+      setPhoneError('Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setPhoneError('Mật khẩu không khớp.');
       return;

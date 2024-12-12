@@ -50,6 +50,24 @@ const Information = ({ onLogout, userInfo,setUserInfo }) => {
       console.log('Token not found');
       return;
     }
+    if (newPassword.length < 6) {
+      setAlert({
+          open: true,
+          message: 'Mật khẩu phải có ít nhất 6 ký tự.',
+          severity: 'error',
+      });
+      return;
+  }
+
+  
+  if (newPassword !== confirmPassword) {
+      setAlert({
+          open: true,
+          message: 'Mật khẩu không khớp.',
+          severity: 'error',
+      });
+      return;
+  }
   
     try {
       const response = await axios.post(
