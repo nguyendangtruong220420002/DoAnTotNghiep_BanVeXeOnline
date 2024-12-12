@@ -15,19 +15,29 @@ const addNewDays = async () => {
         existingTrips.tripDates[existingTrips.tripDates.length - 1].date
       );
 
+      // Lấy ngày tiếp theo, và kiểm tra nếu ngày đó đã tồn tại chưa trước khi thêm
       const nextTripDate = lastTripDate.clone().add(1, 'day');
-      await Trips.updateOne(
-        { tripType: 'Cố định' },
-        {
-          $push: {
-            tripDates: {
-              date: nextTripDate.toDate(),
-              sales: { totalTicketsSold: 0, totalRevenue: 0 },
-            },
-          },
-        }
+      const existingDates = new Set(
+        existingTrips.tripDates.map(dateObj => moment(dateObj.date).format('YYYY-MM-DD'))
       );
-      console.log(`Đã thêm ngày ${nextTripDate.format('YYYY-MM-DD')} vào hệ thống`);
+
+      // Kiểm tra nếu ngày chưa có trong danh sách thì mới thêm
+      if (!existingDates.has(nextTripDate.format('YYYY-MM-DD'))) {
+        await Trips.updateOne(
+          { tripType: 'Cố định' },
+          {
+            $push: {
+              tripDates: {
+                date: nextTripDate.toDate(),
+                sales: { totalTicketsSold: 0, totalRevenue: 0 },
+              },
+            },
+          }
+        );
+        console.log(`Đã thêm ngày ${nextTripDate.format('YYYY-MM-DD')} vào hệ thống`);
+      } else {
+        console.log(`Ngày ${nextTripDate.format('YYYY-MM-DD')} đã tồn tại.`);
+      }
     } else {
       console.log('Không tìm thấy chuyến xe hoặc dữ liệu ngày trống!');
     }
@@ -46,27 +56,20 @@ const addTrips = async (req, res) => {
 
     let tripDates = [];
 
+    // Nếu tripType là 'Cố định'
     if (tripType === 'Cố định') {
       const today = moment().startOf('day');
 
-      const existingTrips = await Trips.findOne({ tripType: 'Cố định' });
-      let existingDates = [];
-      if (existingTrips && existingTrips.tripDates) {
-        existingDates = existingTrips.tripDates
-          .map(dateObj => moment(dateObj.date).format('YYYY-MM-DD'));
-      }
-
+      // Tạo mảng ngày (15 ngày tiếp theo)
       for (let i = 0; i < 15; i++) {
         const tripDate = today.clone().add(i, 'days').format('YYYY-MM-DD');
-        if (!existingDates.includes(tripDate)) {
-          tripDates.push({
-            date: moment(tripDate).toDate(),
-            sales: {
-              totalTicketsSold: 0,
-              totalRevenue: 0,
-            },
-          });
-        }
+        tripDates.push({
+          date: moment(tripDate).toDate(),
+          sales: {
+            totalTicketsSold: 0,
+            totalRevenue: 0,
+          },
+        });
       }
     } else {
       if (!departureTime || !endTime) {
@@ -111,13 +114,12 @@ const addTrips = async (req, res) => {
       status,
       totalFareAndPrice,
       tripType,
-      tripDates,
+      tripDates, 
       schedule: initialSchedule || [],
     });
 
     await newTrip.save();
     await Bus.findByIdAndUpdate(busId, { status: 'Đang phục vụ' });
-    await addNewDays();
 
     res.status(201).json({ message: 'Thêm chuyến xe thành công!', Trip: newTrip });
   } catch (error) {
@@ -125,26 +127,6 @@ const addTrips = async (req, res) => {
     res.status(500).json({ message: "Không thể thêm chuyến xe" });
   }
 };
-
-// const getTripsByUser = async (req, res) => {
-//   const { userId } = req.query;
-//   if (!userId) {
-//     return res.status(400).json({ message: 'User ID không được cung cấp' });
-//   }
-//   try {
-//     const getTrips = await Trips.find({ userId: userId });
-
-//     const tripsWithLocalTime = getTrips.map(trip => ({
-//       ...trip.toObject(),
-//       departureTime: moment(trip.departureTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm'),
-//       endTime: moment(trip.endTime).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY, HH:mm')
-//     }));
-//     res.status(200).json(tripsWithLocalTime);
-//   } catch (error) {
-//     console.error("Error fetching routes:", error);
-//     res.status(500).json({ error: 'Không thể lấy danh sách chuyến xe' });
-//   }
-// };
 
 const getTripsByUser = async (req, res) => {
   const { userId } = req.query;
@@ -176,35 +158,34 @@ const getTripsByUser = async (req, res) => {
 };
 const addTicket = async (req, res) => {
   const { userId, note, tripId, date, status, seatId } = req.body;
-  // Kiểm tra dữ liệu đầu vào
   if (!userId || !tripId || !date || !seatId) {
     return res.status(400).json({ message: 'Dữ liệu không đầy đủ' });
   }
+
   try {
     const formattedDate = date.replace(',', '');
-    const normalizedDate = moment(formattedDate, 'DD/MM/YYYY HH:mm').tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
+    const normalizedDate = moment(formattedDate, 'DD/MM/YYYY HH:mm')
+      .tz('Asia/Ho_Chi_Minh', true)
+      .toISOString(); 
 
-    //console.log("normalizedDate", normalizedDate);
-
+    //console.log("normalizedDate (ISO format):", normalizedDate);
+    const tripDateOnly = moment(normalizedDate).format('YYYY-MM-DD');
+    //console.log("tripDateOnly:", tripDateOnly);  
     const trip = await Trips.findById(tripId);
     if (!trip) {
       return res.status(404).json({ message: 'Không tìm thấy chuyến đi' });
     }
 
-    //console.log("All tripDates:", trip.tripDates);
     const tripDate = trip.tripDates.find((td) => {
-      const tripDateStr = td.date.toISOString().split('T')[0];
-      return tripDateStr === normalizedDate;
+      const tripDateStr = moment(td.date).format('YYYY-MM-DD'); 
+      return tripDateStr === tripDateOnly;
     });
-
     if (!tripDate) {
-      // console.log("tripDate", tripDate);
       return res.status(404).json({ message: "Không tìm thấy ngày cho chuyến đi này" });
     }
     if (!Array.isArray(tripDate.bookedSeats.booked)) {
       tripDate.bookedSeats.booked = [];
     }
-
     const seatExists = tripDate.bookedSeats.booked.some((seat) => seat.seatId === seatId && seat.status !== 'Đã Hủy');
     if (seatExists) {
       return res.status(400).json({ message: 'Ghế đã được đặt trước' });
@@ -218,7 +199,6 @@ const addTicket = async (req, res) => {
     });
 
     await trip.save();
-
     res.status(201).json({ message: 'Thêm vé thành công!', ticket: { userId, note, tripId, date, status, seatId } });
   } catch (error) {
     console.error('Error adding ticket:', error);
@@ -226,15 +206,10 @@ const addTicket = async (req, res) => {
   }
 };
 
+
 const editTicket = async (req, res) => {
   const { id } = req.params;
   const { note, tripId, date, status, seatId } = req.body;
-  // console.log("id", id);
-  // console.log("note", note);
-  // console.log("tripId", tripId);
-  // console.log("date", date);
-  // console.log("status", status);
-  // console.log("seatId", seatId);
 
   if (!tripId || !date) {
     return res.status(400).json({ message: 'Dữ liệu không đầy đủ' });
@@ -242,42 +217,31 @@ const editTicket = async (req, res) => {
 
   try {
     const formattedDate = date.replace(',', '');
-    const normalizedDate = moment(formattedDate, 'DD/MM/YYYY HH:mm').tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
-
-    //console.log("normalizedDate", normalizedDate);
-
+    const normalizedDate = moment(formattedDate, 'DD/MM/YYYY HH:mm')
+      .tz('Asia/Ho_Chi_Minh')  
+      .format('YYYY-MM-DD');  
     const trip = await Trips.findById(tripId);
     if (!trip) {
       return res.status(404).json({ message: 'Không tìm thấy chuyến đi' });
     }
-
-    //console.log("All tripDates:", trip.tripDates);
     const tripDate = trip.tripDates.find((td) => {
-      const tripDateStr = td.date.toISOString().split('T')[0];
+      const tripDateStr = moment(td.date).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD'); 
       return tripDateStr === normalizedDate;
     });
 
     if (!tripDate) {
-      // console.log("tripDate", tripDate);
       return res.status(404).json({ message: "Không tìm thấy ngày cho chuyến đi này" });
     }
     if (!Array.isArray(tripDate.bookedSeats.booked)) {
       tripDate.bookedSeats.booked = [];
     }
-
-    // Tìm vé trong danh sách bookedSeats theo seatId và userId
     const ticketIndex = tripDate.bookedSeats.booked.findIndex(ticket => ticket._id.toString() === id);
-
     if (ticketIndex === -1) {
       return res.status(404).json({ message: "Không tìm thấy vé này" });
     }
-
-    // Cập nhật thông tin vé
     tripDate.bookedSeats.booked[ticketIndex].seatId = seatId;
     tripDate.bookedSeats.booked[ticketIndex].status = status;
     tripDate.bookedSeats.booked[ticketIndex].note = note;
-
-    // Lưu thay đổi vào cơ sở dữ liệu
     await trip.save();
     res.status(200).json({ message: 'Cập nhật vé thành công!', ticket: tripDate.bookedSeats.booked[ticketIndex] });
   } catch (error) {
@@ -286,14 +250,12 @@ const editTicket = async (req, res) => {
   }
 };
 
+
 const editTrips = async (req, res) => {
   const { id } = req.params;
   const { TripsName, routeId, busId, userId, departureTime, endTime, status, tripType, schedule: updatedSchedule, totalFareAndPrice } = req.body;
 
   try {
-    // console.log("Dữ liệu gửi từ frontend:");
-    // console.log("departureTime từ frontend:", departureTime);
-    // console.log("endTime từ frontend:", endTime);
     const currentTrip = await Trips.findById(id);
     if (!currentTrip) {
       return res.status(404).json({ message: 'Chuyến xe không tồn tại' });
@@ -302,10 +264,7 @@ const editTrips = async (req, res) => {
     let tripDates = [];
     if (tripType === 'Cố định') {
       const today = moment();
-      const existingtripDates = await Trips.find({
-        tripType: 'Cố định',
-        'tripDates.date': { $gte: today.format('YYYY-MM-DD'), $lt: today.clone().add(15, 'days').format('YYYY-MM-DD') }
-      });
+      // Tạo mảng tripDates với 15 ngày liên tiếp
       for (let i = 0; i < 15; i++) {
         const tripDate = today.clone().add(i, 'days');
         tripDates.push({
@@ -317,6 +276,7 @@ const editTrips = async (req, res) => {
         });
       }
     } else {
+      // Nếu không phải chuyến cố định, tạo chỉ 1 ngày
       if (!departureTime || !endTime) {
         return res.status(400).json({ message: 'Thời gian khởi hành và thời gian kết thúc là bắt buộc cho chuyến xe không cố định' });
       }
@@ -340,6 +300,7 @@ const editTrips = async (req, res) => {
     if (departureTimeFormatted.isSameOrAfter(endTimeFormatted)) {
       return res.status(400).json({ message: 'Thời gian kết thúc phải lớn hơn thời gian khởi hành' });
     }
+
     const existingTrip = await Trips.findOne({ TripsName, _id: { $ne: id } });
     if (existingTrip) {
       return res.status(400).json({ message: 'Tên chuyến xe đã tồn tại, vui lòng chọn tên khác' });
@@ -347,9 +308,7 @@ const editTrips = async (req, res) => {
 
     const departureTimeInUTC = departureTimeFormatted.tz('Asia/Ho_Chi_Minh').utc().format();
     const endTimeInUTC = endTimeFormatted.tz('Asia/Ho_Chi_Minh').utc().format();
-    console.log("Dữ liệu sau khi chuyển đổi sang UTC:");
-    console.log("departureTime (UTC):", departureTimeInUTC);
-    console.log("endTime (UTC):", endTimeInUTC);
+
     const updatedData = {
       TripsName,
       routeId,
@@ -360,7 +319,7 @@ const editTrips = async (req, res) => {
       status,
       totalFareAndPrice,
       tripType,
-      tripDates,
+      tripDates, // Cập nhật mảng tripDates
       schedule: updatedSchedule || []
     };
 
@@ -377,6 +336,7 @@ const editTrips = async (req, res) => {
     res.status(500).json({ error: 'Không thể sửa chuyến xe' });
   }
 };
+
 
 const deleteTrips = async (req, res) => {
   const { id } = req.params;
