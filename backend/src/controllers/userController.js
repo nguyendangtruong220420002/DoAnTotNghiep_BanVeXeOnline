@@ -13,10 +13,14 @@ const { formatBase64ToBuffer } = require('../config/base64');
 
 const createUser = async (req, res) => {
   const { fullName, email, password, phoneNumber } = req.body;
+
   try {
     const existingUser = await User.findOne({ phoneNumber });
     if (existingUser) {
       return res.status(400).json({ message: 'Số điện thoại đã được sủ dụng.' });
+    }
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: 'Mật khẩu phải có ít nhất 6 ký tự.'});
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -187,16 +191,6 @@ const getAllUser = async (req, res) => {
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách người dùng.' });
   }
 };
-
-// const getAllUserByAdmin = async (req, res) => {
-//   try {
-//     const users = await User.find({ role: { $ne: 'Admin' } });
-//     res.status(200).json({ users });
-
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching users', error: error.message });
-//   }
-// }
 
 const getAllUserByAdmin = async (req, res) => {
   try {
