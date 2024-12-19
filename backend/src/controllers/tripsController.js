@@ -355,11 +355,39 @@ const deleteTrips = async (req, res) => {
 };
 
 
+// const updateTripSchedule = async (req, res) => {
+//   const { tripId } = req.params;
+//   const { schedule } = req.body;
+
+//   try {
+//     const trip = await Trips.findByIdAndUpdate(
+//       tripId,
+//       { $set: { schedule: schedule } },
+//       { new: true }
+//     );
+
+//     if (!trip) {
+//       return res.status(404).json({ message: 'Chuyến đi không tồn tại' });
+//     }
+//     res.json(trip);
+//   } catch (error) {
+//     res.status(500).json({ message: 'Lỗi server', error });
+//   }
+// };
 const updateTripSchedule = async (req, res) => {
   const { tripId } = req.params;
   const { schedule } = req.body;
 
   try {
+    // Kiểm tra trùng lặp thời gian trong danh sách `schedule`
+    const times = schedule.map((item) => item.time);
+    const hasDuplicateTimes = new Set(times).size !== times.length;
+
+    if (hasDuplicateTimes) {
+      return res.status(400).json({ message: 'Thời gian trong lịch trình không được trùng nhau' });
+    }
+
+    // Cập nhật lịch trình trong cơ sở dữ liệu
     const trip = await Trips.findByIdAndUpdate(
       tripId,
       { $set: { schedule: schedule } },
@@ -369,12 +397,12 @@ const updateTripSchedule = async (req, res) => {
     if (!trip) {
       return res.status(404).json({ message: 'Chuyến đi không tồn tại' });
     }
+
     res.json(trip);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi server', error });
   }
 };
-
 const deleteTripSchedule = async (req, res) => {
   const { tripId } = req.params;
 

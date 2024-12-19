@@ -54,8 +54,11 @@ const Schedule = ({ userInfo }) => {
       });
   
       if (!response.ok) {
-        await fetchTripsList(); 
-        throw new Error('Cập nhật lịch trình không thành công');
+        const errorData = await response.json(); 
+       // throw new Error('Cập nhật lịch trình không thành công');
+       setAlert({ open: true, severity: 'warning', message: errorData.message || 'Có lỗi xảy ra' });
+       await fetchTripsList(); 
+       return;
       }
       const updatedTrip = await response.json();
       setTripsList((prevTripsList) => 

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import moment from 'moment-timezone';
 import { vi } from "date-fns/locale";
-import { format ,parse ,isBefore} from "date-fns";
+import { format ,parse,parseISO ,isBefore} from "date-fns";
 import SaveAsOutlinedIcon from '@mui/icons-material/SaveAsOutlined';
 import LockRoundedIcon from '@mui/icons-material/LockRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
@@ -37,13 +37,25 @@ const TicketManagement = ({ userInfo }) => {
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+   
     setTicket({
       ...ticket,
       [name]: value,
     });
   };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!selectedTripId || !selectedDate || !ticket.seatId) {
+      setAlert({ open: true, severity: 'error', message: 'Vui lòng điền đầy đủ thông tin.' });
+      return;
+  }
+
+  // Kiểm tra định dạng seatId
+  if (!ticket.seatId.trim()) {
+      setAlert({ open: true, severity: 'error', message: 'Vui lòng nhập vị trí chỗ ngồi.' });
+      return;
+  }
     const newTicket = {
       ...ticket,
       tripId: selectedTripId,
@@ -247,14 +259,20 @@ const onEditTicket = (ticketItem) => {
             },
           }}
         >
-          {selectedTripDates.map((tripDate) => {
+                  {selectedTripDates.map((tripDate) => {
           const tripDateParsed = parse(tripDate.date, "dd/MM/yyyy, HH:mm", new Date());
-          const isPast = isBefore(tripDateParsed, new Date()); 
+          if (isNaN(tripDateParsed)) {
+            console.error('Invalid date:', tripDate.date);
+            return null;  
+          }
+          const isPast = isBefore(tripDateParsed, new Date());
+
           return (
             <MenuItem
               key={tripDate._id}
               value={tripDate.date}
-              sx={{ color: isPast ? "gray" : "black" ,backgroundColor: '#f9f9f9',  fontSize: '14px'}}  InputProps={{
+              sx={{ color: isPast ? "gray" : "black", backgroundColor: '#f9f9f9', fontSize: '14px'}}
+              InputProps={{
                 sx: {
                   fontSize: '13px',
                   backgroundColor: '#fef3f0',
@@ -263,7 +281,8 @@ const onEditTicket = (ticketItem) => {
               }}
               InputLabelProps={{ sx: { fontSize: '13px' } }}
             >
-              {format(tripDateParsed, "eeee, dd/MM/yyyy", { locale: vi })} 
+              {/* Chỉ hiển thị ngày mà không có giờ */}
+              {format(tripDateParsed, "eeee, dd/MM/yyyy", { locale: vi })}
             </MenuItem>
           );
         })}
